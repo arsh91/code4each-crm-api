@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\VerificationController;
 */
 
 Route::post('/register',[RegistrationController::class,'store']);
+Route::post('/login',[RegistrationController::class,'Login']);
 Route::get('/get-agency',[RegistrationController::class,'getUser']);
 
 Route::get('email/verify/{id}',[VerificationController::class,'verify'])->name('verification.verify'); // Make sure to keep this as your route name
@@ -29,5 +30,9 @@ Route::middleware('auth:api')->group(function () {
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
+
+Route::middleware('auth:sanctum')->group(function () {
+    // Protected routes go here
+});
 
 

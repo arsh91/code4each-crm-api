@@ -100,8 +100,48 @@ class RegistrationController extends Controller
 
 
 
-    // public function Login(Request $request) : void {
+    // public function Login(Request $request) 
+    // {
         
+    //     if(Auth::attempt(['email' => $request->email, 'password' => $request->password])){ 
+    //         $user = Auth::user(); 
+    //         $success['token'] =  $user->createToken()->accessToken; 
+    //         return response()->json(['success' => $success], $this->successStatus); 
+    //     } 
+    //     else{ 
+    //         return response()->json(['error'=>'Unauthorised'], 401); 
+    //     } 
     // }
+    public function Login(Request $request)
+    {
+        $response = [];
+        $response['success'] = FALSE;
+        $response['status'] = 400;
+
+        $validator = Validator::make($request->all(), [
+            'email' => 'required',
+            'password' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+        $credentials = $request->only('email', 'password');
+
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+            $token = $user->createToken('API Token')->accessToken;
+            $response['token'] = $token->token; 
+            $response['status'] = 200;
+            $response['message'] = 'User Login Successfully';
+            $response['success'] = TRUE;
+
+            return response()->json($response);
+        } else {
+            $response['message'] = 'Invalid credentials';
+            $response['status'] = 401;
+            return response()->json($response);
+        }
+    }
 
 }
