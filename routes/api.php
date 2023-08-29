@@ -28,7 +28,7 @@ Route::middleware('auth:api')->group(function () {
     });
     Route::middleware('verified')->group(function () {
         Route::get('/dashbaord',[DashboardController::class,'index']);  
-        Route::get('/logout',[RegistrationController::class,'logout']);
+        Route::post('/logout',[RegistrationController::class,'logout']);
     });
 });
 
