@@ -16,6 +16,9 @@ use Laravel\Passport\PersonalAccessTokenResult;
 
 class RegistrationController extends Controller
 {
+
+  
+
     public function store(Request $request)
     {
         $response = [
@@ -89,21 +92,30 @@ class RegistrationController extends Controller
                 'name' => 'Admin',
                 'email' => 'admin.code4each@yopmail.com',
             ])->notify(new CommonEmailNotification($messages));
-
-            return response()->json([
+            $response = [
+                'success' => true,
                 'message' => 'Company Register Successfully.',
                 'token' => $token,
                 'status' => 200,
-            ]);
-        } catch (\Exception $e) {
-            DB::rollback(); // If any transaction fails, rollback changes made in both transactions
+            ];
 
-            // Handle the exception, log, or return an appropriate error response
-            // For example:
-            return response()->json([
-                'message' => 'Error occurred while registering the company.',
-                'status' => 500,
-            ]);
+            return response()->json($response,200);
+
+        } catch (\Exception $e) {
+            DB::rollback(); 
+            $errorMessage = $e->getMessage(); 
+            $errorCode = $e->getCode();       
+            $errorFile = $e->getFile();       
+            $errorLine = $e->getLine();      
+            // Logging the error in log file 
+            \Log::error("\nError: $errorMessage\nFile: $errorFile\nLine: $errorLine \nCode:$errorCode");
+            $response = [
+                'success' => false,
+                'status' => 400,
+                'message' => 'An error occurred while processing your request.',
+                'error' => $e->getMessage(),
+            ];
+            return response()->json($response,400);
         }
     }
 
@@ -146,10 +158,10 @@ class RegistrationController extends Controller
             return response()->json($response);
         }
     }
-    public function logout(Request $request)
+    public function logout()
     {
         $user = Auth::user();
-        $user->tokens()->delete(); // Revoke all user's tokens
+        $user->tokens()->delete(); 
 
         $response = [
             'success' => true,

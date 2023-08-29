@@ -29,9 +29,11 @@ class VerificationController extends Controller
     }
     
     public function resend() {
-        
+        if (!auth()->check()) {
+            return response()->json(["message" => "Unauthorized"], 401);
+        }
         if (auth()->user()->hasVerifiedEmail()) {
-            return response()->json(["msg" => "Email already verified."], 400);
+            return response()->json(["message" => "Email already verified."], 400);
         }
     
         auth()->user()->sendEmailVerificationNotification();
@@ -39,7 +41,7 @@ class VerificationController extends Controller
         $response = [
             'success' => true,
             'status' => 200,
-            'message' => 'Email verification link sent on your email id.',
+            'message' => 'Email verification link sent on your email.',
         ];
     
         return response()->json($response);
