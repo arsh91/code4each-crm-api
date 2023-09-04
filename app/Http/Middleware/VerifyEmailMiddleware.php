@@ -17,7 +17,7 @@ class VerifyEmailMiddleware
     public function handle(Request $request, Closure $next)
     {
         if (!auth()->user()->hasVerifiedEmail()) {
-            session()->flash('verification_notice', 'You need to verify your email before accessing this resource.');
+            session()->flash('verification_notice', 'You need to verify your email for full access to the dashboard.');
         }
     
         return $next($request);

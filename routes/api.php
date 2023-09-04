@@ -27,7 +27,7 @@ Route::middleware('auth:api')->group(function () {
     });
     Route::get('email/resend',[VerificationController::class,'resend'])->name('verification.resend');
     Route::post('/logout',[RegistrationController::class,'logout']);
-    Route::get('/dashbaord',[DashboardController::class,'index'])->middleware('verifiedEmail');  
+    Route::get('/dashboard',[DashboardController::class,'index'])->middleware('verifiedEmail');  
     Route::middleware('verified')->group(function () {
     Route::get('/profile',[ProfileController::class,'index']);  
     });

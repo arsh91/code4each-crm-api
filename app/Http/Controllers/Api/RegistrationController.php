@@ -115,7 +115,7 @@ class RegistrationController extends Controller
                 'message' => 'An error occurred while processing your request.',
                 'error' => $e->getMessage(),
             ];
-            return response()->json($response,400);
+            return response()->json($response,401);
         }
     }
 
@@ -155,7 +155,7 @@ class RegistrationController extends Controller
             $response['status'] = 401;
 
 
-            return response()->json($response);
+            return response()->json($response, 401);
         }
     }
     public function logout()
