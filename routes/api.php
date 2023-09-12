@@ -27,9 +27,13 @@ Route::middleware('auth:api')->group(function () {
     });
     Route::get('email/resend',[VerificationController::class,'resend'])->name('verification.resend');
     Route::post('/logout',[RegistrationController::class,'logout']);
-    Route::get('/dashboard',[DashboardController::class,'index'])->middleware('verifiedEmail');  
+    Route::get('/dashboard',[DashboardController::class,'index'])->middleware('verifiedEmail');
     Route::middleware('verified')->group(function () {
-    Route::get('/profile',[ProfileController::class,'index']);  
+    // Route::post('/agency-details',[DashboardController::class,'agencyDetails']);
+    Route::post('/agency-website-details',[DashboardController::class,'agencyWebsiteDetails']);
+    // Route::get('/agency-website-info/{agency_id}',[DashboardController::class,'getAgencyWebsiteInfo']);
+    Route::get('/get-website-categories',[DashboardController::class,'getWebsiteCategories']);
+    Route::get('/profile',[ProfileController::class,'index']);
     });
 });
 
