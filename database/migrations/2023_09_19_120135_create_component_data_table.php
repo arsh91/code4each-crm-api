@@ -13,10 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('role')->nullable()->after('phone');
-            $table->integer('parent_id')->default('0')->constrained()->after('id');
-
+        Schema::create('component_data', function (Blueprint $table) {
+            $table->id();
+            $table->integer('component_id')->constrained();
+            $table->string('meta_key');
+            $table->string('meta_value');
+            $table->softDeletes();
+            $table->timestamps();
         });
     }
 
@@ -27,8 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['role', 'parent_id']);
-        });
+        Schema::dropIfExists('component_data');
     }
 };
