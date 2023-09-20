@@ -17,7 +17,7 @@ use Laravel\Passport\PersonalAccessTokenResult;
 class RegistrationController extends Controller
 {
 
-  
+
 
     public function store(Request $request)
     {
@@ -56,7 +56,7 @@ class RegistrationController extends Controller
             $userObj->password = Hash::make($validate['password']);
             $userObj->save();
 
-            DB::commit(); 
+            DB::commit();
 
             $token = $userObj->createToken('access-token')->accessToken;
 
@@ -88,10 +88,8 @@ class RegistrationController extends Controller
                     'special_Email' => $userObj->email,
                 ],
             ];
-            (new User)->forceFill([
-                'name' => 'Admin',
-                'email' => 'admin.code4each@yopmail.com',
-            ])->notify(new CommonEmailNotification($messages));
+            $admin = User::where('role','super_admin')->first();
+            $admin->notify(new CommonEmailNotification($messages));
             $response = [
                 'success' => true,
                 'message' => 'Company Register Successfully.',
@@ -102,12 +100,12 @@ class RegistrationController extends Controller
             return response()->json($response,200);
 
         } catch (\Exception $e) {
-            DB::rollback(); 
-            $errorMessage = $e->getMessage(); 
-            $errorCode = $e->getCode();       
-            $errorFile = $e->getFile();       
-            $errorLine = $e->getLine();      
-            // Logging the error in log file 
+            DB::rollback();
+            $errorMessage = $e->getMessage();
+            $errorCode = $e->getCode();
+            $errorFile = $e->getFile();
+            $errorLine = $e->getLine();
+            // Logging the error in log file
             \Log::error("\nError: $errorMessage\nFile: $errorFile\nLine: $errorLine \nCode:$errorCode");
             $response = [
                 'success' => false,
@@ -161,7 +159,7 @@ class RegistrationController extends Controller
     public function logout()
     {
         $user = Auth::user();
-        $user->tokens()->delete(); 
+        $user->tokens()->delete();
 
         $response = [
             'success' => true,

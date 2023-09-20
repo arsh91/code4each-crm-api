@@ -8,6 +8,7 @@ use App\Models\AgencyWebsite;
 use App\Models\User;
 use App\Models\WebsiteCategory;
 use App\Models\Websites;
+use App\Notifications\CommonEmailNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Mockery\Undefined;
@@ -22,14 +23,21 @@ class DashboardController extends Controller
             'success' => true,
             'status' => 200,
         ];
+        //Check if verifyEmail Middleware have verification_notification Message
         if (session()->has('verification_notice')) {
             $response['notification'] = session('verification_notice');
-            $response['resend-link'] = route('verification.resend');
+            // $response['resend-link'] = route('verification.resend');
             session()->forget('verification_notice');
         }
+        //Get Auth User Using laravel auth method
         $user = User::with('agency')->where('id',auth()->user()->id)->first();
+        $agency_id = $user->agency_id;
         $response['user'] = $user;
-         $response['message'] =  "Welcome to the dashboard.";
+        $agencyWebsiteInfo= AgencyWebsite::join('websites', 'agency_websites.website_id', '=', 'websites.id')->where('agency_id','=', $agency_id)->get(['agency_websites.business_name', 'websites.website_domain']);
+        if($agencyWebsiteInfo->count() > 0){
+        $response['agency_website_info'] = $agencyWebsiteInfo;
+        }
+        $response['message'] =  "Welcome to the dashboard.";
         return response()->json($response);
     }
 
@@ -107,21 +115,41 @@ class DashboardController extends Controller
         $validate = $validator->valid();
 
         $websitesData = Websites::first();
-        $agencyWebsiteDetails = AgencyWebsite::updateOrCreate([
+        $agencyWebsiteDetails = AgencyWebsite::create([
             'website_category_id' => $validate['category_id'],
             'address' => $validate['address'],
-            'description'  => $validate['description'] ?? null ,
+            'description'  => $validate['description'] ?? null,
             'agency_id' => $validate['agency_id'],
             'business_name' => $validate['business_name'],
-            'logo' => $validate['logo'] ?? null,
             'website_id' => $websitesData->id,
             'created_by' => auth()->user()->id,
         ]);
+        if ($request->hasFile('logo')) {
+            $uploadedFile = $request->file('logo');
+            $filename = time() . '_' . $uploadedFile->getClientOriginalName();
+            $uploadedFile->storeAs('public/AgencyWebsiteDetails', $filename);
+            $path = 'AgencyWebsiteDetails/' . $filename;
+            $agencyWebsiteDetails->logo = $path;
+            $agencyWebsiteDetails->save();
+        }
         $agency_website_id = $agencyWebsiteDetails->id;
         if ($agencyWebsiteDetails) {
             $websitesObj =  Websites::first();
             $websitesObj->assigned = $agency_website_id;
             $websitesObj->save();
+            $recipient = User::find($agencyWebsiteDetails->created_by);
+            $messages = [
+                'greeting-text' => "Hey User,",
+                'subject' => 'Your Domain is Ready',
+                'additional-info' => 'Need assistance? Contact us at [support@code4eachcrm.com] or [SupportPhone: +1 (555) 123-4567].',
+                'lines_array' => [
+                    'title' => 'Your domain is now ready for use after successfully updating your agency details. Enjoy a seamless online presence with the latest information.',
+                    'body-text' => 'Here Is The Details For Your Website',
+                    'special_Agency_Name' => $agencyWebsiteDetails->business_name ,
+                    'special_Domain_Name' => $websitesObj->website_domain,
+                ],
+            ];
+            $recipient->notify(new CommonEmailNotification($messages));
             $response = [
                 'message' => "Agency Website Detail Saved Successfully.",
                 'success' => true,
@@ -133,19 +161,21 @@ class DashboardController extends Controller
 
     }
 
-    // public function getAgencyWebsiteInfo($agency_id)
-    // {
-    //     $response = [
-    //         'success' => false,
-    //         'status' => 400,
-    //     ];
-    //     // dd($request);
-
-
-    //     $agencyWebsiteInfo = AgencyWebsite::where('agency_id', $agency_id)->get();
-    //     // $agencyWebsiteInfo= AgencyWebsite::join('websites', 'agency_website.website_id', '=', 'websites.id')->where('agency_id','=', $agency_id)->get();
-
-    //     dd($agencyWebsiteInfo);
-
-    // }
+    public function getAgencyWebsiteInfo($agency_id)
+    {
+        $response = [
+            'success' => false,
+            'status' => 400,
+        ];
+        $agencyWebsiteInfo= AgencyWebsite::join('websites', 'agency_websites.website_id', '=', 'websites.id')->where('agency_id','=', $agency_id)->get(['agency_websites.business_name', 'websites.website_domain']);
+        if($agencyWebsiteInfo){
+            $response = [
+                'agency_website_info' => $agencyWebsiteInfo,
+                'message' => "Agency Website Info fetched.",
+                'success' => true,
+                'status' => 200,
+            ];
+        }
+        return response()->json($response);
+    }
 }
