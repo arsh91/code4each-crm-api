@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => ['*', 'https://code4each.netlify.app'],
 
     'allowed_origins_patterns' => [],
 
