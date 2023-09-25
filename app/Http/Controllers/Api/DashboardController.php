@@ -114,7 +114,7 @@ class DashboardController extends Controller
 
         $validate = $validator->valid();
 
-        $websitesData = Websites::first();
+        $websitesData = Websites::where('assigned', null)->first();
         $agencyWebsiteDetails = AgencyWebsite::create([
             'website_category_id' => $validate['category_id'],
             'address' => $validate['address'],

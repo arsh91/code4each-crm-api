@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Web\ComponentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,3 +17,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/components',[ComponentController::class,'index'])->name('components.index');
+Route::get('/components/create',[ComponentController::class,'create'])->name('components.create');
+Route::post('/components',[ComponentController::class,'store'])->name('components.store');
+

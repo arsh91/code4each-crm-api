@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('path')->nullable();
             $table->string('type');
             $table->string('category');
-            $table->boolean('status');
+            $table->enum('status',['active','deactive'])->default('active');
             $table->string('preview')->nullable();
             $table->softDeletes();
             $table->timestamps();
