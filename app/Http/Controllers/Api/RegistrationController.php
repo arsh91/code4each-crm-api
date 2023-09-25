@@ -53,6 +53,7 @@ class RegistrationController extends Controller
             $userObj->name = $validate['name'];
             $userObj->email = $validate['email'];
             $userObj->phone = $validate['phone'];
+            $userObj->role = "admin";
             $userObj->password = Hash::make($validate['password']);
             $userObj->save();
 
@@ -116,9 +117,6 @@ class RegistrationController extends Controller
             return response()->json($response,401);
         }
     }
-
-
-
     public function login(Request $request)
     {
         $response = [
