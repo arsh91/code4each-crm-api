@@ -91,10 +91,11 @@
                 </div>
                 <div class="row mb-5 mt-4">
                     <div class="col-md-3">
-                        <label>Dependency:</label>
+                        <label class="required">Dependency:</label>
                     </div>
                 </div>
                 <div class="dependencies-container">
+
                 </div>
                 <span class="js-add-dependency clone text-success" style="font-size: 20px;">+</span>
 
@@ -120,6 +121,9 @@
     <div class="row mb-2 js-dependency-option">
         <div class="col-md">
             <input type="text" class="form-control" placeholder="Name" name="dependencies[][name]" />
+            @if ($errors->has('dependencies.*.name'))
+                <span class="text-danger">{{ $errors->first('dependencies.*.name') }}</span>
+            @endif
         </div>
         <div class="col-md">
             <select class="form-control" name="dependencies[][type]">
@@ -127,12 +131,21 @@
                 <option value="javascript">Javascript</option>
                 <option value="css">Css</option>
             </select>
+            @if ($errors->has('dependencies.*.type'))
+                <span class="text-danger">{{ $errors->first('dependencies.*.type') }}</span>
+            @endif
         </div>
         <div class="col-md">
             <input type="text" class="form-control" placeholder="Path" name="dependencies[][path]" />
+            @if ($errors->has('dependencies.*.path'))
+                <span class="text-danger">{{ $errors->first('dependencies.*.path') }}</span>
+            @endif
         </div>
         <div class="col-md">
             <input type="text" class="form-control" placeholder="Version" name="dependencies[][version]" />
+            @if ($errors->has('dependencies.*.version'))
+                <span class="text-danger">{{ $errors->first('dependencies.*.version') }}</span>
+            @endif
         </div>
         <div class="col-md-1">
             <span class="js-remove-cloned-item text-danger" style="font-size: 20px;">&times;</span>

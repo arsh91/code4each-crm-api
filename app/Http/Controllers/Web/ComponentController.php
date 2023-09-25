@@ -8,6 +8,7 @@ use App\Models\ComponentDependency;
 use App\Models\ComponentFormFields;
 use App\Models\WebsiteCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 
 class ComponentController extends Controller
@@ -43,19 +44,23 @@ class ComponentController extends Controller
     public function store(Request $request)
     {
 
-        // dd($request);
         $validator = Validator::make($request->all(), [
             'component_name' => 'required|string|max:255',
             'path' => 'required',
             'type' => 'required',
             'category' => 'required',
             'preview.*' => 'file|mimes:jpg,jpeg,png,gif|max:5000',
-            'dependencies' => 'array',
+            'dependencies' => 'required|array',
+            'dependencies.*.name' => 'required',
+            'dependencies.*.type' => 'required',
+            'dependencies.*.path' => 'required',
+            'dependencies.*.version' => 'required',
             'form-fields' => 'array',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 400);
+            // return response()->json(['errors' => $validator->errors()], 400);
+            return Redirect::back()->withErrors($validator);
         }
         $validate = $validator->valid();
         $category = implode(",",$validate['category'] );
@@ -83,13 +88,15 @@ class ComponentController extends Controller
                     'version' => $dependencyData['version'],
                 ]);
             }
-            foreach ($validate['form-fields'] as $formFieldData) {
-                ComponentFormFields::create([
-                    'component_id' => $component->id,
-                    'field_name' => $formFieldData['name'],
-                    'field_type' => $formFieldData['type'],
-                    'default_value' => $formFieldData['default_value'],
-                ]);
+            if($request->has($validate['form-fields'])){
+                foreach ($validate['form-fields'] as $formFieldData) {
+                    ComponentFormFields::create([
+                        'component_id' => $component->id,
+                        'field_name' => $formFieldData['name'],
+                        'field_type' => $formFieldData['type'],
+                        'default_value' => $formFieldData['default_value'],
+                    ]);
+                }
             }
             // $request->session()->flash('message','Component Saved Successfully.');
             $message = "Component Saved Successfully.";
