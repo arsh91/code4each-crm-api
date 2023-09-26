@@ -19,4 +19,9 @@ class AgencyWebsite extends Model
         'website_id',
         'created_by',
     ];
+
+    public function websiteCategory()
+    {
+        return $this->belongsTo(WebsiteCategory::class, 'website_category_id');
+    }
 }

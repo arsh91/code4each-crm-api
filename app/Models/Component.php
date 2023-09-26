@@ -11,4 +11,9 @@ class Component extends Model
     protected $table = 'components_crm';
 
     protected $fillable = ['component_name','path','type','category','preview'];
+
+    public function dependencies()
+    {
+        return $this->hasMany(ComponentDependency::class, 'component_id');
+    }
 }
