@@ -128,7 +128,7 @@
         <div class="col-md">
             <select class="form-control" name="dependencies[][type]">
                 <option selected>Select Type</option>
-                <option value="javascript">Javascript</option>
+                <option value="js">Javascript</option>
                 <option value="css">Css</option>
             </select>
             @if ($errors->has('dependencies.*.type'))

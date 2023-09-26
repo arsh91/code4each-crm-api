@@ -18,4 +18,8 @@ class ComponentDependency extends Model
         'version'
     ];
 
+    public function component()
+    {
+        return $this->belongsTo(Component::class, 'component_id');
+    }
 }

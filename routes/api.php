@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ComponentsControllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\RegistrationController;
@@ -28,12 +29,17 @@ Route::middleware('auth:api')->group(function () {
     Route::get('email/resend',[VerificationController::class,'resend'])->name('verification.resend');
     Route::post('/logout',[RegistrationController::class,'logout']);
     Route::get('/dashboard',[DashboardController::class,'index'])->middleware('verifiedEmail');
+
+
     Route::middleware('verified')->group(function () {
     // Route::post('/agency-details',[DashboardController::class,'agencyDetails']);
     Route::post('/agency-website-details',[DashboardController::class,'agencyWebsiteDetails']);
     // Route::get('/agency-website-info/{agency_id}',[DashboardController::class,'getAgencyWebsiteInfo']);
     Route::get('/get-website-categories',[DashboardController::class,'getWebsiteCategories']);
-    Route::get('/profile',[ProfileController::class,'index']);
+    Route::get('/get-component',[ComponentsControllers::class,'getComponent']);
+    Route::get('components/index',[ComponentsControllers::class,'index']);
+    Route::get('components/store', [ComponentsControllers::class, 'store' ]);
+    Route::post('store-components', [ComponentsControllers::class, 'sendComponentToWordpress' ]);
     });
 });
 
