@@ -29,7 +29,7 @@ class RegistrationController extends Controller
             'company_name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'name' => 'required',
-            'email' => 'required',
+            'email' => 'required|email|unique:users',
             'phone' => 'required',
             'password' => 'required',
         ]);

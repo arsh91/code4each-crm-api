@@ -6,9 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\AgencyWebsite;
 use App\Models\Component;
 use App\Models\ComponentDependency;
+use App\Models\User;
 use App\Models\Websites;
+use App\Notifications\CommonEmailNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
 
 class ComponentsControllers extends Controller
 {
@@ -51,22 +55,126 @@ class ComponentsControllers extends Controller
         dd($response->successful());
     }
 
-    public function sendComponentToWordpress(){
-        $user = auth()->user();
-        $agencyId = $user->agency_id;
+    public function agencyWebsiteDetails(Request $request)
+    {
+        $response = [
+            'success' => false,
+            'status' => 400,
+        ];
+        $validator = Validator::make($request->all(), [
+            'agency_id' => 'required',
+            'category_id' => 'required',
+            'description' => 'nullable|string',
+            'address' => 'required',
+            'business_name' => 'required',
+            'logo' => 'nullable',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+
+        $validate = $validator->valid();
+        try {
+            DB::beginTransaction();
+            $websitesData = Websites::where('assigned', null)->first();
+            $agencyWebsiteDetails = AgencyWebsite::create([
+                'website_category_id' => $validate['category_id'],
+                'address' => $validate['address'],
+                'description'  => $validate['description'] ?? null,
+                'agency_id' => $validate['agency_id'],
+                'business_name' => $validate['business_name'],
+                'created_by' => auth()->user()->id,
+            ]);
+            if ($request->hasFile('logo')) {
+                $uploadedFile = $request->file('logo');
+                $filename = time() . '_' . $uploadedFile->getClientOriginalName();
+                $uploadedFile->storeAs('public/AgencyWebsiteDetails', $filename);
+                $path = 'AgencyWebsiteDetails/' . $filename;
+                $agencyWebsiteDetails->logo = $path;
+                $agencyWebsiteDetails->save();
+
+            }
+            DB::commit();
+
+            if($agencyWebsiteDetails->agency_id && $websitesData->website_domain){
+                $result = $this->sendComponentToWordpress($agencyWebsiteDetails->agency_id, $websitesData->website_domain);
+                if ($result['data']['success'] == true && $result['data']['status'] == 200) {
+                    $websiteUrl = $result['data']['domain'];
+
+                    //assigned site to user
+                    AgencyWebsite::where('id', $agencyWebsiteDetails->id)->update(['website_id' => $websitesData->id]);
+                    Websites::where('id', $websitesData->id)->update(['assigned' => $agencyWebsiteDetails->id]);
+
+                    // send mail to user
+                    $recipient = User::find($agencyWebsiteDetails->created_by);
+                    $messages = [
+                        'greeting-text' => "Hey User,",
+                        'subject' => 'Your Domain is Ready',
+                        'additional-info' => 'Need assistance? Contact us at [support@code4eachcrm.com] or [SupportPhone: +1 (555) 123-4567].',
+                        'lines_array' => [
+                            'title' => 'Your domain is now ready for use after successfully updating your agency details. Enjoy a seamless online presence with the latest information.',
+                            'body-text' => 'Here Is The Details For Your Website',
+                            'special_Agency_Name' => $agencyWebsiteDetails->business_name ,
+                            'special_Domain_Name' => $websiteUrl,
+                        ],
+                    ];
+                    $recipient->notify(new CommonEmailNotification($messages));
+                    $response = [
+                        'message' => "Agency Website Detail Saved Successfully.",
+                        'success' => true,
+                        'status' => 200,
+                    ];
+                } else {
+                    DB::rollBack();
+                    $response = [
+                        'message' => "An error occurred.",
+                        'success' => false,
+                        'status' => 400,
+                    ];
+                }
+            }
+
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $errorMessage = $e->getMessage();
+            $errorCode = $e->getCode();
+            $errorFile = $e->getFile();
+            $errorLine = $e->getLine();
+            // Logging the error in log file
+            \Log::error("\nError: $errorMessage\nFile: $errorFile\nLine: $errorLine \nCode:$errorCode");
+
+            $response = [
+                'message' => "An error occurred.",
+                'success' => false,
+                'status' => 500,
+                'error' => $e->getMessage(),
+            ];
+        } finally {
+            DB::commit();
+        }
+        return response()->json($response);
+    }
+
+    public function sendComponentToWordpress($agency_id, $websiteUrl){
+        $response = [
+            'success' => false,
+        ];
+        $agencyId = $agency_id;
         $agencyWebsiteDetail = AgencyWebsite::with('websiteCategory')->where('agency_id',$agencyId)->where('status','active')->first();
         $websiteCategory = $agencyWebsiteDetail->websiteCategory->name;
-        $website = Websites::where('assigned', $user->id)->first();
-        $websiteUrl = $website->website_domain;
-        $components = Component::select('id', 'component_name', 'path', 'type', 'status')
-        ->whereIn('type', ['header', 'footer'])
-        ->orWhere(function ($query) {
-            $query->where('type', 'section')
-                ->take(3);
-        })
+        $components = DB::table('components_crm')
+        ->whereIn('type', ['header', 'footer', 'about_section', 'service_section', 'section'])
         ->where('category', $websiteCategory)
+        ->whereIn('id', function ($query) use ($websiteCategory) {
+            $query->select(DB::raw('MIN(id)'))
+                ->from('components_crm')
+                ->whereIn('type', ['header', 'footer', 'about_section', 'service_section', 'section'])
+                ->where('category', $websiteCategory)
+                ->groupBy('type');
+        })
         ->get();
-
         $position = 1;
         foreach ($components as $component) {
             $componentData = [
@@ -91,17 +199,23 @@ class ComponentsControllers extends Controller
                 $position++;
             }
             $postUrl = $websiteUrl . 'wp-json/v1/component';
-            $response = Http::post($postUrl, $componentData);
-
-            if ($response->successful()) {
-                $data = $response->json();
+            $componentResponse = Http::post($postUrl, $componentData );
+            if ($componentResponse->successful()) {
+                $data['response'] = $componentResponse->json();
+                $data['status'] = $componentResponse->status();
+                $data['success'] = true ;
+                $data['domain'] = $websiteUrl;
             } else {
-                $errorCode = $response->status();
-                $errorData = $response->json();
-                dd($errorData);
+                $errorCode = $componentResponse->status();
+                $errorData = $componentResponse->json();
+                $data['error'] = $errorData . ' '. $errorCode;
+                $data['success'] = false ;
             }
         }
-        dd($response->json());
+        $response = [
+            'data' => $data,
+        ];
+        return $response;
     }
 
 }

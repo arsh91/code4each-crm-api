@@ -33,7 +33,7 @@ Route::middleware('auth:api')->group(function () {
 
     Route::middleware('verified')->group(function () {
     // Route::post('/agency-details',[DashboardController::class,'agencyDetails']);
-    Route::post('/agency-website-details',[DashboardController::class,'agencyWebsiteDetails']);
+    Route::post('/agency-website-details',[ComponentsControllers::class,'agencyWebsiteDetails']);
     // Route::get('/agency-website-info/{agency_id}',[DashboardController::class,'getAgencyWebsiteInfo']);
     Route::get('/get-website-categories',[DashboardController::class,'getWebsiteCategories']);
     Route::get('/get-component',[ComponentsControllers::class,'getComponent']);
