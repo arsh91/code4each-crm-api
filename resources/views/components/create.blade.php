@@ -65,10 +65,10 @@
                             </option>
                             @endforeach
                         </select>
+                        @if ($errors->has('category'))
+                             <span style="font-size: 12px;" class="text-danger">{{ $errors->first('category') }}</span>
+                        @endif
                     </div>
-                    @if ($errors->has('category'))
-                    <span style="font-size: 12px;" class="text-danger">{{ $errors->first('category') }}</span>
-                    @endif
                 </div>
                 <div class="row mb-5">
                     <label for="preview" class="col-sm-3 col-form-label">Preview Image</label>
@@ -95,17 +95,49 @@
                     </div>
                 </div>
                 <div class="dependencies-container">
-
+                @if ($errors->has('dependencies.*'))
+                    @foreach($errors->get('dependencies.*') as $key => $errorMessages)
+                    <span style="font-size: 12px; padding-left:15px;" class="text-danger">
+                    @foreach($errorMessages as $error)
+                        @if ($error == 'The dependencies.0.name field is required.')
+                            Name Field is required in Dependency.
+                        @elseif ($error == 'The dependencies.0.path field is required.')
+                                Path Field is required in Dependency.
+                        @elseif ($error == 'The dependencies.0.version field is required.')
+                                    Versioin is required in  Dependency.
+                        @else
+                        {{$error}}
+                        @endif
+                    </span>
+                    @endforeach
+                    @endforeach
+                    @endif
                 </div>
                 <span class="js-add-dependency clone text-success" style="font-size: 20px;">+</span>
 
                 <div class="row mb-5 mt-4">
                     <div class="col-md-3">
-                        <label>Form Fields:</label>
+                        <label  class="required" >Form Fields:</label>
                     </div>
                 </div>
 
                 <div class="form-fields-container">
+
+                @if ($errors->has('form-fields.*'))
+                    @foreach($errors->get('form-fields.*') as $key => $errorMessages)
+                    <span style="font-size: 12px; padding: 10px 100px;" class="text-danger">
+                    @foreach($errorMessages as $error)
+                        @if ($error == 'The form-fields.0.name field is required.')
+                            Name field is required in Form Field.
+                        @elseif ($error == 'The form-fields.0.default_value field is required.')
+                            default value is required in Form Feild.
+                        @else
+                        {{$error}}
+                        @endif
+                    @endforeach
+                    </span>
+                    @endforeach
+                    @endif
                 </div>
                 <span class="js-add-form-fields clone text-success" style="font-size: 20px;">+</span>
 
@@ -121,9 +153,6 @@
     <div class="row mb-2 js-dependency-option">
         <div class="col-md">
             <input type="text" class="form-control" placeholder="Name" name="dependencies[][name]" />
-            @if ($errors->has('dependencies.*.name'))
-                <span class="text-danger">{{ $errors->first('dependencies.*.name') }}</span>
-            @endif
         </div>
         <div class="col-md">
             <select class="form-control" name="dependencies[][type]">
@@ -131,21 +160,12 @@
                 <option value="js">Javascript</option>
                 <option value="css">Css</option>
             </select>
-            @if ($errors->has('dependencies.*.type'))
-                <span class="text-danger">{{ $errors->first('dependencies.*.type') }}</span>
-            @endif
         </div>
         <div class="col-md">
             <input type="text" class="form-control" placeholder="Path" name="dependencies[][path]" />
-            @if ($errors->has('dependencies.*.path'))
-                <span class="text-danger">{{ $errors->first('dependencies.*.path') }}</span>
-            @endif
         </div>
         <div class="col-md">
             <input type="text" class="form-control" placeholder="Version" name="dependencies[][version]" />
-            @if ($errors->has('dependencies.*.version'))
-                <span class="text-danger">{{ $errors->first('dependencies.*.version') }}</span>
-            @endif
         </div>
         <div class="col-md-1">
             <span class="js-remove-cloned-item text-danger" style="font-size: 20px;">&times;</span>
@@ -162,8 +182,7 @@
             <select class="form-control" name="form-fields[][type]">
                 <option selected>Select Field Type</option>
                 <option value="text">Text</option>
-                <option value="email">Email</option>
-                <option value="file">File</option>
+                <option value="image">Image</option>
             </select>
         </div>
         <div class="col-md">

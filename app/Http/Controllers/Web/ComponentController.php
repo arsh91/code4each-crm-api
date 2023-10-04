@@ -45,7 +45,7 @@ class ComponentController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'component_name' => 'required|string|max:255',
+            'component_name' => 'required|string|max:255|unique:components_crm,component_name',
             'path' => 'required',
             'type' => 'required',
             'category' => 'required',
@@ -55,7 +55,11 @@ class ComponentController extends Controller
             'dependencies.*.type' => 'required',
             'dependencies.*.path' => 'required',
             'dependencies.*.version' => 'required',
-            'form-fields' => 'array',
+            'form-fields' => 'required|array',
+            'form-fields.*.name' => 'required',
+            'form-fields.*.type' => 'required',
+            'form-fields.*.default_value' => 'required',
+
         ]);
 
         if ($validator->fails()) {
@@ -88,7 +92,6 @@ class ComponentController extends Controller
                     'version' => $dependencyData['version'],
                 ]);
             }
-            if($request->has($validate['form-fields'])){
                 foreach ($validate['form-fields'] as $formFieldData) {
                     ComponentFormFields::create([
                         'component_id' => $component->id,
@@ -97,7 +100,6 @@ class ComponentController extends Controller
                         'default_value' => $formFieldData['default_value'],
                     ]);
                 }
-            }
             // $request->session()->flash('message','Component Saved Successfully.');
             $message = "Component Saved Successfully.";
             return redirect()->route('components.index')->with('message', $message);

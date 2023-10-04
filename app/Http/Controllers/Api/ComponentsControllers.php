@@ -36,25 +36,6 @@ class ComponentsControllers extends Controller
         return response()->json($response);
     }
 
-    public function index()
-    {
-        $response = Http::get('http://jsonplaceholder.typicode.com/posts');
-
-        $jsonData = $response->json();
-
-        dd($jsonData);
-    }
-
-    public function store()
-    {
-        $response = Http::post('http://jsonplaceholder.typicode.com/posts', [
-                    'title' => 'This is test from tutsmake.com',
-                    'body' => 'This is test from tutsmake.com as body',
-                ]);
-            dd($response);
-        dd($response->successful());
-    }
-
     public function agencyWebsiteDetails(Request $request)
     {
         $response = [
@@ -120,6 +101,7 @@ class ComponentsControllers extends Controller
                         ],
                     ];
                     $recipient->notify(new CommonEmailNotification($messages));
+
                     $response = [
                         'message' => "Agency Website Detail Saved Successfully.",
                         'success' => true,
@@ -157,6 +139,37 @@ class ComponentsControllers extends Controller
         return response()->json($response);
     }
 
+    private function uploadLogoToWordpress($imagePath,$url)
+    {
+        $response = [
+            'success' => false,
+        ];
+
+        $thirdPartyUrl = $url . 'wp-json/v1/logo/';
+        $imageFullPath = storage_path('app/public/' . $imagePath);
+        if (file_exists($imageFullPath)) {
+
+            $logoResponse = Http::attach(
+                'logo',
+                file_get_contents($imageFullPath),
+                'logo.png'
+            )
+            ->post($thirdPartyUrl);
+
+            \Log::info("Wordpress Logo Response: " . $logoResponse->body());
+                $response = [
+                     $logoResponse->json(),
+                    'status' =>  $logoResponse->status(),
+                ];
+        } else {
+            $response = [
+                'message' => "Error Occurs In Uploading the Logo",
+
+            ];
+        }
+        return $response;
+    }
+
     public function sendComponentToWordpress($agency_id, $websiteUrl){
         $response = [
             'success' => false,
@@ -164,17 +177,20 @@ class ComponentsControllers extends Controller
         $agencyId = $agency_id;
         $agencyWebsiteDetail = AgencyWebsite::with('websiteCategory')->where('agency_id',$agencyId)->where('status','active')->first();
         $websiteCategory = $agencyWebsiteDetail->websiteCategory->name;
-        $components = DB::table('components_crm')
-        ->whereIn('type', ['header', 'footer', 'about_section', 'service_section', 'section'])
-        ->where('category', $websiteCategory)
-        ->whereIn('id', function ($query) use ($websiteCategory) {
-            $query->select(DB::raw('MIN(id)'))
-                ->from('components_crm')
-                ->whereIn('type', ['header', 'footer', 'about_section', 'service_section', 'section'])
+        $uploadLogo =  $this->uploadLogoToWordpress($agencyWebsiteDetail->logo,$websiteUrl);
+        $types = ['header', 'footer', 'about_section', 'service_section', 'section'];
+        $components = [];
+
+        foreach ($types as $type) {
+            $randomComponent = Component::where('type', $type)
                 ->where('category', $websiteCategory)
-                ->groupBy('type');
-        })
-        ->get();
+                ->inRandomOrder()
+                ->first();
+
+            if ($randomComponent) {
+                $components[] = $randomComponent;
+            }
+        }
         $position = 1;
         foreach ($components as $component) {
             $componentData = [
@@ -217,5 +233,4 @@ class ComponentsControllers extends Controller
         ];
         return $response;
     }
-
 }

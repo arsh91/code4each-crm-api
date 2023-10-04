@@ -37,9 +37,8 @@ Route::middleware('auth:api')->group(function () {
     // Route::get('/agency-website-info/{agency_id}',[DashboardController::class,'getAgencyWebsiteInfo']);
     Route::get('/get-website-categories',[DashboardController::class,'getWebsiteCategories']);
     Route::get('/get-component',[ComponentsControllers::class,'getComponent']);
-    Route::get('components/index',[ComponentsControllers::class,'index']);
-    Route::get('components/store', [ComponentsControllers::class, 'store' ]);
     Route::post('store-components', [ComponentsControllers::class, 'sendComponentToWordpress' ]);
+    Route::post('components/regenerate', [ComponentsControllers::class, 'regenerateComponents' ]);
     });
 });
 
