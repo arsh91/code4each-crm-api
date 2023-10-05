@@ -79,7 +79,7 @@ class ComponentsControllers extends Controller
             DB::commit();
 
             if($agencyWebsiteDetails->agency_id && $websitesData->website_domain){
-                $result = $this->sendComponentToWordpress($agencyWebsiteDetails->agency_id, $websitesData->website_domain);
+                $result = $this->sendComponentToWordpress($agencyWebsiteDetails->agency_id, $websitesData->website_domain,$agencyWebsiteDetails->business_name);
                 if ($result['success'] == true && $result['response']['status'] == 200) {
                     $websiteUrl = $result['domain'];
 
@@ -166,7 +166,7 @@ class ComponentsControllers extends Controller
         return $response;
     }
 
-    public function sendComponentToWordpress($agency_id, $websiteUrl, $regenerateFlag = false)
+    public function sendComponentToWordpress($agency_id, $websiteUrl,$website_name = false, $regenerateFlag = false)
     {
         $response = [
             'success' => false,
@@ -174,6 +174,10 @@ class ComponentsControllers extends Controller
         if ($regenerateFlag) {
             $components = $this->generateComponents($agency_id, $websiteUrl);
         } else {
+            $addWebsiteNameUrl = $websiteUrl . 'wp-json/v1/change_global_variables';
+            if($website_name){
+                $addWebsiteNameResponse = Http::post($addWebsiteNameUrl, ['agency_name' =>$website_name]);
+            }
             $uploadLogo =  $this->uploadLogoToWordpress($agency_id, $websiteUrl);
             $components = $this->generateComponents($agency_id, $websiteUrl);
         }
@@ -209,9 +213,9 @@ class ComponentsControllers extends Controller
                     $data['status'] = $componentResponse->status();
                     $data['domain'] = $websiteUrl;
                 } else {
-                    $errorCode = $componentResponse->status();
-                    $errorData = $componentResponse->json();
-                    $data['error'] = $errorData . ' ' . $errorCode;
+                    $data['status'] = $componentResponse->status();
+                    $data['response']  = $componentResponse->json();
+                    // $data['error'] = $errorData . ' ' . $errorCode;
                     $data['success'] = false;
                 }
             }
@@ -274,7 +278,7 @@ class ComponentsControllers extends Controller
             $agency_id = $request->agency_id;
             $website_url = $request->website_url;
             $regenerate = true;
-            $regenerateComponentResponse = $this->sendComponentToWordpress($agency_id,$website_url,$regenerate);
+            $regenerateComponentResponse = $this->sendComponentToWordpress($agency_id,$website_url,false,$regenerate);
             if($regenerateComponentResponse['response']['status'] == 200 && $regenerateComponentResponse['success'] == true){
                 $response = [
                     'message' => "Components Re-generated Successfully.",
