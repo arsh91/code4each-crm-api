@@ -80,8 +80,8 @@ class ComponentsControllers extends Controller
 
             if($agencyWebsiteDetails->agency_id && $websitesData->website_domain){
                 $result = $this->sendComponentToWordpress($agencyWebsiteDetails->agency_id, $websitesData->website_domain);
-                if ($result['data']['success'] == true && $result['data']['status'] == 200) {
-                    $websiteUrl = $result['data']['domain'];
+                if ($result['success'] == true && $result['response']['status'] == 200) {
+                    $websiteUrl = $result['domain'];
 
                     //assigned site to user
                     AgencyWebsite::where('id', $agencyWebsiteDetails->id)->update(['website_id' => $websitesData->id]);
@@ -139,23 +139,19 @@ class ComponentsControllers extends Controller
         return response()->json($response);
     }
 
-    private function uploadLogoToWordpress($imagePath,$url)
+    private function uploadLogoToWordpress($agencyId,$url)
     {
-        $response = [
-            'success' => false,
-        ];
-
+        $agencyWebsiteDetail = AgencyWebsite::where('agency_id',$agencyId)->where('status','active')->first();
+        $imagePath = $agencyWebsiteDetail->logo;
         $thirdPartyUrl = $url . 'wp-json/v1/logo/';
         $imageFullPath = storage_path('app/public/' . $imagePath);
         if (file_exists($imageFullPath)) {
-
             $logoResponse = Http::attach(
                 'logo',
                 file_get_contents($imageFullPath),
                 'logo.png'
             )
             ->post($thirdPartyUrl);
-
             \Log::info("Wordpress Logo Response: " . $logoResponse->body());
                 $response = [
                      $logoResponse->json(),
@@ -170,67 +166,130 @@ class ComponentsControllers extends Controller
         return $response;
     }
 
-    public function sendComponentToWordpress($agency_id, $websiteUrl){
+    public function sendComponentToWordpress($agency_id, $websiteUrl, $regenerateFlag = false)
+    {
         $response = [
             'success' => false,
         ];
-        $agencyId = $agency_id;
-        $agencyWebsiteDetail = AgencyWebsite::with('websiteCategory')->where('agency_id',$agencyId)->where('status','active')->first();
+        if ($regenerateFlag) {
+            $components = $this->generateComponents($agency_id, $websiteUrl);
+        } else {
+            $uploadLogo =  $this->uploadLogoToWordpress($agency_id, $websiteUrl);
+            $components = $this->generateComponents($agency_id, $websiteUrl);
+        }
+        $startAddComponentUrl = $websiteUrl . 'wp-json/v1/installation';
+        $startAddResponse = Http::post($startAddComponentUrl, ['start' => true]);
+        if ($startAddResponse->successful()) {
+            $position = 1;
+            foreach ($components as $component) {
+                $componentData = [
+                    'component_detail' => [
+                        'component_name' => $component->component_name,
+                        'path' => $component->path,
+                        'type' => $component->type,
+                        'position' => null,
+                        'status' => $component->status,
+                    ],
+                    'component_dependencies' => ComponentDependency::where('component_id', $component->id)
+                        ->select('component_id', 'name', 'type', 'path', 'version')
+                        ->get(),
+                ];
+                if ($component->type === 'header') {
+                    $componentData['component_detail']['position'] = 1;
+                } elseif ($component->type === 'footer') {
+                    $componentData['component_detail']['position'] = count($components);
+                } else {
+                    $componentData['component_detail']['position'] = $position + 1;
+                    $position++;
+                }
+                $postUrl = $websiteUrl . 'wp-json/v1/component';
+                $componentResponse = Http::post($postUrl, $componentData);
+                if ($componentResponse->successful()) {
+                    $data['response'] = $componentResponse->json();
+                    $data['status'] = $componentResponse->status();
+                    $data['domain'] = $websiteUrl;
+                } else {
+                    $errorCode = $componentResponse->status();
+                    $errorData = $componentResponse->json();
+                    $data['error'] = $errorData . ' ' . $errorCode;
+                    $data['success'] = false;
+                }
+            }
+        } else {
+            $data['response'] = $startAddResponse->json();
+            $data['success'] = false;
+            $data['status'] = 400;
+        }
+        $endAddComponentResponse = Http::post($startAddComponentUrl, ['start' => false]);
+        if ($endAddComponentResponse->successful()) {
+            $data['response'] = $endAddComponentResponse->json();
+            $data['success'] = true;
+        }
+        $response = $data;
+
+        return $response;
+    }
+
+
+    private function generateComponents($agency_id, $websiteUrl)
+    {
+        $agencyWebsiteDetail = AgencyWebsite::with('websiteCategory')->where('agency_id', $agency_id)->where('status', 'active')->first();
         $websiteCategory = $agencyWebsiteDetail->websiteCategory->name;
-        $uploadLogo =  $this->uploadLogoToWordpress($agencyWebsiteDetail->logo,$websiteUrl);
         $types = ['header', 'footer', 'about_section', 'service_section', 'section'];
         $components = [];
 
         foreach ($types as $type) {
-            $randomComponent = Component::where('type', $type)
-                ->where('category', $websiteCategory)
-                ->inRandomOrder()
-                ->first();
-
+            $randomComponent = $this->getRandomComponent($type, $websiteCategory);
             if ($randomComponent) {
                 $components[] = $randomComponent;
             }
         }
-        $position = 1;
-        foreach ($components as $component) {
-            $componentData = [
-                'component_detail' => [
-                    'component_name' => $component->component_name,
-                    'path' => $component->path,
-                    'type' => $component->type,
-                    'position' => null,
-                    'status' => $component->status,
-                ],
-                'component_dependencies' => ComponentDependency::where('component_id', $component->id)
-                    ->select('component_id', 'name', 'type', 'path', 'version')
-                    ->get(),
-            ];
+        return $components;
+    }
 
-            if ($component->type === 'header') {
-                $componentData['component_detail']['position'] = 1;
-            } elseif ($component->type === 'footer') {
-                $componentData['component_detail']['position'] = count($components);
-            } else {
-                $componentData['component_detail']['position'] = $position + 1;
-                $position++;
-            }
-            $postUrl = $websiteUrl . 'wp-json/v1/component';
-            $componentResponse = Http::post($postUrl, $componentData );
-            if ($componentResponse->successful()) {
-                $data['response'] = $componentResponse->json();
-                $data['status'] = $componentResponse->status();
-                $data['success'] = true ;
-                $data['domain'] = $websiteUrl;
-            } else {
-                $errorCode = $componentResponse->status();
-                $errorData = $componentResponse->json();
-                $data['error'] = $errorData . ' '. $errorCode;
-                $data['success'] = false ;
-            }
-        }
+    private function getRandomComponent($type, $category)
+    {
+        return Component::where('type', $type)
+            ->where('category', $category)->where('status','active')
+            ->inRandomOrder()->first();
+    }
+
+    public function regenerateComponents(Request $request)
+    {
         $response = [
-            'data' => $data,
+            'success' => false,
+            'status' => 400,
         ];
+
+        $validator = Validator::make($request->all(), [
+            'agency_id' => 'required',
+            'website_url' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+
+        if (isset($request->agency_id, $request->website_url)) {
+            $agency_id = $request->agency_id;
+            $website_url = $request->website_url;
+            $regenerate = true;
+            $regenerateComponentResponse = $this->sendComponentToWordpress($agency_id,$website_url,$regenerate);
+            if($regenerateComponentResponse['response']['status'] == 200 && $regenerateComponentResponse['success'] == true){
+                $response = [
+                    'message' => "Components Re-generated Successfully.",
+                    'success' => true,
+                    'status' => 200,
+                ];
+            }
+
+        } else {
+            $response = [
+                'message' => "Need to Pass Required Proper Arguments.",
+                'success' => false,
+                'status' => 400,
+            ];
+        }
         return $response;
     }
 }
