@@ -37,7 +37,11 @@ class DashboardController extends Controller
         if($agencyWebsiteInfo->count() > 0){
         $response['agency_website_info'] = $agencyWebsiteInfo;
         }
+
         $response['message'] =  "Welcome to the dashboard.";
+        $response['success'] = true;
+        $response['status'] = 200;
+
         return response()->json($response);
     }
 
