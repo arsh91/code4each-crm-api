@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('components_crm', function (Blueprint $table) {
-            $table->string('component_unique_id')->unique()->after('id');
+            $table->string('component_unique_id')->nullable()->after('id');
         });
     }
 

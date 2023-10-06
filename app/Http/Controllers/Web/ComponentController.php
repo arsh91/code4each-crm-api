@@ -45,7 +45,7 @@ class ComponentController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'component_name' => 'required|string|max:255|unique:components_crm,component_name',
+            'component_name' => 'required|string|max:255',
             'path' => 'required',
             'type' => 'required',
             'category' => 'required',
@@ -83,6 +83,9 @@ class ComponentController extends Controller
             $component->save();
         }
         if ($component) {
+            $componentName = str_replace(' ', '_', $component->component_name);
+            $uniqueId = strtoupper('comp_' . $componentName . '_' . $component->id);
+            Component::where('id', $component->id)->update(['component_unique_id' => $uniqueId]);
             foreach ($validate['dependencies'] as $dependencyData) {
                 ComponentDependency::create([
                     'component_id' => $component->id,
