@@ -16,9 +16,6 @@ use Laravel\Passport\PersonalAccessTokenResult;
 
 class RegistrationController extends Controller
 {
-
-
-
     public function store(Request $request)
     {
         $response = [
@@ -66,7 +63,6 @@ class RegistrationController extends Controller
                 now()->addMinutes(config('auth.verification.expire', 60)),
                 ['id' => $userObj->id, 'hash' => sha1($userObj->getEmailForVerification())]
             );
-
             $messages = [
                 'subject' => 'Confirmation Email for Registering On Code4Each CRM Portal',
                 'additional-info' => 'If you have Already Verified Your Account, please ignore this email. Your account will not be activated unless you confirm your email address.',
@@ -116,55 +112,5 @@ class RegistrationController extends Controller
             ];
             return response()->json($response,401);
         }
-    }
-    public function login(Request $request)
-    {
-        $response = [
-            'success' => false,
-            'status' => 400,
-        ];
-
-        $validator = Validator::make($request->all(), [
-            'email' => 'required',
-            'password' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 400);
-        }
-
-        $credentials = $request->only('email', 'password');
-
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            $tokenResult = $user->createToken('access-token');
-            $token = $tokenResult->accessToken;
-
-            $response['success'] = true;
-            $response['status'] = 200;
-            $response['message'] = 'User Login Successfully';
-            $response['token'] = $token;
-
-            return response()->json($response);
-        } else {
-            $response['message'] = 'Invalid credentials';
-            $response['status'] = 401;
-
-
-            return response()->json($response, 401);
-        }
-    }
-    public function logout()
-    {
-        $user = Auth::user();
-        $user->tokens()->delete();
-
-        $response = [
-            'success' => true,
-            'status' => 200,
-            'message' => 'User logged out successfully.',
-        ];
-
-        return response()->json($response);
     }
 }

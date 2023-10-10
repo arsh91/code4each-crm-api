@@ -16,26 +16,6 @@ use Illuminate\Support\Facades\Validator;
 
 class ComponentsControllers extends Controller
 {
-    public function getComponent()
-    {
-        $response = [
-            'success' => false,
-            'status' => 400,
-        ];
-        $component = Component::first();
-        $componentDetail['component'] = $component;
-        $componentDependencies = ComponentDependency::where('component_id',$component->id)->get();
-        if(  $componentDependencies){
-            $componentDetail['component_dependencies'] = $componentDependencies;
-        }
-        $response = [
-            'success' => true,
-            'status' => 200,
-            'data' => $componentDetail,
-        ];
-        return response()->json($response);
-    }
-
     public function agencyWebsiteDetails(Request $request)
     {
         $response = [
@@ -117,7 +97,6 @@ class ComponentsControllers extends Controller
                 }
             }
 
-
         } catch (\Exception $e) {
             DB::rollBack();
             $errorMessage = $e->getMessage();
@@ -173,10 +152,16 @@ class ComponentsControllers extends Controller
         ];
         if ($regenerateFlag) {
             $components = $this->generateComponents($agency_id, $websiteUrl);
+
         } else {
             $addWebsiteNameUrl = $websiteUrl . 'wp-json/v1/change_global_variables';
             if($website_name){
-                $addWebsiteNameResponse = Http::post($addWebsiteNameUrl, ['agency_name' =>$website_name]);
+                $data = array(
+                    "agency_name" => array("value" => $website_name)
+                );
+                $json_data = json_encode($data);
+
+                $addWebsiteNameResponse = Http::post($addWebsiteNameUrl,$json_data);
             }
             $uploadLogo =  $this->uploadLogoToWordpress($agency_id, $websiteUrl);
             $components = $this->generateComponents($agency_id, $websiteUrl);
@@ -188,19 +173,20 @@ class ComponentsControllers extends Controller
             foreach ($components as $component) {
                 $componentData = [
                     'component_detail' => [
-                        'component_name' => $component->component_name,
-                        'path' => $component->path,
-                        'type' => $component->type,
+                        'component_name' => $component['component_name'],
+                        'path' => $component['path'],
+                        'type' => $component['type'],
                         'position' => null,
-                        'status' => $component->status,
+                        'component_unique_id' => $component['component_unique_id'],
+                        'status' => $component['status'],
                     ],
-                    'component_dependencies' => ComponentDependency::where('component_id', $component->id)
+                    'component_dependencies' => ComponentDependency::where('component_id', $component['id'])
                         ->select('component_id', 'name', 'type', 'path', 'version')
                         ->get(),
                 ];
-                if ($component->type === 'header') {
+                if ($component['type'] === 'header') {
                     $componentData['component_detail']['position'] = 1;
-                } elseif ($component->type === 'footer') {
+                } elseif ($component['type'] === 'footer') {
                     $componentData['component_detail']['position'] = count($components);
                 } else {
                     $componentData['component_detail']['position'] = $position + 1;
@@ -239,13 +225,16 @@ class ComponentsControllers extends Controller
     {
         $agencyWebsiteDetail = AgencyWebsite::with('websiteCategory')->where('agency_id', $agency_id)->where('status', 'active')->first();
         $websiteCategory = $agencyWebsiteDetail->websiteCategory->name;
+
         $types = ['header', 'footer', 'about_section', 'service_section', 'section'];
         $components = [];
 
         foreach ($types as $type) {
             $randomComponent = $this->getRandomComponent($type, $websiteCategory);
+                $randomIndex = array_rand($randomComponent);
+                $randomValue = $randomComponent[$randomIndex];
             if ($randomComponent) {
-                $components[] = $randomComponent;
+                $components[] = $randomValue;
             }
         }
         return $components;
@@ -255,7 +244,7 @@ class ComponentsControllers extends Controller
     {
         return Component::where('type', $type)
             ->where('category', $category)->where('status','active')
-            ->inRandomOrder()->first();
+            ->inRandomOrder()->take(5)->get()->toArray();
     }
 
     public function regenerateComponents(Request $request)
@@ -296,4 +285,97 @@ class ComponentsControllers extends Controller
         }
         return $response;
     }
+
+    public function getActiveWordpressComponents()
+    {
+        $websiteUrl = "https://infinity.code4each.com/";
+        $getActiveComponentUrl = $websiteUrl . '/wp-json/v1/components';
+        $getActiveComponentResponse = Http::get($getActiveComponentUrl);
+            if ($getActiveComponentResponse->successful()) {
+                $response['response'] = $getActiveComponentResponse->json();
+                $response['status'] = $getActiveComponentResponse->status();
+                $response['success'] = true;
+            }else{
+                $response['response'] = $getActiveComponentResponse->json();
+                $response['status'] = 400;
+                $response['success'] = false;
+            }
+        return response()->json($response);
+    }
+    public function getWordpressGlobalColors()
+    {
+        $websiteUrl = "https://infinity.code4each.com/";
+        $getGlobalColorsUrl = $websiteUrl . 'wp-json/v1/global-colors';
+        $getGlobalColorsResponse = Http::get($getGlobalColorsUrl);
+            if ($getGlobalColorsResponse->successful()) {
+                $response['response'] = $getGlobalColorsResponse->json();
+                $response['status'] = $getGlobalColorsResponse->status();
+                $response['success'] = true;
+            }else{
+                $response['response'] = $getGlobalColorsResponse->json();
+                $response['status'] = 400;
+                $response['success'] = false;
+            }
+        return response()->json($response);
+    }
+    public function addWordpressGlobalColors()
+    {
+        $websiteUrl = "https://infinity.code4each.com/";
+        $addGlobalColorsUrl = $websiteUrl . 'wp-json/v1/change_global_variables';
+        $randomColors = ComponentsControllers::getRandomHexColor(5);
+        $addGlobalColorsResponse = Http::post($addGlobalColorsUrl,$randomColors);
+            if($addGlobalColorsResponse->successful()){
+                $response['response'] = $addGlobalColorsResponse->json();
+                $response['status'] = $addGlobalColorsResponse->status();
+                $response['success'] = true;
+            }else{
+                $response['response'] = $addGlobalColorsResponse->json();
+                $response['status'] = 400;
+                $response['success'] = false;
+            }
+        return response()->json($response);
+    }
+
+    public function updateWordpressGlobalColors(Request $request)
+    {
+        $colorsArray = [];
+        $colorsArray = $request->primary_color;
+        $websiteUrl = "https://infinity.code4each.com/";
+        $addGlobalColorsUrl = $websiteUrl . 'wp-json/v1/change_global_variables';
+            $colorsData = [];
+            foreach ($colorsArray as $index => $color) {
+                $i = $index + 1;
+                $colorsData["primary_color_" . $i] = [
+                    "value" => $color,
+                    "type" => "color"
+                ];
+            }
+            $addGlobalColorsResponse = Http::post($addGlobalColorsUrl,$colorsData);
+            if($addGlobalColorsResponse->successful()){
+                $response['response'] = $addGlobalColorsResponse->json();
+                $response['data'] = $colorsData;
+                $response['status'] = $addGlobalColorsResponse->status();
+                $response['success'] = true;
+            }else{
+                $response['response'] = $addGlobalColorsResponse->json();
+                $response['status'] = 400;
+                $response['success'] = false;
+            }
+        return response()->json($response);
+    }
+
+    private function getRandomHexColor($length)
+    {
+        $data = [];
+        for ($i = 1; $i <= $length; $i++) {
+            $randomColor = "#" . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+            $data["primary_color_" . $i] = [
+                "value" => $randomColor,
+                "type" => "color"
+            ];
+        }
+        return $data;
+    }
 }
+
+

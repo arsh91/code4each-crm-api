@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ComponentsControllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -20,14 +21,14 @@ use App\Http\Controllers\Api\ProfileController;
 */
 
 Route::post('/register',[RegistrationController::class,'store']);
-Route::post('/login',[RegistrationController::class,'Login'])->name('login');
+Route::post('/login',[AuthController::class,'Login'])->name('login');
 Route::get('email/verify/{id}',[VerificationController::class,'verify'])->name('verification.verify');
 Route::middleware('auth:api')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-    Route::get('email/resend',[VerificationController::class,'resend'])->name('verification.resend');
-    Route::post('/logout',[RegistrationController::class,'logout']);
+    Route::middleware('throttle:3,20')->get('email/resend',[VerificationController::class,'resend'])->name('verification.resend');
+    Route::post('/logout',[AuthController::class,'logout']);
     Route::get('/dashboard',[DashboardController::class,'index'])->middleware('verifiedEmail');
 
 
@@ -39,6 +40,11 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/get-component',[ComponentsControllers::class,'getComponent']);
     Route::post('store-components', [ComponentsControllers::class, 'sendComponentToWordpress' ]);
     Route::post('components/regenerate', [ComponentsControllers::class, 'regenerateComponents' ]);
+    Route::get('/get-active-components',[ComponentsControllers::class,'getActiveWordpressComponents']);
+    Route::get('/get-global-colors-wordpress-components',[ComponentsControllers::class,'getWordpressGlobalColors']);
+    Route::post('/update-global-colors',[ComponentsControllers::class,'updateWordpressGlobalColors']);
+    Route::post('/add-global-colors',[ComponentsControllers::class,'addWordpressGlobalColors']);
+
     });
 });
 
