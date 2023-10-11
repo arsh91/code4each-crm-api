@@ -227,7 +227,7 @@ class ComponentsControllers extends Controller
         $agencyWebsiteDetail = AgencyWebsite::with('websiteCategory')->where('agency_id', $agency_id)->where('status', 'active')->first();
         $websiteCategory = $agencyWebsiteDetail->websiteCategory->name;
 
-        $types = ['header', 'footer', 'about_section', 'service_section', 'section'];
+        $types = ['header', 'footer', 'about_section', 'service_section'];
         $components = [];
 
         foreach ($types as $type) {
