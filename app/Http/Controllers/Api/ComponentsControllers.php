@@ -150,6 +150,7 @@ class ComponentsControllers extends Controller
         $response = [
             'success' => false,
         ];
+        $agencyWebsiteDetail = AgencyWebsite::find($agency_id);
         if ($regenerateFlag) {
             $components = $this->generateComponents($agency_id, $websiteUrl);
 
@@ -163,13 +164,15 @@ class ComponentsControllers extends Controller
 
                 $addWebsiteNameResponse = Http::post($addWebsiteNameUrl,$json_data);
             }
-            $uploadLogo =  $this->uploadLogoToWordpress($agency_id, $websiteUrl);
+            if($agencyWebsiteDetail->logo){
+                $uploadLogo =  $this->uploadLogoToWordpress($agency_id, $websiteUrl);
+            }
             $components = $this->generateComponents($agency_id, $websiteUrl);
         }
         $startAddComponentUrl = $websiteUrl . 'wp-json/v1/installation';
         $startAddResponse = Http::post($startAddComponentUrl, ['start' => true]);
         if ($startAddResponse->successful()) {
-            $this->addWordpressGlobalColors(15, $websiteUrl);
+            $this->addWordpressGlobalColors($websiteUrl,6);
             $position = 1;
             foreach ($components as $component) {
                 $componentData = [
@@ -315,7 +318,8 @@ class ComponentsControllers extends Controller
         $getGlobalColorsUrl = $websiteUrl . 'wp-json/v1/global-colors';
         $getGlobalColorsResponse = Http::get($getGlobalColorsUrl);
             if ($getGlobalColorsResponse->successful()) {
-                $response['response'] = $getGlobalColorsResponse->json();
+                $responseData = $getGlobalColorsResponse->json();
+                $response['data'] = $responseData["data"];
                 $response['status'] = $getGlobalColorsResponse->status();
                 $response['success'] = true;
             }else{
@@ -325,10 +329,10 @@ class ComponentsControllers extends Controller
             }
         return response()->json($response);
     }
-    public function addWordpressGlobalColors($colorNumber= false, $websiteUrl)
+    public function addWordpressGlobalColors($websiteUrl,$colorNumber= false)
     {
         if(!$colorNumber){
-            $colorNumber = 5;
+            $colorNumber = 6;
         }
         $addGlobalColorsUrl = $websiteUrl . 'wp-json/v1/change_global_variables';
         $randomColors = ComponentsControllers::getRandomHexColor($colorNumber);
