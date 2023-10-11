@@ -24,4 +24,9 @@ class AgencyWebsite extends Model
     {
         return $this->belongsTo(WebsiteCategory::class, 'website_category_id');
     }
+
+    public function websiteDetail()
+    {
+        return $this->belongsTo(Websites::class, 'website_id');
+    }
 }

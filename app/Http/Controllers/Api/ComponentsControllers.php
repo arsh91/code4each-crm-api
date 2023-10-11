@@ -169,6 +169,7 @@ class ComponentsControllers extends Controller
         $startAddComponentUrl = $websiteUrl . 'wp-json/v1/installation';
         $startAddResponse = Http::post($startAddComponentUrl, ['start' => true]);
         if ($startAddResponse->successful()) {
+            $this->addWordpressGlobalColors(15, $websiteUrl);
             $position = 1;
             foreach ($components as $component) {
                 $componentData = [
@@ -288,7 +289,10 @@ class ComponentsControllers extends Controller
 
     public function getActiveWordpressComponents()
     {
-        $websiteUrl = "https://infinity.code4each.com/";
+        $websiteUrl = request()->input('website_url');
+        if(!$websiteUrl){
+            return response()->json(['error' => "website url is required to process this request."],400);
+        }
         $getActiveComponentUrl = $websiteUrl . '/wp-json/v1/components';
         $getActiveComponentResponse = Http::get($getActiveComponentUrl);
             if ($getActiveComponentResponse->successful()) {
@@ -304,7 +308,10 @@ class ComponentsControllers extends Controller
     }
     public function getWordpressGlobalColors()
     {
-        $websiteUrl = "https://infinity.code4each.com/";
+        $websiteUrl =  request()->input('website_url');
+        if(!$websiteUrl){
+            return response()->json(['error' => "website url is required to process this request."],400);
+        }
         $getGlobalColorsUrl = $websiteUrl . 'wp-json/v1/global-colors';
         $getGlobalColorsResponse = Http::get($getGlobalColorsUrl);
             if ($getGlobalColorsResponse->successful()) {
@@ -318,11 +325,13 @@ class ComponentsControllers extends Controller
             }
         return response()->json($response);
     }
-    public function addWordpressGlobalColors()
+    public function addWordpressGlobalColors($colorNumber= false, $websiteUrl)
     {
-        $websiteUrl = "https://infinity.code4each.com/";
+        if(!$colorNumber){
+            $colorNumber = 5;
+        }
         $addGlobalColorsUrl = $websiteUrl . 'wp-json/v1/change_global_variables';
-        $randomColors = ComponentsControllers::getRandomHexColor(5);
+        $randomColors = ComponentsControllers::getRandomHexColor($colorNumber);
         $addGlobalColorsResponse = Http::post($addGlobalColorsUrl,$randomColors);
             if($addGlobalColorsResponse->successful()){
                 $response['response'] = $addGlobalColorsResponse->json();
@@ -338,14 +347,22 @@ class ComponentsControllers extends Controller
 
     public function updateWordpressGlobalColors(Request $request)
     {
-        $colorsArray = [];
-        $colorsArray = $request->primary_color;
-        $websiteUrl = "https://infinity.code4each.com/";
+        $validator = Validator::make($request->all(), [
+            'agency_id' => 'required',
+            'colors' => 'required|array'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+        $colorsArray = $request->colors;
+        if (isset($request->agency_id)) {
+            $websiteData = AgencyWebsite::with('websiteDetail')->where('agency_id',$request->agency_id)->first();
+        $websiteUrl = $websiteData->websiteDetail->website_domain;
         $addGlobalColorsUrl = $websiteUrl . 'wp-json/v1/change_global_variables';
             $colorsData = [];
             foreach ($colorsArray as $index => $color) {
-                $i = $index + 1;
-                $colorsData["primary_color_" . $i] = [
+                $colorsData[$index] = [
                     "value" => $color,
                     "type" => "color"
                 ];
@@ -361,6 +378,7 @@ class ComponentsControllers extends Controller
                 $response['status'] = 400;
                 $response['success'] = false;
             }
+        }
         return response()->json($response);
     }
 

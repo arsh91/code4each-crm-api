@@ -16,4 +16,8 @@ class Component extends Model
     {
         return $this->hasMany(ComponentDependency::class, 'component_id');
     }
+    public function formFields()
+    {
+        return $this->hasMany(ComponentFormFields::class, 'component_id');
+    }
 }

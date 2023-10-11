@@ -41,7 +41,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('store-components', [ComponentsControllers::class, 'sendComponentToWordpress' ]);
     Route::post('components/regenerate', [ComponentsControllers::class, 'regenerateComponents' ]);
     Route::get('/get-active-components',[ComponentsControllers::class,'getActiveWordpressComponents']);
-    Route::get('/get-global-colors-wordpress-components',[ComponentsControllers::class,'getWordpressGlobalColors']);
+    Route::get('/get-components-global-colors',[ComponentsControllers::class,'getWordpressGlobalColors']);
     Route::post('/update-global-colors',[ComponentsControllers::class,'updateWordpressGlobalColors']);
     Route::post('/add-global-colors',[ComponentsControllers::class,'addWordpressGlobalColors']);
 

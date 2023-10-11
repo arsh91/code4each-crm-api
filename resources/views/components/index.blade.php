@@ -27,7 +27,7 @@
                             <tbody>
                                 @forelse($components as $data)
                                 <tr>
-                                    <td><a href="{{ url('/component/'.$data->id)}}">#{{$data->id}}</a>
+                                    <td><a href="{{ url('/component/'.$data->id)}}">{{$data->id}}</a>
                                     <td>{{($data->component_name )}}</td>
                                     <td>
                                     {{($data->path )}}
@@ -45,7 +45,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <a href="{{ url('/edit/components/'.$data->id)}}">
+                                        <a href="{{ url('/components/edit/'.$data->id)}}">
                                         <i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
                                         </a>
 
