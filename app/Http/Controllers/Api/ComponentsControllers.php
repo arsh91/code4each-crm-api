@@ -59,7 +59,10 @@ class ComponentsControllers extends Controller
             DB::commit();
 
             if($agencyWebsiteDetails->agency_id && $websitesData->website_domain){
-                $result = $this->sendComponentToWordpress($agencyWebsiteDetails->agency_id, $websitesData->website_domain,$agencyWebsiteDetails->business_name);
+                $agency_id = $agencyWebsiteDetails->agency_id;
+                $website_domain =  $websitesData->website_domain;
+                $business_name = $agencyWebsiteDetails->business_name;
+                $result = $this->sendComponentToWordpress($agency_id, $website_domain ,$business_name);
                 if ($result['success'] == true && $result['response']['status'] == 200) {
                     $websiteUrl = $result['domain'];
 
@@ -266,7 +269,6 @@ class ComponentsControllers extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 400);
         }
-
         if (isset($request->agency_id, $request->website_url)) {
             $agency_id = $request->agency_id;
             $website_url = $request->website_url;
@@ -299,7 +301,8 @@ class ComponentsControllers extends Controller
         $getActiveComponentUrl = $websiteUrl . '/wp-json/v1/components';
         $getActiveComponentResponse = Http::get($getActiveComponentUrl);
             if ($getActiveComponentResponse->successful()) {
-                $response['response'] = $getActiveComponentResponse->json();
+                $responseData = $getActiveComponentResponse->json();
+                $response['data'] = $responseData['data'];
                 $response['status'] = $getActiveComponentResponse->status();
                 $response['success'] = true;
             }else{
@@ -352,7 +355,7 @@ class ComponentsControllers extends Controller
     public function updateWordpressGlobalColors(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'agency_id' => 'required',
+            'website_url' => 'required',
             'colors' => 'required|array'
         ]);
 
@@ -360,9 +363,8 @@ class ComponentsControllers extends Controller
             return response()->json(['errors' => $validator->errors()], 400);
         }
         $colorsArray = $request->colors;
-        if (isset($request->agency_id)) {
-            $websiteData = AgencyWebsite::with('websiteDetail')->where('agency_id',$request->agency_id)->first();
-        $websiteUrl = $websiteData->websiteDetail->website_domain;
+        if (isset($request->website_url)) {
+        $websiteUrl = $request->website_url;
         $addGlobalColorsUrl = $websiteUrl . 'wp-json/v1/change_global_variables';
             $colorsData = [];
             foreach ($colorsArray as $index => $color) {
