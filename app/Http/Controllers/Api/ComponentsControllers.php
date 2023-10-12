@@ -322,7 +322,7 @@ class ComponentsControllers extends Controller
         $getGlobalColorsResponse = Http::get($getGlobalColorsUrl);
             if ($getGlobalColorsResponse->successful()) {
                 $responseData = $getGlobalColorsResponse->json();
-                $response['data'] = $responseData["data"];
+                $response['colors'] = $responseData["data"];
                 $response['status'] = $getGlobalColorsResponse->status();
                 $response['success'] = true;
             }else{
