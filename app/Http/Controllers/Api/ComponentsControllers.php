@@ -39,10 +39,14 @@ class ComponentsControllers extends Controller
         try {
             DB::beginTransaction();
             $websitesData = Websites::where('assigned', null)->first();
+            $description = null;
+            if($validate['description']){
+                $description = $validate['description'];
+            }
             $agencyWebsiteDetails = AgencyWebsite::create([
                 'website_category_id' => $validate['category_id'],
                 'address' => $validate['address'],
-                'description'  => $validate['description'] ?? null,
+                'description'  => $description,
                 'agency_id' => $validate['agency_id'],
                 'business_name' => $validate['business_name'],
                 'created_by' => auth()->user()->id,
@@ -232,10 +236,9 @@ class ComponentsControllers extends Controller
     {
         $agencyWebsiteDetail = AgencyWebsite::with('websiteCategory')->where('agency_id', $agency_id)->where('status', 'active')->first();
         $websiteCategory = $agencyWebsiteDetail->websiteCategory->name;
-
-        $types = ['header', 'footer', 'about_section', 'service_section'];
+        $componentTypes = $agencyWebsiteDetail->websiteCategory->types;
+        $types = explode(",",$componentTypes);
         $components = [];
-
         foreach ($types as $type) {
             $randomComponent = $this->getRandomComponent($type, $websiteCategory);
                 $randomIndex = array_rand($randomComponent);
