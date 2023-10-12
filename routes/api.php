@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\RegistrationController;
 use App\Http\Controllers\Api\VerificationController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\FeedBackController;
 use App\Http\Controllers\Api\ProfileController;
 
 /*
@@ -23,17 +24,18 @@ use App\Http\Controllers\Api\ProfileController;
 Route::post('/register',[RegistrationController::class,'store']);
 Route::post('/login',[AuthController::class,'Login'])->name('login');
 Route::get('email/verify/{id}',[VerificationController::class,'verify'])->name('verification.verify');
+//Authenticated Group Routes
 Route::middleware('auth:api')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+    Route::get('/dashboard',[DashboardController::class,'index'])->middleware('verifiedEmail');
+    Route::post('/feedback',[FeedBackController::class,'feedback']);
     Route::middleware('throttle:3,20')->get('email/resend',[VerificationController::class,'resend'])->name('verification.resend');
     Route::post('/logout',[AuthController::class,'logout']);
-    Route::get('/dashboard',[DashboardController::class,'index'])->middleware('verifiedEmail');
 
-
+    //Email Verified Routes
     Route::middleware('verified')->group(function () {
-    // Route::post('/agency-details',[DashboardController::class,'agencyDetails']);
     Route::post('/agency-website-details',[ComponentsControllers::class,'agencyWebsiteDetails']);
     // Route::get('/agency-website-info/{agency_id}',[DashboardController::class,'getAgencyWebsiteInfo']);
     Route::get('/get-website-categories',[DashboardController::class,'getWebsiteCategories']);
