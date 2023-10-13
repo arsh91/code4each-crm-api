@@ -148,8 +148,6 @@ class ComponentController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // dd($request);
-
         $validator = Validator::make($request->all(), [
             'edit_component_name' => 'required|string|max:255',
             'edit_path' => 'required',
@@ -168,12 +166,16 @@ class ComponentController extends Controller
         ]);
 
         if ($validator->fails()) {
-            // return response()->json(['errors' => $validator->errors()], 400);
             return Redirect::back()->withErrors($validator);
         }
         $validate = $validator->valid();
         // dd($validate);
-        $componentDetail = Component::find($id);
+        $dependencyData = $validate['edit_dependencies'];
+        $formFieldsData  = $validate['edit_form-fields'];
+        $componentDetail = Component::with('dependencies','formFields')->find($id);
+        // dd($componentDetail->formFields);
+        $formFieldsDetail = $componentDetail->formFields->toArray();
+        $dependencyDetail = $componentDetail->dependencies->toArray();
         $category = implode(",",$validate['edit_category'] );
         $component = Component::where('id',$id)->update([
             'component_name' => $validate['edit_component_name'],
@@ -182,6 +184,7 @@ class ComponentController extends Controller
             'category' => $category,
         ]);
 
+        //Only if Needs to update the preview image then this will update the image
         if ($request->hasFile('edit_preview')) {
             $uploadedFile = $request->file('edit_preview');
             $filename = time() . '_' . $uploadedFile->getClientOriginalName();
@@ -195,30 +198,43 @@ class ComponentController extends Controller
                 $uniqueId = strtoupper('comp_' . $componentName . '_' . $component->id);
                 Component::where('id', $component->id)->update(['component_unique_id' => $uniqueId]);
             }
-            foreach ($validate['edit_dependencies'] as $dependencyData) {
-                if (isset($dependencyData['id'])) {
-                    ComponentDependency::where('id', $dependencyData['id'])
+
+            //Create or Update the Dependencies
+            foreach ($dependencyData as $dependency) {
+                if (isset($dependency['id'])) {
+                     ComponentDependency::where('id', $dependency['id'])
                         ->where('component_id', $id)
                         ->update([
-                            'name' => $dependencyData['name'],
-                            'type' => $dependencyData['type'],
-                            'path' => $dependencyData['path'],
-                            'version' => $dependencyData['version'],
+                            'name' => $dependency['name'],
+                            'type' => $dependency['type'],
+                            'path' => $dependency['path'],
+                            'version' => $dependency['version'],
                             'updated_at' => now(),
                         ]);
                 } else {
-                    ComponentDependency::create([
+                      ComponentDependency::create([
                         'component_id' => $id,
-                        'name' => $dependencyData['name'],
-                        'type' => $dependencyData['type'],
-                        'path' => $dependencyData['path'],
-                        'version' => $dependencyData['version'],
+                        'name' => $dependency['name'],
+                        'type' => $dependency['type'],
+                        'path' => $dependency['path'],
+                        'version' => $dependency['version'],
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
                 }
             }
-            foreach ($validate['edit_form-fields'] as $formFieldData) {
+            //Delete Removed Dependencies From dependencyArray
+            $unmatchedDependencies = array_filter($dependencyDetail, function($record) use ($dependencyData) {
+                return !in_array($record['id'], array_column($dependencyData, 'id'));
+            });
+            if($unmatchedDependencies){
+                foreach ($unmatchedDependencies as  $umDependency) {
+                    ComponentDependency::where('id',$umDependency['id'])->delete();
+                }
+            }
+
+            //Create or Update the formFields
+            foreach ($formFieldsData as $formFieldData) {
                 if (isset($formFieldData['id'])) {
                     ComponentFormFields::where('id', $formFieldData['id'])
                         ->where('component_id', $id)
@@ -237,6 +253,16 @@ class ComponentController extends Controller
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
+                }
+            }
+
+             //Delete Removed FormFields From fromFieldsArray
+             $unmatchedFormFields = array_filter($formFieldsDetail, function($record) use ($formFieldsData) {
+                return !in_array($record['id'], array_column($formFieldsData, 'id'));
+            });
+            if($unmatchedFormFields){
+                foreach ($unmatchedFormFields as  $umFields) {
+                    ComponentFormFields::where('id',$umFields['id'])->delete();
                 }
             }
 

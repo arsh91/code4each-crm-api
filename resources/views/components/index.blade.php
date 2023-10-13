@@ -39,7 +39,7 @@
                                     <td>{{ $data->status }}</td>
                                     <td>
                                         @if ($data->preview)
-                                        <img src="{{ asset('storage/' . $data->preview) }}" height="150" width="200" alt="Preview Image">
+                                        <img src="{{ asset('storage/' . $data->preview) }}" height="70" width="120" alt="Preview Image">
                                         @else
                                             ---
                                         @endif
