@@ -21,4 +21,5 @@ Route::get('/', function () {
 Route::get('/components',[ComponentController::class,'index'])->name('components.index');
 Route::get('/components/create',[ComponentController::class,'create'])->name('components.create');
 Route::post('/components',[ComponentController::class,'store'])->name('components.store');
-
+Route::get('/components/edit/{id}',[ComponentController::class,'edit'])->name('components.edit');
+Route::post('/components/{id}',[ComponentController::class,'update'])->name('components.update');
