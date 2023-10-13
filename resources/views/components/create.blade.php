@@ -71,23 +71,13 @@
                     </div>
                 </div>
                 <div class="row mb-5">
-                    <label for="preview" class="col-sm-3 col-form-label">Preview Image</label>
+                    <label for="preview" class="col-sm-3 col-form-label required">Preview Image</label>
                     <div class="col-sm-9">
-                        <input type="file" class="form-control" name="preview" id="preview" multiple>
-                    </div>
-                    @if ($errors->has('preview.*'))
-                    @foreach($errors->get('preview.*') as $key => $errorMessages)
-                    @foreach($errorMessages as $error)
-                    <span style="font-size: 12px; padding: 10px 100px;" class="text-danger">
-                        @if ($error == 'The document failed to upload.')
-                        {{$error}} The document may not be greater than 5 mb.
-                        @else
-                        {{$error}}
+                        <input type="file" class="form-control" name="preview" id="preview">
+                        @if ($errors->has('preview'))
+                             <span style="font-size: 12px; " class="text-danger">{{ $errors->first('preview') }}</span>
                         @endif
-                    </span>
-                    @endforeach
-                    @endforeach
-                    @endif
+                    </div>
                 </div>
                 <div class="row mb-5 mt-4">
                     <div class="col-md-3">

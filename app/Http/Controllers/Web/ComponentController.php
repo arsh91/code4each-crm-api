@@ -44,13 +44,12 @@ class ComponentController extends Controller
      */
     public function store(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             'component_name' => 'required|string|max:255',
             'path' => 'required',
             'type' => 'required',
             'category' => 'required',
-            'preview.*' => 'file|mimes:jpg,jpeg,png,gif|max:5000',
+            'preview' => 'required|file|mimes:jpg,jpeg,png,gif|max:5000',
             'dependencies' => 'required|array',
             'dependencies.*.name' => 'required',
             'dependencies.*.type' => 'required',
@@ -62,9 +61,7 @@ class ComponentController extends Controller
             'form-fields.*.default_value' => 'required',
 
         ]);
-
         if ($validator->fails()) {
-            // return response()->json(['errors' => $validator->errors()], 400);
             return Redirect::back()->withErrors($validator);
         }
         $validate = $validator->valid();
@@ -108,7 +105,6 @@ class ComponentController extends Controller
                         'updated_at' => Carbon::now(),
                     ]);
                 }
-            // $request->session()->flash('message','Component Saved Successfully.');
             $message = "Component Saved Successfully.";
             return redirect()->route('components.index')->with('message', $message);
         }
@@ -135,7 +131,6 @@ class ComponentController extends Controller
     {
         $category = WebsiteCategory::all();
         $componentData = Component::with('dependencies','formFields')->find($id);
-        // dd($componentData);
         return view('components.edit',compact('category','componentData'));
     }
 
@@ -169,11 +164,9 @@ class ComponentController extends Controller
             return Redirect::back()->withErrors($validator);
         }
         $validate = $validator->valid();
-        // dd($validate);
         $dependencyData = $validate['edit_dependencies'];
         $formFieldsData  = $validate['edit_form-fields'];
         $componentDetail = Component::with('dependencies','formFields')->find($id);
-        // dd($componentDetail->formFields);
         $formFieldsDetail = $componentDetail->formFields->toArray();
         $dependencyDetail = $componentDetail->dependencies->toArray();
         $category = implode(",",$validate['edit_category'] );
