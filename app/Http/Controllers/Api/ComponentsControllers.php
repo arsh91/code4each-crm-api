@@ -157,7 +157,9 @@ class ComponentsControllers extends Controller
         $response = [
             'success' => false,
         ];
-        $agencyWebsiteDetail = AgencyWebsite::find($agency_id);
+
+        $agencyWebsiteDetail = AgencyWebsite::where('agency_id',$agency_id)->first();
+        $logo = $agencyWebsiteDetail->logo;
         if ($regenerateFlag) {
             $components = $this->generateComponents($agency_id, $websiteUrl);
 
@@ -171,7 +173,7 @@ class ComponentsControllers extends Controller
 
                 $addWebsiteNameResponse = Http::post($addWebsiteNameUrl,$json_data);
             }
-            if($agencyWebsiteDetail->logo){
+            if($logo){
                 $uploadLogo =  $this->uploadLogoToWordpress($agency_id, $websiteUrl);
             }
             $components = $this->generateComponents($agency_id, $websiteUrl);
@@ -295,7 +297,7 @@ class ComponentsControllers extends Controller
         return $response;
     }
 
-    public function getActiveWordpressComponents()
+    public function getActiveWordpressComponents($websiteUrl = false)
     {
         $websiteUrl = request()->input('website_url');
         if(!$websiteUrl){
@@ -305,7 +307,7 @@ class ComponentsControllers extends Controller
         $getActiveComponentResponse = Http::get($getActiveComponentUrl);
             if ($getActiveComponentResponse->successful()) {
                 $responseData = $getActiveComponentResponse->json();
-                $response['data'] = $responseData['data'];
+                $response['active_components'] = $responseData['data'];
                 $response['status'] = $getActiveComponentResponse->status();
                 $response['success'] = true;
             }else{
@@ -313,7 +315,7 @@ class ComponentsControllers extends Controller
                 $response['status'] = 400;
                 $response['success'] = false;
             }
-        return response()->json($response);
+        return $response;
     }
     public function getWordpressGlobalColors()
     {
