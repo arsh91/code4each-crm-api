@@ -428,6 +428,7 @@ class ComponentsControllers extends Controller
                 if($componentsData->preview && $formFields){
                     $components_detail = [];
                     $components_detail['id'] = $componentUniqueId;
+                    $components_detail['type'] = $componentsData->type;
                     $previewPath = '/storage/'. $componentsData->preview;
                     $components_detail['preview'] = $previewPath;
                     $components_detail['form_fields'] =  $formFields ;
