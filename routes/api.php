@@ -32,6 +32,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/dashboard',[DashboardController::class,'index'])->middleware('verifiedEmail');
     Route::post('/feedback',[FeedBackController::class,'feedback']);
     Route::middleware('throttle:3,20')->get('email/resend',[VerificationController::class,'resend'])->name('verification.resend');
+    // Route::post('/forgot-password',[AuthController::class,'forgotPassword']);
     Route::post('/logout',[AuthController::class,'logout']);
 
     //Email Verified Routes
@@ -43,6 +44,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('store-components', [ComponentsControllers::class, 'sendComponentToWordpress' ]);
     Route::post('components/regenerate', [ComponentsControllers::class, 'regenerateComponents' ]);
     Route::get('/get-active-components',[ComponentsControllers::class,'getActiveWordpressComponents']);
+    Route::get('/fetch-active-components-detail',[ComponentsControllers::class,'fetchActiveComponentsDetail']);
     Route::get('/get-components-global-colors',[ComponentsControllers::class,'getWordpressGlobalColors']);
     Route::post('/update-global-colors',[ComponentsControllers::class,'updateWordpressGlobalColors']);
     Route::post('/add-global-colors',[ComponentsControllers::class,'addWordpressGlobalColors']);

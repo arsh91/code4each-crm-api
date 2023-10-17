@@ -405,6 +405,47 @@ class ComponentsControllers extends Controller
         }
         return $data;
     }
+
+    public function fetchActiveComponentsDetail()
+    {
+        $response = [
+            'success' => false,
+            'status' => 400,
+        ];
+
+        $websiteUrl = request()->input('website_url');
+        if(!$websiteUrl){
+            return response()->json(['error' => "website url is required to process this request."],400);
+        }
+        $activeComponentsDetail =  $this->getActiveWordpressComponents($websiteUrl);
+        if($activeComponentsDetail['status'] == 200 && $activeComponentsDetail['success'] == true){
+            $activeComponents = $activeComponentsDetail['active_components'];
+            $componentDetail = [];
+            foreach ($activeComponents as $componentUniqueId) {
+                //Getting Components Detail Based On Component Unique Id With the fromFields Relation using Eager Loading
+                $componentsData = Component::with('formFields')->where('component_unique_id', $componentUniqueId)->first();
+                $formFields = $componentsData->formFields->toArray();
+                if($componentsData->preview && $formFields){
+                    $components_detail = [];
+                    $components_detail['id'] = $componentUniqueId;
+                    $previewPath = '/storage/app/public/'. $componentsData->preview;
+                    $components_detail['preview'] = $previewPath;
+                    $components_detail['form_fields'] =  $formFields ;
+                    $componentDetail[] = $components_detail;
+                }
+            }
+        }
+        if($componentDetail){
+            $response = [
+                'message' => "Detail Fetched Successfully.",
+                'success' => true,
+                'status' => 200,
+                'components_detail' => $componentDetail
+            ];
+        }
+
+        return $response;
+    }
 }
 
 
