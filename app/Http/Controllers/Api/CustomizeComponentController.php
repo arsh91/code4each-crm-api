@@ -15,8 +15,12 @@ class CustomizeComponentController extends Controller
             "success" => false,
             "status"  => 400,
         ];
-        $componentData = Component::select('id','component_unique_id','preview','type','category')->where('status','active')->get();
-        // dd($componentData->toArray());
+        $type = request()->input('type');
+        if($type){
+            $componentData = Component::select('id','component_unique_id','preview','type','category')->where('type',$type)->where('status','active')->get();
+        }else{
+             $componentData = Component::select('id','component_unique_id','preview','type','category')->where('status','active')->get();
+        }
         if($componentData){
             $response = [
                 "message" => "Result Fetched Successfully.",
