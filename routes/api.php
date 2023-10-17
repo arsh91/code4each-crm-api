@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ComponentsControllers;
+use App\Http\Controllers\Api\CustomizeComponentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\RegistrationController;
@@ -40,7 +41,6 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/agency-website-details',[ComponentsControllers::class,'agencyWebsiteDetails']);
     // Route::get('/agency-website-info/{agency_id}',[DashboardController::class,'getAgencyWebsiteInfo']);
     Route::get('/get-website-categories',[DashboardController::class,'getWebsiteCategories']);
-    Route::get('/get-component',[ComponentsControllers::class,'getComponent']);
     Route::post('store-components', [ComponentsControllers::class, 'sendComponentToWordpress' ]);
     Route::post('components/regenerate', [ComponentsControllers::class, 'regenerateComponents' ]);
     Route::get('/get-active-components',[ComponentsControllers::class,'getActiveWordpressComponents']);
@@ -48,6 +48,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/get-components-global-colors',[ComponentsControllers::class,'getWordpressGlobalColors']);
     Route::post('/update-global-colors',[ComponentsControllers::class,'updateWordpressGlobalColors']);
     Route::post('/add-global-colors',[ComponentsControllers::class,'addWordpressGlobalColors']);
+
+    Route::get('/fetch-components',[CustomizeComponentController::class,'fetchComponent']);
+
 
     });
 });
