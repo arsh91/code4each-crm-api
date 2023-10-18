@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\VerificationController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\FeedBackController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\WordpressComponentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,8 +49,8 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/get-components-global-colors',[ComponentsControllers::class,'getWordpressGlobalColors']);
     Route::post('/update-global-colors',[ComponentsControllers::class,'updateWordpressGlobalColors']);
     Route::post('/add-global-colors',[ComponentsControllers::class,'addWordpressGlobalColors']);
-
     Route::get('/fetch-components',[CustomizeComponentController::class,'fetchComponent']);
+    Route::post('/change-component',[CustomizeComponentController::class,'updateComponent']);
 
 
     });
