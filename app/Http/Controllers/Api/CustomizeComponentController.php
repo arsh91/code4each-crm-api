@@ -17,14 +17,34 @@ class CustomizeComponentController extends Controller
         ];
         $type = request()->input('type');
         if($type){
-            $componentData = Component::select('id','component_unique_id','preview','type','category')->where('type',$type)->where('status','active')->get();
+            $componentData = Component::where('type',$type)->where('status','active')->get();
+            $componentDetail = [];
+            foreach($componentData as $data){
+               $component = [];
+               $component['id'] = $data->id;
+               $component['component_unique_id'] = $data->component_unique_id;
+               $component['preview'] = '/storage/'.$data->preview;
+               $component['type'] = $data->type;
+               $component['category'] = $data->category;
+               $componentDetail[] = $component;
+            }
         }else{
-             $componentData = Component::select('id','component_unique_id','preview','type','category')->where('status','active')->get();
+             $componentData = Component::where('status','active')->get();
+             $componentDetail = [];
+             foreach($componentData as $data){
+                $component = [];
+                $component['id'] = $data->id;
+                $component['component_unique_id'] = $data->component_unique_id;
+                $component['preview'] = '/storage/'.$data->preview;
+                $component['type'] = $data->type;
+                $component['category'] = $data->category;
+                $componentDetail[] = $component;
+             }
         }
-        if($componentData){
+        if($componentDetail){
             $response = [
                 "message" => "Result Fetched Successfully.",
-                'component' => $componentData,
+                'component' => $componentDetail,
                 "success" => true,
                 "status"  => 200,
             ];
