@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\AgencyWebsite;
 use App\Models\Component;
+use App\Models\ComponentColorCombination;
 use App\Models\ComponentDependency;
 use App\Models\User;
 use App\Models\Websites;
@@ -343,8 +344,35 @@ class ComponentsControllers extends Controller
             $colorNumber = 6;
         }
         $addGlobalColorsUrl = $websiteUrl . 'wp-json/v1/change_global_variables';
-        $randomColors = ComponentsControllers::getRandomHexColor($colorNumber);
-        $addGlobalColorsResponse = Http::post($addGlobalColorsUrl,$randomColors);
+        $randomColorCombination = ComponentColorCombination::inRandomOrder()->first();
+        $color = [
+            "id" =>  $randomColorCombination->id,
+            "primary_color_1" => [
+                "value" => $randomColorCombination->color_1,
+                "type" => "color"
+            ],
+            "primary_color_2" => [
+                "value" => $randomColorCombination->color_2,
+                "type" => "color"
+            ],
+            "primary_color_3" => [
+                "value" => $randomColorCombination->color_3,
+                "type" => "color"
+            ],
+            "primary_color_4" => [
+                "value" => $randomColorCombination->color_4,
+                "type" => "color"
+            ],
+            "primary_color_5" => [
+                "value" => $randomColorCombination->color_5,
+                "type" => "color"
+            ],
+            "primary_color_6" => [
+                "value" => $randomColorCombination->color_6,
+                "type" => "color"
+            ]
+        ];
+        $addGlobalColorsResponse = Http::post($addGlobalColorsUrl,$color);
             if($addGlobalColorsResponse->successful()){
                 $response['response'] = $addGlobalColorsResponse->json();
                 $response['status'] = $addGlobalColorsResponse->status();
@@ -393,7 +421,7 @@ class ComponentsControllers extends Controller
         return response()->json($response);
     }
 
-    private function getRandomHexColor($length)
+    private function getRandomColor($length)
     {
         $data = [];
         for ($i = 1; $i <= $length; $i++) {

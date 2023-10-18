@@ -8,6 +8,7 @@ use App\Models\Component;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Api\WordpressComponentController;
+use App\Models\ComponentColorCombination;
 use Illuminate\Support\Facades\Http;
 
 class CustomizeComponentController extends Controller
@@ -66,7 +67,11 @@ class CustomizeComponentController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 400);
         }
+
         $validated = $validator->valid();
+        if(!Component::where('component_unique_id', $validated['component_unique_id_new'] )->exists()){
+            return response()->json(['errors' => "No such Component found."], 400);
+        }
         $website_url = $validated['website_url'];
         $oldComponentUniqueId['component_unique_id'] = $validated['component_unique_id_old'];
         $newComponentUniqueId = $validated['component_unique_id_new'];
@@ -101,5 +106,27 @@ class CustomizeComponentController extends Controller
 
         return $response;
 
+    }
+    public function getColorCombination()
+    {
+        $colorCombinations = ComponentColorCombination::all();
+        $combinationData = [];
+        foreach ($colorCombinations as $colorData) {
+            $color = [
+                "id" =>  $colorData->id,
+                "title" => $colorData->title,
+                "colors" =>[
+                    $colorData->color_1,
+                    $colorData->color_2,
+                    $colorData->color_3,
+                    $colorData->color_4,
+                    $colorData->color_5,
+                    $colorData->color_6,
+
+                ]
+            ];
+            $combinationData[] = $color;
+        }
+        return $combinationData;
     }
 }
