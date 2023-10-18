@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\Component;
 use App\Models\ComponentDependency;
@@ -10,6 +11,7 @@ use App\Models\WebsiteCategory;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class ComponentController extends Controller
@@ -179,11 +181,18 @@ class ComponentController extends Controller
 
         //Only if Needs to update the preview image then this will update the image
         if ($request->hasFile('edit_preview')) {
-            $uploadedFile = $request->file('edit_preview');
-            $filename = time() . '_' . $uploadedFile->getClientOriginalName();
-            $uploadedFile->storeAs('public/Components', $filename);
-            $path = 'Components/' . $filename;
-            Component::where('id',$id)->update(['preview' => $path]);
+            $oldFilePath = 'storage/'.$componentDetail->preview;
+            //Delete The Old Stored Image in path And Upload New
+            if (Helper::deleteFile($oldFilePath)) {
+                $uploadedFile = $request->file('edit_preview');
+                $filename = time() . '_' . $uploadedFile->getClientOriginalName();
+                $uploadedFile->storeAs('public/Components', $filename);
+                $path = 'Components/' . $filename;
+                Component::where('id',$id)->update(['preview' => $path]);
+            } else {
+                return back()->with("File $oldFilePath not found.");
+            }
+
         }
         if ($component) {
             if($validate['edit_component_name'] != $componentDetail->component_name){
