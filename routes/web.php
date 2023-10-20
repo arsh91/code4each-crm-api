@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Web\ComponentController;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,3 +24,7 @@ Route::get('/components/create',[ComponentController::class,'create'])->name('co
 Route::post('/components',[ComponentController::class,'store'])->name('components.store');
 Route::get('/components/edit/{id}',[ComponentController::class,'edit'])->name('components.edit');
 Route::post('/components/{id}',[ComponentController::class,'update'])->name('components.update');
+Route::get('/clear-cache', function () {
+    $exitCode = Artisan::call('cache:clear');
+    return "Cache cleared successfully!";
+});
