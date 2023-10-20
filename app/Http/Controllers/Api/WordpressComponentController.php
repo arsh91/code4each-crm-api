@@ -31,4 +31,23 @@ class WordpressComponentController extends Controller
             }
         return $response;
     }
+    public function getDefaultColorOrFont($websiteUrl,$typeKey) {
+
+      $bodyJson = json_encode([
+                $typeKey
+            ]) ;
+        $getDefaultColorOrFontUrl = $websiteUrl . '/wp-json/v1/get-options-value';
+        $colorOrFontValueResponse = Http::withBody($bodyJson, 'application/json')->get($getDefaultColorOrFontUrl);
+            if ($colorOrFontValueResponse->successful()) {
+                $response['response'] =$colorOrFontValueResponse->json();
+                $response['status'] = $colorOrFontValueResponse->status();
+                $response['success'] = true;
+            }
+            else{
+                $response['response'] = $colorOrFontValueResponse->json();
+                $response['status'] = 400;
+                $response['success'] = false;
+            }
+        return $response;
+    }
 }

@@ -9,10 +9,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Api\WordpressComponentController;
 use App\Models\ComponentColorCombination;
+use App\Models\FontFamily;
 use Illuminate\Support\Facades\Http;
 
 class CustomizeComponentController extends Controller
 {
+    private $wordpressComponentClass;
+    public function __construct()
+    {
+       $this->wordpressComponentClass = new WordpressComponentController();
+    }
+
     public function fetchComponent()
     {
         $response = [
@@ -109,24 +116,69 @@ class CustomizeComponentController extends Controller
     }
     public function getColorCombination()
     {
+        $website_url = request()->input('website_url');
         $colorCombinations = ComponentColorCombination::all();
+        // $activeColorCombinationId = 1;
+        if($website_url){
+            $typeKey = 'c4e_default_color_id';
+            $defaultColorResponse = $this->wordpressComponentClass->getDefaultColorOrFont($website_url , $typeKey);
+            // dd($defaultColorResponse['response']['data'][$typeKey]);
+            $activeColorCombinationId = $defaultColorResponse['response']['data'][$typeKey];
+
+        }
+
         $combinationData = [];
         foreach ($colorCombinations as $colorData) {
+            $activeFlag = false;
+            if($activeColorCombinationId != '' && $colorData->id == $activeColorCombinationId){
+                $activeFlag = true;
+            }
             $color = [
                 "id" =>  $colorData->id,
                 "title" => $colorData->title,
-                "colors" =>[
+                "colors" => [
                     $colorData->color_1,
                     $colorData->color_2,
                     $colorData->color_3,
                     $colorData->color_4,
                     $colorData->color_5,
-                    $colorData->color_6,
-
-                ]
+                    $colorData->color_6
+                ],
+                "active" => $activeFlag,
             ];
             $combinationData[] = $color;
         }
         return $combinationData;
     }
+
+    // public function getFont()
+    // {
+    //     $response = [
+    //         "success" => false,
+    //         "status" => 400,
+    //     ];
+    //     $fonts = FontFamily::all();
+    //     $activeFontId = 1;
+    //     $fontData = [];
+    //     foreach ($fonts as $font) {
+    //         $activeFlag = false;
+    //         if($activeFontId != '' && $font->id == $activeFontId){
+    //             $activeFlag = true;
+    //         }
+    //         $fontArray = [
+    //             "id" => $font->id,
+    //             "name" => $font->name,
+    //             "active" => $activeFlag,
+    //         ];
+    //         $fontData[] = $fontArray;
+    //     }
+    //     $response = [
+    //         "message" => "Record Fetched SuccessFully.",
+    //         "status" => 200,
+    //         "success" => true,
+    //         "data" => $fontData,
+    //     ];
+
+    //     return $response;
+    // }
 }

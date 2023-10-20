@@ -182,7 +182,7 @@ class ComponentsControllers extends Controller
         $startAddComponentUrl = $websiteUrl . 'wp-json/v1/installation';
         $startAddResponse = Http::post($startAddComponentUrl, ['start' => true]);
         if ($startAddResponse->successful()) {
-            $this->addWordpressGlobalColors($websiteUrl,6);
+            $this->addWordpressGlobalColors($websiteUrl);
             $position = 1;
             foreach ($components as $component) {
                 $componentData = [
@@ -243,7 +243,11 @@ class ComponentsControllers extends Controller
         $types = explode(",",$componentTypes);
         $components = [];
         foreach ($types as $type) {
+
             $randomComponent = $this->getRandomComponent($type, $websiteCategory);
+            if(!$randomComponent){
+                return response()->json(["errors"=> "Error Occurs While Generating Random Components."]);
+            }
                 $randomIndex = array_rand($randomComponent);
                 $randomValue = $randomComponent[$randomIndex];
             if ($randomComponent) {
@@ -256,8 +260,9 @@ class ComponentsControllers extends Controller
     private function getRandomComponent($type, $category)
     {
         return Component::where('type', $type)
-            ->where('category', $category)->where('status','active')
-            ->inRandomOrder()->take(5)->get()->toArray();
+            ->where('category', 'LIKE', '%' . $category . '%')
+            ->where('status','active')
+            ->inRandomOrder()->get()->toArray();
     }
 
     public function regenerateComponents(Request $request)
@@ -338,45 +343,47 @@ class ComponentsControllers extends Controller
             }
         return response()->json($response);
     }
-    public function addWordpressGlobalColors($websiteUrl,$colorNumber= false)
+    public function addWordpressGlobalColors($websiteUrl)
     {
-        if(!$colorNumber){
-            $colorNumber = 6;
-        }
         $addGlobalColorsUrl = $websiteUrl . 'wp-json/v1/change_global_variables';
+        $setColorIdUrl = $websiteUrl . 'wp-json/v1/update-options-value';
         $randomColorCombination = ComponentColorCombination::inRandomOrder()->first();
+        $colorCombinationId['c4e_default_color_id'] =  $randomColorCombination->id;
+
         $color = [
-            "id" =>  $randomColorCombination->id,
-            "primary_color_1" => [
+            "c4e_primary_color_1" => [
                 "value" => $randomColorCombination->color_1,
                 "type" => "color"
             ],
-            "primary_color_2" => [
+            "c4e_primary_color_2" => [
                 "value" => $randomColorCombination->color_2,
                 "type" => "color"
             ],
-            "primary_color_3" => [
+            "c4e_primary_color_3" => [
                 "value" => $randomColorCombination->color_3,
                 "type" => "color"
             ],
-            "primary_color_4" => [
+            "c4e_primary_color_4" => [
                 "value" => $randomColorCombination->color_4,
                 "type" => "color"
             ],
-            "primary_color_5" => [
+            "c4e_primary_color_5" => [
                 "value" => $randomColorCombination->color_5,
                 "type" => "color"
             ],
-            "primary_color_6" => [
+            "c4e_primary_color_6" => [
                 "value" => $randomColorCombination->color_6,
                 "type" => "color"
             ]
         ];
         $addGlobalColorsResponse = Http::post($addGlobalColorsUrl,$color);
             if($addGlobalColorsResponse->successful()){
-                $response['response'] = $addGlobalColorsResponse->json();
-                $response['status'] = $addGlobalColorsResponse->status();
-                $response['success'] = true;
+                $setColorsIdResponse = Http::post($setColorIdUrl,$colorCombinationId);
+                if($setColorsIdResponse->successful()){
+                    $response['response'] = $addGlobalColorsResponse->json();
+                    $response['status'] = $addGlobalColorsResponse->status();
+                    $response['success'] = true;
+                }
             }else{
                 $response['response'] = $addGlobalColorsResponse->json();
                 $response['status'] = 400;
