@@ -51,6 +51,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/add-global-colors',[ComponentsControllers::class,'addWordpressGlobalColors']);
     Route::get('/fetch-components',[CustomizeComponentController::class,'fetchComponent']);
     Route::get('/color-combinations',[CustomizeComponentController::class,'getColorCombination']);
+    Route::post('/update-color-combination',[CustomizeComponentController::class,'updateColorCombination']);
+    Route::get('/get-fonts',[CustomizeComponentController::class,'getFont']);
     Route::post('/change-component',[CustomizeComponentController::class,'updateComponent']);
 
 

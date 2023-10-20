@@ -150,6 +150,75 @@ class CustomizeComponentController extends Controller
         }
         return $combinationData;
     }
+    public function updateColorCombination(Request $request)
+    {
+        $response = [
+            "status" => 400,
+            "success" => false,
+        ];
+
+        $validator = Validator::make($request->all(), [
+            'website_url' => 'required|url',
+            'color_id' => 'required',
+        ]);
+        $website_url = $request->website_url;
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+
+        $validated = $validator->valid();
+        if(!ComponentColorCombination::where('id', $validated['color_id'] )->exists()){
+            return response()->json(['errors' => "No such Color Available."], 400);
+        }
+        $typeKey = 'c4e_default_color_id';
+        $typeValue[$typeKey] =$validated['color_id'];
+        $defaultColorResponse = $this->wordpressComponentClass->setDefaultColorOrFont($website_url , $typeValue);
+        if($defaultColorResponse['success']  && $defaultColorResponse['response']['status'] == 200 )
+        {
+            $addGlobalColorsUrl = $website_url . 'wp-json/v1/change_global_variables';
+            $ColorsData = ComponentColorCombination::where('id',$validated['color_id'])->first();
+            $color = [
+                "c4e_primary_color_1" => [
+                    "value" => $ColorsData->color_1,
+                    "type" => "color"
+                ],
+                "c4e_primary_color_2" => [
+                    "value" => $ColorsData->color_2,
+                    "type" => "color"
+                ],
+                "c4e_primary_color_3" => [
+                    "value" => $ColorsData->color_3,
+                    "type" => "color"
+                ],
+                "c4e_primary_color_4" => [
+                    "value" => $ColorsData->color_4,
+                    "type" => "color"
+                ],
+                "c4e_primary_color_5" => [
+                    "value" => $ColorsData->color_5,
+                    "type" => "color"
+                ],
+                "c4e_primary_color_6" => [
+                    "value" => $ColorsData->color_6,
+                    "type" => "color"
+                ]
+            ];
+            $addGlobalColorsResponse = Http::post($addGlobalColorsUrl,$color);
+            if($addGlobalColorsResponse->successful()){
+                  $response = [
+                        "message" => "Colors Combination Updated Successfully.",
+                        "status" => $defaultColorResponse['status'],
+                        "success" => true,
+                    ];
+            }else{
+                $response['response'] = $addGlobalColorsResponse->json();
+                $response['status'] = 400;
+                $response['success'] = false;
+            }
+
+        }
+        return response()->json($response);
+    }
 
     // public function getFont()
     // {

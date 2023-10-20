@@ -50,4 +50,27 @@ class WordpressComponentController extends Controller
             }
         return $response;
     }
+
+    public function setDefaultColorOrFont($websiteUrl,$typeValue) {
+
+        if(!$websiteUrl){
+            return response()->json(["error" => "website Url is required to Proceed."]);
+        }
+        if(!$typeValue){
+            return response()->json(["error" => "Value is required to Update."]);
+        }
+          $setDefaultColorOrFontUrl = $websiteUrl . '/wp-json/v1/update-options-value';
+          $setDefaultColorOrFontResponse = Http::post($setDefaultColorOrFontUrl,$typeValue);
+              if ($setDefaultColorOrFontResponse->successful()) {
+                  $response['response'] =$setDefaultColorOrFontResponse->json();
+                  $response['status'] = $setDefaultColorOrFontResponse->status();
+                  $response['success'] = true;
+              }
+              else{
+                  $response['response'] = $setDefaultColorOrFontResponse->json();
+                  $response['status'] = 400;
+                  $response['success'] = false;
+              }
+          return $response;
+      }
 }
