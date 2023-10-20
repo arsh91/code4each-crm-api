@@ -25,6 +25,6 @@ Route::post('/components',[ComponentController::class,'store'])->name('component
 Route::get('/components/edit/{id}',[ComponentController::class,'edit'])->name('components.edit');
 Route::post('/components/{id}',[ComponentController::class,'update'])->name('components.update');
 Route::get('/clear-cache', function () {
-    $exitCode = Artisan::call('cache:clear');
+    $exitCode = Artisan::call('clear-all');
     return "Cache cleared successfully!";
 });
