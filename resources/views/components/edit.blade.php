@@ -60,9 +60,9 @@
                         <select name="edit_category[]" class="form-select" id="edit_category" multiple size="3">
                             <option>Select Category</option>
                             @foreach ($category as $data)
-                            <option value="{{$data['name']}}"   {{$data->name == $componentData->category  ? 'selected' : ''}}>
-                                {{$data['name']}}
-                            </option>
+                                <option value="{{ $data['name'] }}" {{ in_array($data['name'], explode(',', $componentData->category)) ? 'selected' : '' }}>
+                                    {{ $data['name'] }}
+                                </option>
                             @endforeach
                         </select>
                         @if ($errors->has('edit_category'))
@@ -106,7 +106,7 @@
                     </div>
                 </div>
                 <div class="dependencies-container">
-                <div class="js-dependency-option">
+                <div class="js-dependency-option-old">
                     @foreach ( $componentData->dependencies as $index =>  $dependencies)
                     <div class="row mb-2 js-dependency-option">
                             <input type="hidden" class="form-control" name="edit_dependencies[{{$index}}][id]"  value="{{$dependencies->id}}"/>
@@ -159,7 +159,7 @@
                 </div>
 
                 <div class="form-fields-container">
-                <div class="js-form-fields-option">
+                <div class="js-form-fields-option-old">
                     @foreach ( $componentData->formFields  as $index => $fieldsData)
                         <div class="row mb-2 js-form-fields-option">
                         <input type="hidden" class="form-control" name="edit_form-fields[{{$index}}][id]" value="{{$fieldsData->id}}" />
@@ -266,6 +266,7 @@
             dependencyIndex = parseInt(dependencyIndex) + 1;
         }
 
+
         // Function to clone a dependency row
         function cloneDependency() {
             var clonedDependencyItem = $('.js-hidden-dependency-option .js-dependency-option').clone().removeClass('d-none').addClass('js-cloned-item');
@@ -296,7 +297,6 @@
         }else{
             formFieldIndex = parseInt(formFieldIndex) + 1;
         }
-
     function cloneFormField() {
         var clonedFormFieldItem = $('.js-hidden-form-fields-option .js-form-fields-option').clone().removeClass('d-none').addClass('js-cloned-item');
 

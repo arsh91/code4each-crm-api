@@ -237,6 +237,7 @@ class ComponentController extends Controller
 
             //Create or Update the formFields
             foreach ($formFieldsData as $formFieldData) {
+
                 if (isset($formFieldData['id'])) {
                     ComponentFormFields::where('id', $formFieldData['id'])
                         ->where('component_id', $id)
