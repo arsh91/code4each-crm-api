@@ -252,7 +252,7 @@ class CustomizeComponentController extends Controller
             "message" => "Record Fetched SuccessFully.",
             "status" => 200,
             "success" => true,
-            "data" => $fontData,
+            "fonts" => $fontData,
         ];
 
         return $response;
