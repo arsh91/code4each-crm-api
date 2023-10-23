@@ -54,8 +54,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/update-color-combination',[CustomizeComponentController::class,'updateColorCombination']);
     Route::get('/get-fonts',[CustomizeComponentController::class,'getFont']);
     Route::post('/change-component',[CustomizeComponentController::class,'updateComponent']);
-
-
+    Route::post('/change-font-family',[CustomizeComponentController::class,'updateFont']);
     });
 });
 

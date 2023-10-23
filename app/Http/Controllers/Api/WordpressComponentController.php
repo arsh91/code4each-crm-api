@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\FontFamily;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -73,4 +74,33 @@ class WordpressComponentController extends Controller
               }
           return $response;
       }
+
+      public function addWordpressFontFamily($websiteUrl, $id= false)
+      {
+        if(!$websiteUrl){
+            return response()->json(["error" => "website Url is required to Proceed."]);
+        }
+        if ($id) {
+            $randomFontFamily = FontFamily::where('id',$id)->first();
+        } else {
+            $randomFontFamily = FontFamily::inRandomOrder()->first();
+        }
+
+        $fontId['c4e_font_family_id'] =  $randomFontFamily->id;
+        $fontFamilyName =  $randomFontFamily->name;
+        $fontFamilyData = array('c4e_font_family' =>["value" => $fontFamilyName]);
+        $addFontFamilyUrl = $websiteUrl . 'wp-json/v1/change_global_variables';
+        $addFontFamilyResponse = Http::post($addFontFamilyUrl,$fontFamilyData);
+        if($addFontFamilyResponse->successful()){
+                 $response['response'] =$addFontFamilyResponse->json();
+                 $response['response']['font_id'] = $fontId;
+                 $response['status'] = $addFontFamilyResponse->status();
+                 $response['success'] = true;
+          } else{
+            $response['response'] = $addFontFamilyResponse->json();
+            $response['status'] = 400;
+            $response['success'] = false;
+        }
+        return $response;
+     }
 }

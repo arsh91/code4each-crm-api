@@ -220,34 +220,78 @@ class CustomizeComponentController extends Controller
         return response()->json($response);
     }
 
-    // public function getFont()
-    // {
-    //     $response = [
-    //         "success" => false,
-    //         "status" => 400,
-    //     ];
-    //     $fonts = FontFamily::all();
-    //     $activeFontId = 1;
-    //     $fontData = [];
-    //     foreach ($fonts as $font) {
-    //         $activeFlag = false;
-    //         if($activeFontId != '' && $font->id == $activeFontId){
-    //             $activeFlag = true;
-    //         }
-    //         $fontArray = [
-    //             "id" => $font->id,
-    //             "name" => $font->name,
-    //             "active" => $activeFlag,
-    //         ];
-    //         $fontData[] = $fontArray;
-    //     }
-    //     $response = [
-    //         "message" => "Record Fetched SuccessFully.",
-    //         "status" => 200,
-    //         "success" => true,
-    //         "data" => $fontData,
-    //     ];
+    public function getFont()
+    {
+        $response = [
+            "success" => false,
+            "status" => 400,
+        ];
+        $website_url = request()->input('website_url');
+        $activeFontId = '';
+        if($website_url){
+            $typeKey = 'c4e_font_family_id';
+            $defaultFontResponse = $this->wordpressComponentClass->getDefaultColorOrFont($website_url , $typeKey);
+            $activeFontId = $defaultFontResponse['response']['data'][$typeKey];
+        }
+        $fonts = FontFamily::all();
+        $fontData = [];
+        foreach ($fonts as $font) {
+            $activeFlag = false;
+            if($activeFontId && $font->id == $activeFontId){
+                $activeFlag = true;
+            }
+            $fontArray = [
+                "id" => $font->id,
+                "name" => $font->name,
+                "preview" => $font->preview_image,
+                "active" => $activeFlag,
+            ];
+            $fontData[] = $fontArray;
+        }
+        $response = [
+            "message" => "Record Fetched SuccessFully.",
+            "status" => 200,
+            "success" => true,
+            "data" => $fontData,
+        ];
 
-    //     return $response;
-    // }
+        return $response;
+    }
+    public function updateFont(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'website_url' => 'required|url',
+            'font_id' => 'required',
+        ]);
+        $website_url = $request->website_url;
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+
+        $validated = $validator->valid();
+        if(!FontFamily::where('id', $validated['font_id'] )->exists()){
+            return response()->json(['errors' => "Font is Unavailable."], 400);
+        }
+        $typeKey = 'c4e_font_family_id';
+        $typeValue[$typeKey] =$validated['font_id'];
+        $updateFontResponse = $this->wordpressComponentClass->setDefaultColorOrFont($website_url , $typeValue);
+        if($updateFontResponse['success']  && $updateFontResponse['response']['status'] == 200 )
+        {
+           $updateFontFamilyResponse = $this->wordpressComponentClass->addWordpressFontFamily($website_url, $validated['font_id']);
+           if($updateFontFamilyResponse['success'] && $updateFontFamilyResponse['response']['status'] == 200){
+                $response = [
+                    "message" => "Font Family Updated Successfully.",
+                    "status" => $updateFontFamilyResponse['response']['status'],
+                    "success" => true,
+                ];
+           }else{
+            $response['response'] =$updateFontFamilyResponse['response'];
+            $response['status'] = 400;
+            $response['success'] = false;
+           }
+
+        }
+        return $response;
+    }
 }

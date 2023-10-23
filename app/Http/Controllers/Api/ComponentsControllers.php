@@ -14,9 +14,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\Api\WordpressComponentController;
 
 class ComponentsControllers extends Controller
 {
+    private $wordpressComponentClass;
+    public function __construct()
+    {
+       $this->wordpressComponentClass = new WordpressComponentController();
+    }
+
     public function agencyWebsiteDetails(Request $request)
     {
         $response = [
@@ -170,9 +177,9 @@ class ComponentsControllers extends Controller
                 $data = array(
                     "agency_name" => array("value" => $website_name)
                 );
-                $json_data = json_encode($data);
+                // $json_data = json_encode($data);
+                $addWebsiteNameResponse = Http::post($addWebsiteNameUrl,$data);
 
-                $addWebsiteNameResponse = Http::post($addWebsiteNameUrl,$json_data);
             }
             if($logo){
                 $uploadLogo =  $this->uploadLogoToWordpress($agency_id, $websiteUrl);
@@ -183,6 +190,15 @@ class ComponentsControllers extends Controller
         $startAddResponse = Http::post($startAddComponentUrl, ['start' => true]);
         if ($startAddResponse->successful()) {
             $this->addWordpressGlobalColors($websiteUrl);
+           $addFontFamilyResponse = $this->wordpressComponentClass->addWordpressFontFamily($websiteUrl);
+           if($addFontFamilyResponse['success'] && $addFontFamilyResponse['response']['status'] == 200)
+           {
+                $activeFontId = $addFontFamilyResponse['response']['font_id'];
+                $defaultFontFamilyResponse = $this->wordpressComponentClass->setDefaultColorOrFont($websiteUrl , $activeFontId);
+                // if($defaultFontFamilyResponse['success'] == false && $defaultFontFamilyResponse['response']['status'] == 400){
+
+                // }
+           }
             $position = 1;
             foreach ($components as $component) {
                 $componentData = [
@@ -426,19 +442,6 @@ class ComponentsControllers extends Controller
             }
         }
         return response()->json($response);
-    }
-
-    private function getRandomColor($length)
-    {
-        $data = [];
-        for ($i = 1; $i <= $length; $i++) {
-            $randomColor = "#" . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
-            $data["primary_color_" . $i] = [
-                "value" => $randomColor,
-                "type" => "color"
-            ];
-        }
-        return $data;
     }
 
     public function fetchActiveComponentsDetail()
