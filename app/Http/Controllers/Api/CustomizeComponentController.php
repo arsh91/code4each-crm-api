@@ -243,7 +243,7 @@ class CustomizeComponentController extends Controller
             $fontArray = [
                 "id" => $font->id,
                 "name" => $font->name,
-                "preview" => $font->preview_image,
+                "preview" =>  '/storage/' .$font->preview_image,
                 "active" => $activeFlag,
             ];
             $fontData[] = $fontArray;
