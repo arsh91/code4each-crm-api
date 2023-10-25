@@ -15,7 +15,7 @@ class WebsiteSettingsController extends Controller
         if(!$website_id){
             return response()->json(["error" => "website id is required."],400);
         }
-        $websiteDetail = Websites::with('agencyWebsiteDetail')->where('id', $website_id)->get(['id', 'website_domain', 'assigned'])->toArray();
+        $websiteDetail = Websites::with('agencyWebsiteDetail')->where('id', $website_id)->select(['id', 'website_domain', 'assigned'])->first()->toArray();
 
         if (!empty($websiteDetail)) {
             $response = [
