@@ -11,7 +11,7 @@ class Websites extends Model
 
     public function agencyWebsiteDetail()
     {
-        return $this->hasMany(AgencyWebsite::class, 'website_id');
+        return $this->hasOne(AgencyWebsite::class, 'website_id');
     }
 
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ComponentsControllers;
+use App\Http\Controllers\Api\ComponentSettingsController;
 use App\Http\Controllers\Api\CustomizeComponentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Api\VerificationController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\FeedBackController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\WebsiteSettingsController;
 use App\Http\Controllers\Api\WordpressComponentController;
 
 /*
@@ -55,6 +57,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/get-fonts',[CustomizeComponentController::class,'getFont']);
     Route::post('/change-component',[CustomizeComponentController::class,'updateComponent']);
     Route::post('/change-font-family',[CustomizeComponentController::class,'updateFont']);
+    Route::get('settings',[WebsiteSettingsController::class,'settings']);
     });
 });
 
