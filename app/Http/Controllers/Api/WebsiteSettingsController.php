@@ -24,6 +24,7 @@ class WebsiteSettingsController extends Controller
             "agency_website_detail" =>[
                 "id" => $agencyWebsiteDetail->id,
                 "business_name" => $agencyWebsiteDetail->business_name,
+                "website_category_id" => $agencyWebsiteDetail->website_category_id,
                 "address" => $agencyWebsiteDetail->address,
                 "description" => $agencyWebsiteDetail->description,
                 "logo" => '/storage/'.$agencyWebsiteDetail->logo,
