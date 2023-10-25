@@ -17,6 +17,10 @@ class WebsiteSettingsController extends Controller
         }
         $websiteData = Websites::with('agencyWebsiteDetail')->where('id', $website_id)->first();
         $agencyWebsiteDetail = $websiteData->agencyWebsiteDetail;
+        $logo = null;
+        if($logo){
+            $logo = '/storage/'.$agencyWebsiteDetail->logo;
+        }
         $websiteDetail = [
             "id" => $websiteData->id,
             "website_domain" => $websiteData->website_domain,
@@ -27,7 +31,7 @@ class WebsiteSettingsController extends Controller
                 "website_category_id" => $agencyWebsiteDetail->website_category_id,
                 "address" => $agencyWebsiteDetail->address,
                 "description" => $agencyWebsiteDetail->description,
-                "logo" => '/storage/'.$agencyWebsiteDetail->logo,
+                "logo" => $logo,
                 "agency_id" => $agencyWebsiteDetail->agency_id,
                 "website_id" => $agencyWebsiteDetail->website_id,
                 "status" => $agencyWebsiteDetail->status,
