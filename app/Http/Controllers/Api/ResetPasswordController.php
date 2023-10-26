@@ -39,16 +39,8 @@ class ResetPasswordController extends Controller
             return response()->json(['error' => 'Invalid or expired reset token.'], 400);
         }
 
-        $user = User::where('email', $request->email)->first();
-
-        // Check if the new password is the same as the current password
-        if (Hash::check($request->password, $user->password)) {
-            return response()->json(['error' => 'New password cannot be the same as the old password.'], 400);
-        }
-
-        // Update the password
-        $user->password = Hash::make($request->password);
-        $user->save();
+        $updatePassword = User::where('email', $request->email)
+        ->update(['password' => Hash::make($request->password)]);
 
         // Delete the reset token record from the password_resets table after the password has been successfully reset
         DB::table('password_resets')->where('email', $request->email)->delete();
