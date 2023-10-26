@@ -77,7 +77,7 @@ class WebsiteSettingsController extends Controller
             'business_name' => 'required|string',
             'address' => 'required|string',
             'description' => 'nullable',
-            'logo' => 'sometimes|file|mimes:jpeg,png|max:2048',
+            'logo' => 'nullable|file|mimes:jpeg,png|max:2048',
         ]);
 
         if ($validator->fails()) {
