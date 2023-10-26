@@ -40,6 +40,7 @@ class ForgotPasswordController extends Controller
                       $messages = [
                           'username' => $recipient->name,
                           'token' => $token,
+                          'email' => $request->email,
                       ];
                       $recipient->notify(new ForgotPasswordNotification($messages));
 
