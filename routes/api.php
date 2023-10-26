@@ -58,6 +58,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/change-component',[CustomizeComponentController::class,'updateComponent']);
     Route::post('/change-font-family',[CustomizeComponentController::class,'updateFont']);
     Route::get('settings',[WebsiteSettingsController::class,'settings']);
+    Route::post('/update-settings',[WebsiteSettingsController::class,'updateSettings']);
     });
 });
 

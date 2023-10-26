@@ -6,9 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Models\AgencyWebsite;
 use App\Models\Websites;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\Api\WordpressComponentController;
+use Carbon\Carbon;
 
 class WebsiteSettingsController extends Controller
 {
+    private $wordpressComponentClass;
+    public function __construct()
+    {
+       $this->wordpressComponentClass = new WordpressComponentController();
+    }
     public function settings(Request $request)
     {
         $website_id = $request->input('website_id');
@@ -18,7 +26,7 @@ class WebsiteSettingsController extends Controller
         $websiteData = Websites::with('agencyWebsiteDetail')->where('id', $website_id)->first();
         $agencyWebsiteDetail = $websiteData->agencyWebsiteDetail;
         $logo = null;
-        if($logo){
+        if($agencyWebsiteDetail->logo){
             $logo = '/storage/'.$agencyWebsiteDetail->logo;
         }
         $websiteDetail = [
@@ -55,5 +63,69 @@ class WebsiteSettingsController extends Controller
         }
 
         return response()->json($response);
+    }
+    public function updateSettings(Request $request)
+    {
+        $response = [
+            'success' => false,
+            'status' => 400,
+        ];
+
+        $validator = Validator::make($request->all(), [
+            'website_id' => 'required',
+            'category_id' => 'required',
+            'business_name' => 'required|string',
+            'address' => 'required|string',
+            'description' => 'nullable',
+            'logo' => 'sometimes|file|mimes:jpeg,png|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+
+        $validated = $validator->valid();
+        $id = $request->website_id;
+        $website = Websites::findOrFail($id);
+        $website_url = $website->website_domain;
+        $agency_website_id = $website->assigned;
+        $agencyWebsiteData = AgencyWebsite::where('id',$agency_website_id)->first();
+
+        $description = null;
+        if($validated['description'] != null){
+            $description = $validated['description'];
+        }
+        $agencyWebsiteDetails = AgencyWebsite::where('id',$agency_website_id)->update([
+            'website_category_id' => $validated['category_id'],
+            'address' => $validated['address'],
+            'description'  => $description,
+            'business_name' => $validated['business_name'],
+            'updated_at' => Carbon::now(),
+        ]);
+        if($agencyWebsiteData->business_name != $validated['business_name']){
+            $updateAgencyName = $this->wordpressComponentClass->agencyName($website_url , $validated['business_name']);
+        }
+        if($request->hasFile('logo')) {
+            $uploadedFile = $request->file('logo');
+            $filename = time() . '_' . $uploadedFile->getClientOriginalName();
+            $uploadedFile->storeAs('public/AgencyWebsiteDetails', $filename);
+            $path = 'AgencyWebsiteDetails/' . $filename;
+            $updateLogo = AgencyWebsite::where('id',$agency_website_id)->update([
+                'logo' => $path,
+            ]);
+            if($updateLogo){
+                $updateLogoToWordPressResponse = $this->wordpressComponentClass->uploadLogoToWordpress($path , $website_url);
+            }
+
+        }
+
+        $response = [
+            "message" => "Settings Updated Successfully.",
+            'success' => true,
+            'status' => 200,
+        ];
+
+        return response()->json($response);
+
     }
 }

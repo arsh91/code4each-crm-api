@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\AgencyWebsite;
 use App\Models\FontFamily;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -102,5 +103,56 @@ class WordpressComponentController extends Controller
             $response['success'] = false;
         }
         return $response;
+     }
+
+     public function agencyName($websiteUrl,$website_name)
+     {
+        $addWebsiteNameUrl = $websiteUrl . 'wp-json/v1/change_global_variables';
+
+            $data = array(
+                "agency_name" => array("value" => $website_name)
+            );
+            $addWebsiteNameResponse = Http::post($addWebsiteNameUrl,$data);
+            if($addWebsiteNameResponse->successful()){
+                $response['response'] =$addWebsiteNameResponse->json();
+                $response['status'] = $addWebsiteNameResponse->status();
+                $response['success'] = true;
+         } else{
+           $response['response'] = $addWebsiteNameResponse->json();
+           $response['status'] = 400;
+           $response['success'] = false;
+       }
+       return $response;
+     }
+
+     public function uploadLogoToWordpress($logoPath,$url)
+     {
+        if(!$logoPath){
+            return response()->json(["error" => "logo path is required to upload logo."]);
+        }
+        if(!$url){
+            return response()->json(["error" => "url is required to upload logo."]);
+        }
+         $thirdPartyUrl = $url . 'wp-json/v1/logo/';
+         $imageFullPath = storage_path('app/public/' . $logoPath);
+         if (file_exists($imageFullPath)) {
+             $logoResponse = Http::attach(
+                 'logo',
+                 file_get_contents($imageFullPath),
+                 'logo.png'
+             )
+             ->post($thirdPartyUrl);
+             \Log::info("Wordpress Logo Response: " . $logoResponse->body());
+                 $response = [
+                      $logoResponse->json(),
+                     'status' =>  $logoResponse->status(),
+                 ];
+         } else {
+             $response = [
+                 'message' => "Error Occurs In Uploading the Logo",
+
+             ];
+         }
+         return $response;
      }
 }

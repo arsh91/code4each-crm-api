@@ -177,7 +177,6 @@ class ComponentsControllers extends Controller
                 $data = array(
                     "agency_name" => array("value" => $website_name)
                 );
-                // $json_data = json_encode($data);
                 $addWebsiteNameResponse = Http::post($addWebsiteNameUrl,$data);
 
             }
