@@ -10,7 +10,9 @@ use App\Http\Controllers\Api\RegistrationController;
 use App\Http\Controllers\Api\VerificationController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\FeedBackController;
+use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\ResetPasswordController;
 use App\Http\Controllers\Api\WebsiteSettingsController;
 use App\Http\Controllers\Api\WordpressComponentController;
 
@@ -28,6 +30,10 @@ use App\Http\Controllers\Api\WordpressComponentController;
 Route::post('/register',[RegistrationController::class,'store']);
 Route::post('/login',[AuthController::class,'Login'])->name('login');
 Route::get('email/verify/{id}',[VerificationController::class,'verify'])->name('verification.verify');
+Route::post('/forgot-password',[ForgotPasswordController::class,'forgotPassword']);
+Route::post('/reset-password',[ResetPasswordController::class,'resetPassword']);
+
+
 //Authenticated Group Routes
 Route::middleware('auth:api')->group(function () {
     Route::get('/user', function (Request $request) {
@@ -36,7 +42,6 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/dashboard',[DashboardController::class,'index'])->middleware('verifiedEmail');
     Route::post('/feedback',[FeedBackController::class,'feedback']);
     Route::middleware('throttle:3,20')->get('email/resend',[VerificationController::class,'resend'])->name('verification.resend');
-    // Route::post('/forgot-password',[AuthController::class,'forgotPassword']);
     Route::post('/logout',[AuthController::class,'logout']);
 
     //Email Verified Routes
