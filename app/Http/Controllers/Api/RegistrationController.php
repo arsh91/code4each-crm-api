@@ -85,8 +85,14 @@ class RegistrationController extends Controller
                     'special_Email' => $userObj->email,
                 ],
             ];
-            $admin = User::where('role','super_admin')->first();
-            $admin->notify(new CommonEmailNotification($messages));
+            $admins = User::where('role', 'super_admin')->get();
+
+            if ($admins->count() > 0) {
+                foreach ($admins as $admin) {
+                    $admin->notify(new CommonEmailNotification($messages));
+                }
+            }
+
             $response = [
                 'success' => true,
                 'message' => 'Company Register Successfully.',
