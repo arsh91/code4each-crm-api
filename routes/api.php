@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ComponentsControllers;
 use App\Http\Controllers\Api\ComponentSettingsController;
+use App\Http\Controllers\Api\CustomComponentFieldsController;
 use App\Http\Controllers\Api\CustomizeComponentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -64,6 +65,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/change-font-family',[CustomizeComponentController::class,'updateFont']);
     Route::get('settings',[WebsiteSettingsController::class,'settings']);
     Route::post('/update-settings',[WebsiteSettingsController::class,'updateSettings']);
+    Route::get('get-component-form-fields',[CustomComponentFieldsController::class,'getFormFields']);
+
     });
 });
 
