@@ -66,6 +66,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('settings',[WebsiteSettingsController::class,'settings']);
     Route::post('/update-settings',[WebsiteSettingsController::class,'updateSettings']);
     Route::get('get-component-form-fields',[CustomComponentFieldsController::class,'getFormFields']);
+    Route::post('update-component-form-fields',[CustomComponentFieldsController::class,'updateComponentFormFields']);
 
     });
 });

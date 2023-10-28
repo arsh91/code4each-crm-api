@@ -155,4 +155,46 @@ class WordpressComponentController extends Controller
          }
          return $response;
      }
+    public function insertOrUpdateComponentFields($data, $websiteUrl)
+    {
+        $dataToSend = [
+            $data['field_name'] => [
+                "value" => $data['default_value'],
+                "type" => $data['type']
+            ]
+        ];
+
+        $addOrUpdateComponentFieldsUrl = $websiteUrl . 'wp-json/v1/update-component-fields';
+        $addOrUpdateComponentFieldsResponse = Http::post($addOrUpdateComponentFieldsUrl, $dataToSend);
+        if ($addOrUpdateComponentFieldsResponse->successful()) {
+            $response['response'] = $addOrUpdateComponentFieldsResponse->json();
+            $response['status'] = $addOrUpdateComponentFieldsResponse->status();
+            $response['success'] = true;
+        } else {
+            $response['response'] = $addOrUpdateComponentFieldsResponse->json();
+            $response['status'] = 400;
+            $response['success'] = false;
+        }
+        return $response;
+    }
+
+    public function getInsertedComponentFields($websiteUrl, $key)
+    {
+        $bodyJson = json_encode([
+            $key
+        ]);
+        $getInsertedComponentFieldsUrl = $websiteUrl . '/wp-json/v1/get-component-fields';
+        $componentFieldsResponse = Http::withBody($bodyJson, 'application/json')->get($getInsertedComponentFieldsUrl);
+        if ($componentFieldsResponse->successful()) {
+            $response['response'] = $componentFieldsResponse->json();
+            $response['status'] = $componentFieldsResponse->status();
+            $response['success'] = true;
+        } else {
+            $response['response'] = $componentFieldsResponse->json();
+            $response['status'] = 400;
+            $response['success'] = false;
+        }
+        return $response;
+    }
+
 }
