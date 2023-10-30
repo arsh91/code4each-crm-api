@@ -37,27 +37,41 @@ class CustomComponentFieldsController extends Controller
         $componentFormFields = $component->formFields;
 
         foreach ($componentFormFields as $formField) {
-            $getComponentFieldsResponse = $this->wordpressComponentClass->getInsertedComponentFields(
-                $website_url,
-                $formField->field_name
-            );
-            $value = null;
-            if ($getComponentFieldsResponse['success'] && $getComponentFieldsResponse['response']['status'] == 200) {
-                $value = $getComponentFieldsResponse['response']['data'][$formField->field_name];
-            }
 
             $formFieldArray = [
                 "field_name" =>  $formField->field_name,
                 "field_type" => $formField->field_type,
                 "default_value" => $formField->default_value,
+                "value"=> null
             ];
 
-            // Add the 'value' key only if $value exists
-            if ($value !== null) {
-                $formFieldArray['value'] = $value;
-            }
             $formFieldsArray[] = $formFieldArray;
         }
+
+        $fieldNames = array_filter(array_map(function($item) {
+            return isset($item['field_name']) ? $item['field_name'] : null;
+        }, $formFieldsArray));
+
+
+        $getComponentFieldsResponse = $this->wordpressComponentClass->getInsertedComponentFields(
+                $website_url,
+                $fieldNames
+            );
+
+            if ($getComponentFieldsResponse['success'] && $getComponentFieldsResponse['response']['status'] == 200) {
+
+                $replacementArray = $getComponentFieldsResponse['response']['data'];
+
+                $formFieldsArray = array_map(function($formField) use ($replacementArray) {
+                    $field_name = $formField['field_name'];
+                    if (isset($replacementArray[$field_name])) {
+                        $formField['value'] = $replacementArray[$field_name];
+                    }
+                    return $formField;
+                }, $formFieldsArray);
+            }
+
+
         $response = [
             "message" => "Detail Fetched Successfully.",
             'data' => $formFieldsArray,

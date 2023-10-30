@@ -178,11 +178,11 @@ class WordpressComponentController extends Controller
         return $response;
     }
 
-    public function getInsertedComponentFields($websiteUrl, $key)
+    public function getInsertedComponentFields($websiteUrl, $allFields)
     {
-        $bodyJson = json_encode([
-            $key
-        ]);
+        $bodyJson = json_encode(
+            $allFields
+        );
         $getInsertedComponentFieldsUrl = $websiteUrl . '/wp-json/v1/get-component-fields';
         $componentFieldsResponse = Http::withBody($bodyJson, 'application/json')->get($getInsertedComponentFieldsUrl);
         if ($componentFieldsResponse->successful()) {
