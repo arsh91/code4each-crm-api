@@ -29,7 +29,7 @@ class UpdateFormFields extends FormRequest
             'form_fields' => 'required|array',
             'form_fields.*' => 'required',
             'form_fields.*.field_name' => 'required',
-            'form_fields.*.field_value' => 'required',
+            'form_fields.*.field_value' => 'nullable',
             'form_fields.*.type' => 'required',
 
 
