@@ -93,47 +93,34 @@ class CustomComponentFieldsController extends Controller
         $validated = $request->validated();
         $componentUniqueId = $validated['component_unique_id'];
         $website_url =  $validated['website_url'];
-        $field_name =  $validated['field_name'];
-        $default_value =  $validated['default_value'];
 
-        $component = Component::with('formFields')->where('component_unique_id', $componentUniqueId)->select('id', 'type', 'category')->first();
+            $formFields = $validated['form_fields'];
+            $component = Component::with('formFields')->where('status','active')->where('component_unique_id', $componentUniqueId)->select('id', 'type', 'category')->first();
+            $componentFormFields = $component->formFields;
 
-        $componentFormFields = $component->formFields;
+            $formFieldNames = array_column($formFields, 'field_name');
+            $componentFormFieldNames = $componentFormFields->pluck('field_name')->toArray();
 
-        foreach ($componentFormFields as $formField) {
-            $formFieldArray = [
-                "field_name" =>  $field_name,
-                "field_type" => $formField->field_type,
-                "default_value" => $default_value,
-                'type' => $component->type,
-            ];
-            $updateLogoToWordPressResponse[] = $this->wordpressComponentClass->insertOrUpdateComponentFields($formFieldArray, $website_url);
-        }
-        $allResponsesSuccessful = true;
+            $keysMatched = empty(array_diff($formFieldNames, $componentFormFieldNames));
 
-        foreach ($updateLogoToWordPressResponse as $responseItem) {
-            $status = $responseItem['response']['status'];
-            if ($status !== 200) {
-                $allResponsesSuccessful = false;
-                break;
+            if ($keysMatched) {
+                $updateFieldsResponse = $this->wordpressComponentClass->insertOrUpdateComponentFields($formFields, $website_url);
+            } else {
+                $error_message = "Error while updating component form fields details";
+                    $response = [
+                        "success" => false,
+                        "message" => $error_message,
+                        "status" => 400,
+                    ];
             }
-        }
 
-        if ($allResponsesSuccessful) {
-            $message = "All component details updated successfully";
-            $response = [
-                "success" => true,
-                "message" => $message,
-                "status" => 200,
-            ];
-        } else {
-            $error_message = "Error while updating component details";
-            $response = [
-                "success" => false,
-                "message" => $error_message,
-                "status" => 400,
-            ];
-        }
+            if ($updateFieldsResponse['success'] && $updateFieldsResponse['response']['status'] == 200) {
+                $response = [
+                            "message" => "Record Updated Successfully.",
+                            "success" => true,
+                            "status" => 200,
+                        ];
+            }
 
         return response()->json($response);
     }

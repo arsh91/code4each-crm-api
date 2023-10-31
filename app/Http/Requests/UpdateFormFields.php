@@ -26,8 +26,13 @@ class UpdateFormFields extends FormRequest
         return [
             'website_url' => 'required|url',
             'component_unique_id' => 'required',
-            'field_name' => 'required',
-            'default_value' => 'required',
+            'form_fields' => 'required|array',
+            'form_fields.*' => 'required',
+            'form_fields.*.field_name' => 'required',
+            'form_fields.*.field_value' => 'required',
+            'form_fields.*.type' => 'required',
+
+
         ];
     }
 }
