@@ -294,4 +294,30 @@ class CustomizeComponentController extends Controller
         }
         return $response;
     }
+
+    public function updateComponentPosition(Request $request)
+    {
+        $response = [
+            "success" => false,
+            "status" => 400,
+        ];
+        $updatedPositions = $request->updated_positions;
+        $website_url = $request->website_url;
+        if(!$updatedPositions){
+            return response()->json(['errors' => "updated positions required."], 400);
+        }
+        if(!$website_url){
+            return response()->json(['errors' => "website url is required."], 400);
+        }
+        $updatePositionsResponse = $this->wordpressComponentClass->updateComponentPosition($website_url , $updatedPositions);
+        if($updatePositionsResponse['success']  && $updatePositionsResponse['response']['status'] == 200 ){
+            $response = [
+                "message" => "Component Positions Updated Successfully.",
+                "success" => true,
+                "status"  => 200,
+            ];
+        }
+
+        return response()->json($response);
+    }
 }

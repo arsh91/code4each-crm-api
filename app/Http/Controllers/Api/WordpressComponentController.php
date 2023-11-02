@@ -199,4 +199,20 @@ class WordpressComponentController extends Controller
         return $response;
     }
 
+    public function updateComponentPosition($websiteUrl, $data)
+    {
+        $updateComponentPositionsUrl = $websiteUrl . '/wp-json/v1/change-component-position';
+        $updateComponentResponse = Http::post($updateComponentPositionsUrl,$data);
+        if ($updateComponentResponse->successful()) {
+            $response['response'] = $updateComponentResponse->json();
+            $response['status'] = $updateComponentResponse->status();
+            $response['success'] = true;
+        } else {
+            $response['response'] = $updateComponentResponse->json();
+            $response['status'] = 400;
+            $response['success'] = false;
+        }
+        return $response;
+    }
+
 }
