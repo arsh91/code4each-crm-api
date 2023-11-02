@@ -246,8 +246,12 @@
             </select>
         </div>
         <div class="col-md">
+            <input type="text" class="form-control" placeholder="Field Position" name="edit_form-fields[][field_position]"/>
+        </div>
+        <div class="col-md">
             <input type="text" class="form-control" placeholder="Default Value" name="edit_form-fields[][default_value]"/>
         </div>
+
         <div class="col-md-1">
             <span class="js-remove-form-fields-cloned-item text-danger" style="font-size: 20px;">&times;</span>
         </div>
@@ -302,6 +306,7 @@
 
         clonedFormFieldItem.find('[name="edit_form-fields[][name]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][name]');
         clonedFormFieldItem.find('[name="edit_form-fields[][type]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][type]');
+        clonedFormFieldItem.find('[name="edit_form-fields[][field_position]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][field_position]');
         clonedFormFieldItem.find('[name="edit_form-fields[][default_value]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][default_value]');
 
         $('.form-fields-container').append(clonedFormFieldItem);

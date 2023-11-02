@@ -13,6 +13,7 @@ class ComponentFormFields extends Model
         'component_id',
         'field_name',
         'field_type',
+        'field_position',
         'default_value',
     ];
 

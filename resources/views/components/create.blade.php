@@ -173,7 +173,12 @@
                 <option selected>Select Field Type</option>
                 <option value="text">Text</option>
                 <option value="image">Image</option>
+                <option value="textarea">TextArea</option>
+                <option value="button">Button</option>
             </select>
+        </div>
+        <div class="col-md">
+            <input type="text" class="form-control" placeholder="Field Position" name="form-fields[][field_position]" />
         </div>
         <div class="col-md">
             <input type="text" class="form-control" placeholder="Default Value" name="form-fields[][default_value]" />
@@ -224,6 +229,7 @@
 
         clonedFormFieldItem.find('[name="form-fields[][name]"]').attr('name', 'form-fields[' + formFieldIndex + '][name]');
         clonedFormFieldItem.find('[name="form-fields[][type]"]').attr('name', 'form-fields[' + formFieldIndex + '][type]');
+        clonedFormFieldItem.find('[name="form-fields[][field_position]"]').attr('name', 'form-fields[' + formFieldIndex + '][field_position]');
         clonedFormFieldItem.find('[name="form-fields[][default_value]"]').attr('name', 'form-fields[' + formFieldIndex + '][default_value]');
 
         $('.form-fields-container').append(clonedFormFieldItem);

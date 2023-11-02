@@ -46,6 +46,7 @@ class ComponentController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request);
         $validator = Validator::make($request->all(), [
             'component_name' => 'required|string|max:255',
             'path' => 'required',
@@ -60,6 +61,7 @@ class ComponentController extends Controller
             'form-fields' => 'required|array',
             'form-fields.*.name' => 'required',
             'form-fields.*.type' => 'required',
+            'form-fields.*.field_position' => 'required',
             'form-fields.*.default_value' => 'required',
 
         ]);
@@ -102,6 +104,7 @@ class ComponentController extends Controller
                         'component_id' => $component->id,
                         'field_name' => $formFieldData['name'],
                         'field_type' => $formFieldData['type'],
+                        'field_position' => $formFieldData['field_position'],
                         'default_value' => $formFieldData['default_value'],
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now(),
@@ -145,6 +148,7 @@ class ComponentController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // dd($request);
         $validator = Validator::make($request->all(), [
             'edit_component_name' => 'required|string|max:255',
             'edit_path' => 'required',
@@ -159,6 +163,7 @@ class ComponentController extends Controller
             'edit_form-fields' => 'required|array',
             'edit_form-fields.*.name' => 'required',
             'edit_form-fields.*.type' => 'required',
+            'edit_form-fields.*.field_position' => 'required',
             'edit_form-fields.*.default_value' => 'required',
         ]);
 
@@ -244,6 +249,7 @@ class ComponentController extends Controller
                         ->update([
                             'field_name' => $formFieldData['name'],
                             'field_type' => $formFieldData['type'],
+                            'field_position' => $formFieldData['field_position'],
                             'default_value' => $formFieldData['default_value'],
                             'updated_at' => now(),
                         ]);
@@ -252,6 +258,7 @@ class ComponentController extends Controller
                         'component_id' => $id,
                         'field_name' => $formFieldData['name'],
                         'field_type' => $formFieldData['type'],
+                        'field_position' => $formFieldData['field_position'],
                         'default_value' => $formFieldData['default_value'],
                         'created_at' => now(),
                         'updated_at' => now(),
