@@ -18,6 +18,6 @@ class Component extends Model
     }
     public function formFields()
     {
-        return $this->hasMany(ComponentFormFields::class, 'component_id');
+        return $this->hasMany(ComponentFormFields::class, 'component_id')->orderBy('field_position');
     }
 }
