@@ -28,3 +28,8 @@ Route::get('/clear-cache', function () {
     $exitCode = Artisan::call('clear-all');
     return "Cache cleared successfully!";
 });
+
+Route::get('/migrate', function () {
+    $exitCode = Artisan::call('migrate');
+    return "Migration command executed successfully!";
+});
