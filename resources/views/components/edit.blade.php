@@ -171,7 +171,13 @@
                                     <option selected>Select Field Type</option>
                                     <option value="text" {{$fieldsData->field_type == 'text' ? 'selected' : ' ' }}>Text</option>
                                     <option value="image" {{$fieldsData->field_type == 'image' ? 'selected' : ' ' }} >Image</option>
+                                    <option value="textarea" {{$fieldsData->field_type == 'textarea' ? 'selected' : ' ' }} >TextArea</option>
+                                    <option value="button" {{$fieldsData->field_type == 'button' ? 'selected' : ' ' }} >Button</option>
+
                                 </select>
+                            </div>
+                            <div class="col-md">
+                                <input type="text" class="form-control" placeholder="Field Position" name="edit_form-fields[{{$index}}][field_position]" value="{{$fieldsData->field_position}}"   size="2"/>
                             </div>
                             <div class="col-md">
                                 <input type="text" class="form-control" placeholder="Default Value" name="edit_form-fields[{{$index}}][default_value]" value="{{$fieldsData->default_value}}"  />
@@ -243,6 +249,8 @@
                 <option selected>Select Field Type</option>
                 <option value="text">Text</option>
                 <option value="image">Image</option>
+                <option value="textarea">TextArea</option>
+                <option value="button">Button</option>
             </select>
         </div>
         <div class="col-md">
