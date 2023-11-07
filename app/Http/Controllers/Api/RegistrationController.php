@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Agency;
 use App\Models\User;
 use App\Notifications\CommonEmailNotification;
+use App\Notifications\VerifyEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -58,22 +59,12 @@ class RegistrationController extends Controller
 
             $token = $userObj->createToken('access-token')->accessToken;
 
-            $verificationLink = URL::temporarySignedRoute(
-                'verification.verify',
-                now()->addMinutes(config('auth.verification.expire', 60)),
-                ['id' => $userObj->id, 'hash' => sha1($userObj->getEmailForVerification())]
-            );
             $messages = [
-                'subject' => 'Confirmation Email for Registering On Code4Each CRM Portal',
-                'additional-info' => 'If you have Already Verified Your Account, please ignore this email. Your account will not be activated unless you confirm your email address.',
-                'url-title' => 'Verify Email Address',
-                'url' => $verificationLink,
-                'lines_array' => [
-                    'title' => 'Congratulations and welcome to Code4Each CRM! We \'re thrilled to have you as a new member of our community.',
-                    'body-text' => 'To get started, please click on the link below to confirm your email address and activate your account:',
-                ],
+                'greeting-text' => 'Hey '. $userObj->name,
             ];
-            $userObj->notify(new CommonEmailNotification($messages));
+            // Send Verification Email Using Custom Verify Notification
+            $userObj->notify(new VerifyEmail($messages));
+
             $messages = [
                 'subject' => 'New Agency Is Register With Our CRM Platform',
                 'url-title' => 'Find Detail',
@@ -94,9 +85,9 @@ class RegistrationController extends Controller
             }
 
             $response = [
-                'success' => true,
                 'message' => 'Company Register Successfully.',
                 'token' => $token,
+                'success' => true,
                 'status' => 200,
             ];
 

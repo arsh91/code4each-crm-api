@@ -46,7 +46,11 @@ class ComponentsControllers extends Controller
         $validate = $validator->valid();
         try {
             DB::beginTransaction();
+            //Get unassigned Website from website table
             $websitesData = Websites::where('assigned', null)->first();
+            if(!$websitesData){
+                return response()->json(['error' => 'An Error occur While Creating Your site. Domain may not exists related to your business name. Ask for the Support.'],500);
+            }
             $description = null;
             if($validate['description']){
                 $description = $validate['description'];
