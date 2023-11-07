@@ -61,8 +61,12 @@ class ComponentController extends Controller
             'form-fields' => 'required|array',
             'form-fields.*.name' => 'required',
             'form-fields.*.type' => 'required',
-            'form-fields.*.field_position' => 'required',
             'form-fields.*.default_value' => 'required',
+            'form-fields.*.default_image' => 'nullable|file|max:5120|mimes:jpeg,png',
+            'form-fields.*.field_position' => 'required',
+            'form-fields.*.meta_key1' => 'nullable',
+            'form-fields.*.meta_key2' => 'nullable',
+
 
         ]);
         if ($validator->fails()) {
@@ -99,15 +103,39 @@ class ComponentController extends Controller
                     'updated_at' => Carbon::now(),
                 ]);
             }
+
+                // foreach ($validate['form-fields'] as $formFieldData) {
+                //     ComponentFormFields::create([
+                //         'component_id' => $component->id,
+                //         'field_name' => $formFieldData['name'],
+                //         'field_type' => $formFieldData['type'],
+                //         'field_position' => $formFieldData['field_position'],
+                //         'default_value' => $formFieldData['default_value'],
+                //         'created_at' => Carbon::now(),
+                //         'updated_at' => Carbon::now(),
+                //     ]);
+                // }
                 foreach ($validate['form-fields'] as $formFieldData) {
-                    ComponentFormFields::create([
+                    // Handle default_image upload if it exists
+                    if (isset($formFieldData['default_image']) && $formFieldData['default_image']->isValid()) {
+                        $uploadedFile = $formFieldData['default_image'];
+                        $filename = time() . '_' . $uploadedFile->getClientOriginalName();
+                        $uploadedFile->storeAs('public/Components', $filename);
+                        $path = 'Components/'.$filename;
+                        $formFieldData['default_value'] = $path;
+                    }
+
+                    // Create ComponentFormFields instance
+                   ComponentFormFields::create([
                         'component_id' => $component->id,
                         'field_name' => $formFieldData['name'],
                         'field_type' => $formFieldData['type'],
                         'field_position' => $formFieldData['field_position'],
                         'default_value' => $formFieldData['default_value'],
-                        'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now(),
+                        'meta_key1' => $formFieldData['meta_key1'] ?? null,
+                        'meta_key2' => $formFieldData['meta_key2'] ?? null,
+                        'created_at' => now(),
+                        'updated_at' => now(),
                     ]);
                 }
             $message = "Component Saved Successfully.";
@@ -148,7 +176,6 @@ class ComponentController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // dd($request);
         $validator = Validator::make($request->all(), [
             'edit_component_name' => 'required|string|max:255',
             'edit_path' => 'required',
@@ -165,6 +192,8 @@ class ComponentController extends Controller
             'edit_form-fields.*.type' => 'required',
             'edit_form-fields.*.field_position' => 'required',
             'edit_form-fields.*.default_value' => 'required',
+            'edit_form-fields.*.meta_key1' => 'nullable',
+            'edit_form-fields.*.meta_key2' => 'nullable',
         ]);
 
         if ($validator->fails()) {
@@ -251,6 +280,8 @@ class ComponentController extends Controller
                             'field_type' => $formFieldData['type'],
                             'field_position' => $formFieldData['field_position'],
                             'default_value' => $formFieldData['default_value'],
+                            'meta_key1' => $formFieldData['meta_key1'] ?? null,
+                            'meta_key2' => $formFieldData['meta_key2'] ?? null,
                             'updated_at' => now(),
                         ]);
                 } else {
@@ -260,6 +291,8 @@ class ComponentController extends Controller
                         'field_type' => $formFieldData['type'],
                         'field_position' => $formFieldData['field_position'],
                         'default_value' => $formFieldData['default_value'],
+                        'meta_key1' => $formFieldData['meta_key1'] ?? null,
+                        'meta_key2' => $formFieldData['meta_key2'] ?? null,
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);

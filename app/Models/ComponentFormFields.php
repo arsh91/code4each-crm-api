@@ -15,6 +15,8 @@ class ComponentFormFields extends Model
         'field_type',
         'field_position',
         'default_value',
+        'meta_key1',
+        'meta_key2',
     ];
 
     public function component()

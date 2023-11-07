@@ -169,7 +169,7 @@
             <input type="text" class="form-control" placeholder="Field Name" name="form-fields[][name]" />
         </div>
         <div class="col-md">
-            <select class="form-control" name="form-fields[][type]">
+            <select class="form-control selectFieldType" name="form-fields[][type]"  id="fieldType" >
                 <option selected>Select Field Type</option>
                 <option value="text">Text</option>
                 <option value="image">Image</option>
@@ -180,8 +180,15 @@
         <div class="col-md">
             <input type="text" class="form-control" placeholder="Field Position" name="form-fields[][field_position]" />
         </div>
+        <div class="col-md defaultValueContainer">
+           <input type="text" class="form-control formDefaultValue" placeholder="Default Value" name="form-fields[][default_value]" id="defaultValueInput" value=""/>
+            <input type="file" class="form-control imageUploadValue" id="imageUpload" name="form-fields[][default_image]"  style="display: none;" onchange="updateDefaultValue(this)" />
+        </div>
         <div class="col-md">
-            <input type="text" class="form-control" placeholder="Default Value" name="form-fields[][default_value]" />
+            <input type="text" class="form-control" placeholder="Meta Key1 (Optional)" name="form-fields[][meta_key1]" />
+        </div>
+        <div class="col-md">
+            <input type="text" class="form-control" placeholder="Meta Key2 (Optional)" name="form-fields[][meta_key2]" />
         </div>
         <div class="col-md-1">
             <span class="js-remove-form-fields-cloned-item text-danger" style="font-size: 20px;">&times;</span>
@@ -231,6 +238,8 @@
         clonedFormFieldItem.find('[name="form-fields[][type]"]').attr('name', 'form-fields[' + formFieldIndex + '][type]');
         clonedFormFieldItem.find('[name="form-fields[][field_position]"]').attr('name', 'form-fields[' + formFieldIndex + '][field_position]');
         clonedFormFieldItem.find('[name="form-fields[][default_value]"]').attr('name', 'form-fields[' + formFieldIndex + '][default_value]');
+        clonedFormFieldItem.find('[name="form-fields[][meta_key1]"]').attr('name', 'form-fields[' + formFieldIndex + '][meta_key1]');
+        clonedFormFieldItem.find('[name="form-fields[][meta_key2]"]').attr('name', 'form-fields[' + formFieldIndex + '][meta_key2]');
 
         $('.form-fields-container').append(clonedFormFieldItem);
         formFieldIndex++;
@@ -246,6 +255,53 @@
             $(this).closest('.js-form-fields-option').remove()
         });
 
+        // const fieldTypeSelect = document.getElementById('fieldType');
+        // // const defaultValueContainer = document.getElementById('defaultValueContainer');
+        // const defaultValueInput = document.getElementById('defaultValueInput');
+        // const imageUpload = document.getElementById('imageUpload');
+        // console.log(imageUpload.value);
+
+        // fieldTypeSelect.addEventListener('change', function() {
+        //     const selectedValue = fieldTypeSelect.value;
+        //     if (selectedValue === 'image') {
+        //         defaultValueInput.style.display = 'none';
+        //         imageUpload.style.display = 'block';
+        //     } else {
+        //         defaultValueInput.style.display = 'block';
+        //         imageUpload.style.display = 'none';
+        //     }
+        // });
+
+
+        $(document).on('change', '.selectFieldType', function() {
+            const selectedValue = $(this).val();
+            console.log(selectedValue);
+            const closestParent = $(this).closest('.js-form-fields-option');
+            const defaultValueInput = closestParent.find('.formDefaultValue');
+            const imageUpload = closestParent.find('.imageUploadValue');
+
+            if (selectedValue === 'image') {
+                defaultValueInput.hide();
+                imageUpload.show();
+            } else {
+                defaultValueInput.show();
+                imageUpload.hide();
+            }
+        });
+
+
+
     });
+
+    function updateDefaultValue(input) {
+            var file = input.files[0];
+            var fileName = file.name;
+            const closestParent = $(input).closest('.defaultValueContainer');
+            const insertDefaultValue = closestParent.find('.formDefaultValue').val(fileName);
+            // console.log(closestParent.find('.formDefaultValue').val());
+
+
+            // document.getElementById('defaultValueInput').value = fileName;
+        }
 </script>
 @endsection
