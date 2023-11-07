@@ -167,20 +167,35 @@
                                 <input type="text" class="form-control" placeholder="Field Name" name="edit_form-fields[{{$index}}][name]" value="{{$fieldsData->field_name}}" />
                             </div>
                             <div class="col-md">
-                                <select class="form-control" name="edit_form-fields[{{$index}}][type]">
+                                <select class="form-control selectFieldType" name="edit_form-fields[{{$index}}][type]" id="fieldType">
                                     <option selected>Select Field Type</option>
                                     <option value="text" {{$fieldsData->field_type == 'text' ? 'selected' : ' ' }}>Text</option>
                                     <option value="image" {{$fieldsData->field_type == 'image' ? 'selected' : ' ' }} >Image</option>
                                     <option value="textarea" {{$fieldsData->field_type == 'textarea' ? 'selected' : ' ' }} >TextArea</option>
                                     <option value="button" {{$fieldsData->field_type == 'button' ? 'selected' : ' ' }} >Button</option>
-
                                 </select>
                             </div>
                             <div class="col-md">
                                 <input type="text" class="form-control" placeholder="Field Position" name="edit_form-fields[{{$index}}][field_position]" value="{{$fieldsData->field_position}}"   size="2"/>
                             </div>
+                            <div class="col-md" id="defaultField">
+                                <input type="text" class="form-control formDefaultValue"  placeholder="Default Value" name="edit_form-fields[{{$index}}][default_value]"
+                                @if ($fieldsData->field_type == 'image' && $fieldsData->default_value)
+                                style="display:none"
+                                @endif
+                                value="{{$fieldsData->default_value}}" />
+                                @if ($fieldsData->field_type == 'image' && $fieldsData->default_value)
+                                    <input type="file" class="form-control imageUploadValue" name="edit_form-fields[{{$index}}][default_image]" onchange="updateDefaultValue(this)" />
+                                    <img src="{{ asset('storage/' . $fieldsData->default_value) }}"  height="50" width="70" alt="Image Preview"/>
+
+                                    @endif
+                            </div>
+
                             <div class="col-md">
-                                <input type="text" class="form-control" placeholder="Default Value" name="edit_form-fields[{{$index}}][default_value]" value="{{$fieldsData->default_value}}"  />
+                                <input type="text" class="form-control" placeholder="Meta Key 1 (optional)" name="edit_form-fields[{{$index}}][meta_key1]" value="{{$fieldsData->meta_key1}}"  />
+                            </div>
+                            <div class="col-md">
+                                <input type="text" class="form-control" placeholder="Meta Key 2 (optional)" name="edit_form-fields[{{$index}}][meta_key2]" value="{{$fieldsData->meta_key2}}"  />
                             </div>
                             <div class="col-md-1">
                                 <span class="js-remove-form-fields-cloned-item text-danger" style="font-size: 20px;">&times;</span>
@@ -245,7 +260,7 @@
             <input type="text" class="form-control" placeholder="Field Name" name="edit_form-fields[][name]"  />
         </div>
         <div class="col-md">
-            <select class="form-control" name="edit_form-fields[][type]">
+            <select class="form-control selectFieldType" name="edit_form-fields[][type]">
                 <option selected>Select Field Type</option>
                 <option value="text">Text</option>
                 <option value="image">Image</option>
@@ -257,7 +272,15 @@
             <input type="text" class="form-control" placeholder="Field Position" name="edit_form-fields[][field_position]"/>
         </div>
         <div class="col-md">
-            <input type="text" class="form-control" placeholder="Default Value" name="edit_form-fields[][default_value]"/>
+            <input type="text" class="form-control formDefaultValue" placeholder="Default Value" name="edit_form-fields[][default_value]"/>
+            <input type="file" class="form-control imageUploadValue" name="edit_form-fields[][default_image]" style="display: none;" onchange="updateDefaultValue(this)" />
+
+        </div>
+        <div class="col-md">
+            <input type="text" class="form-control" placeholder="Meta Key 1 (optional)" name="edit_form-fields[][meta_key1]"/>
+        </div>
+        <div class="col-md">
+            <input type="text" class="form-control" placeholder="Meta Key 2 (optional)" name="edit_form-fields[][meta_key2]"/>
         </div>
 
         <div class="col-md-1">
@@ -268,6 +291,7 @@
 @endsection
 @section('js_scripts')
 <script>
+    //start document ready function
     $(document).ready(function() {
 
         var dependencyLastChild = $('.js-dependency-option:last-child');
@@ -310,12 +334,17 @@
             formFieldIndex = parseInt(formFieldIndex) + 1;
         }
     function cloneFormField() {
+        console.log(formFieldIndex);
         var clonedFormFieldItem = $('.js-hidden-form-fields-option .js-form-fields-option').clone().removeClass('d-none').addClass('js-cloned-item');
 
         clonedFormFieldItem.find('[name="edit_form-fields[][name]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][name]');
         clonedFormFieldItem.find('[name="edit_form-fields[][type]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][type]');
         clonedFormFieldItem.find('[name="edit_form-fields[][field_position]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][field_position]');
         clonedFormFieldItem.find('[name="edit_form-fields[][default_value]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][default_value]');
+        clonedFormFieldItem.find('[name="edit_form-fields[][default_image]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][default_image]');
+        clonedFormFieldItem.find('[name="edit_form-fields[][meta_key1]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][meta_key1]');
+        clonedFormFieldItem.find('[name="edit_form-fields[][meta_key2]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][meta_key2]');
+        // console.log(formFieldIndex)
 
         $('.form-fields-container').append(clonedFormFieldItem);
         formFieldIndex++;
@@ -331,6 +360,36 @@
             $(this).closest('.js-form-fields-option').remove()
         });
 
+        const selectedValue = $('.selectFieldType').val();
+
+
+        $(document).on('change', '.selectFieldType', function() {
+            const selectedValue = $(this).val();
+            // console.log(selectedValue);
+            const closestParent = $(this).closest('.js-form-fields-option');
+            const defaultValueInput = closestParent.find('.formDefaultValue');
+            const imageUpload = closestParent.find('.imageUploadValue');
+
+            if (selectedValue === 'image') {
+                defaultValueInput.hide();
+                imageUpload.show();
+            } else {
+                defaultValueInput.show();
+                imageUpload.hide();
+            }
+        });
     });
+    //end document ready function
+
+    function updateDefaultValue(input) {
+            const closestParent = $(input).closest('.js-form-fields-option');
+            const defaultValueInput = closestParent.find('.formDefaultValue');
+            // Update the default value input with the file name (temporary name for now)
+            // const defaultValueInput = defaultField.querySelector('.formDefaultValue');
+            defaultValueInput.value = input.files[0].name;
+            console.log(defaultValueInput.value);
+        }
+
+
 </script>
 @endsection
