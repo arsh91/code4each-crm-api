@@ -46,7 +46,6 @@ class ComponentController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request);
         $validator = Validator::make($request->all(), [
             'component_name' => 'required|string|max:255',
             'path' => 'required',
@@ -104,17 +103,7 @@ class ComponentController extends Controller
                 ]);
             }
 
-                // foreach ($validate['form-fields'] as $formFieldData) {
-                //     ComponentFormFields::create([
-                //         'component_id' => $component->id,
-                //         'field_name' => $formFieldData['name'],
-                //         'field_type' => $formFieldData['type'],
-                //         'field_position' => $formFieldData['field_position'],
-                //         'default_value' => $formFieldData['default_value'],
-                //         'created_at' => Carbon::now(),
-                //         'updated_at' => Carbon::now(),
-                //     ]);
-                // }
+
                 foreach ($validate['form-fields'] as $formFieldData) {
                     // Handle default_image upload if it exists
                     if (isset($formFieldData['default_image']) && $formFieldData['default_image']->isValid()) {
@@ -271,6 +260,14 @@ class ComponentController extends Controller
 
             //Create or Update the formFields
             foreach ($formFieldsData as $formFieldData) {
+                //check if image in request then add path to the default_value field
+                if (isset($formFieldData['default_image']) && $formFieldData['default_image']->isValid()) {
+                    $uploadedFile = $formFieldData['default_image'];
+                    $filename = time() . '_' . $uploadedFile->getClientOriginalName();
+                    $uploadedFile->storeAs('public/Components', $filename);
+                    $path = 'Components/'.$filename;
+                    $formFieldData['default_value'] = $path;
+                }
 
                 if (isset($formFieldData['id'])) {
                     ComponentFormFields::where('id', $formFieldData['id'])

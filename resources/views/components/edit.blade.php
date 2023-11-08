@@ -365,7 +365,6 @@
 
         $(document).on('change', '.selectFieldType', function() {
             const selectedValue = $(this).val();
-            // console.log(selectedValue);
             const closestParent = $(this).closest('.js-form-fields-option');
             const defaultValueInput = closestParent.find('.formDefaultValue');
             const imageUpload = closestParent.find('.imageUploadValue');
@@ -385,9 +384,7 @@
             const closestParent = $(input).closest('.js-form-fields-option');
             const defaultValueInput = closestParent.find('.formDefaultValue');
             // Update the default value input with the file name (temporary name for now)
-            // const defaultValueInput = defaultField.querySelector('.formDefaultValue');
-            defaultValueInput.value = input.files[0].name;
-            console.log(defaultValueInput.value);
+            defaultValueInput.val(input.files[0].name);
         }
 
 
