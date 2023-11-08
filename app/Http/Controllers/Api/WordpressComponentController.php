@@ -162,9 +162,19 @@ class WordpressComponentController extends Controller
         foreach ($fieldsData as $data) {
             $dataToSend[$data['field_name']] = [
                 "value" => $data['field_value'],
-                "type" => $data['type']
+                "type" => $data['type'],
+                "field_type" => $data['field_type'],
             ];
+
+            if (isset($data['meta1'])) {
+                $dataToSend[$data['field_name']]['meta1'] = $data['meta1'];
+            }
+
+            if (isset($data['meta2'])) {
+                $dataToSend[$data['field_name']]['meta2'] = $data['meta2'];
+            }
         }
+
 
         $addOrUpdateComponentFieldsUrl = $websiteUrl . 'wp-json/v1/update-component-fields';
         $addOrUpdateComponentFieldsResponse = Http::post($addOrUpdateComponentFieldsUrl, $dataToSend);

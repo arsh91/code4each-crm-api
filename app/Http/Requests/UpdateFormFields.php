@@ -31,8 +31,9 @@ class UpdateFormFields extends FormRequest
             'form_fields.*.field_name' => 'required',
             'form_fields.*.field_value' => 'nullable',
             'form_fields.*.type' => 'required',
-
-
+            'form_fields.*.field_type' => 'required',
+            'form_fields.*.meta1' => 'nullable',
+            'form_fields.*.meta2' => 'nullable',
         ];
     }
 }
