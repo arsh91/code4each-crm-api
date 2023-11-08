@@ -42,6 +42,8 @@ class CustomComponentFieldsController extends Controller
                 "field_name" =>  $formField->field_name,
                 "field_type" => $formField->field_type,
                 "default_value" => $formField->default_value,
+                "meta1" => $formField->meta_key1,
+                "meta2" => $formField->meta_key2,
                 "value"=> null
             ];
 
