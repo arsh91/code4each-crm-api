@@ -106,16 +106,19 @@ class CustomComponentFieldsController extends Controller
         $website_url =  $validated['website_url'];
 
             $formFields = $validated['form_fields'];
-            $component = Component::with('formFields')->where('status','active')->where('component_unique_id', $componentUniqueId)->select('id', 'type', 'category')->first();
-            $componentFormFields = $component->formFields;
+            $component = Component::where('status','active')->where('component_unique_id', $componentUniqueId)->select('id', 'type', 'category')->first();
 
-            $formFieldNames = array_column($formFields, 'field_name');
-            $componentFormFieldNames = $componentFormFields->pluck('field_name')->toArray();
-
-            $keysMatched = empty(array_diff($formFieldNames, $componentFormFieldNames));
-
-            if ($keysMatched) {
+            if ($component) {
                 $updateFieldsResponse = $this->wordpressComponentClass->insertOrUpdateComponentFields($formFields, $website_url);
+
+                if ($updateFieldsResponse['success'] && $updateFieldsResponse['response']['status'] == 200) {
+                    $response = [
+                                "message" => "Record Updated Successfully.",
+                                "success" => true,
+                                "status" => 200,
+                            ];
+                }
+
             } else {
                 $error_message = "Error while updating component form fields details";
                     $response = [
@@ -125,13 +128,7 @@ class CustomComponentFieldsController extends Controller
                     ];
             }
 
-            if ($updateFieldsResponse['success'] && $updateFieldsResponse['response']['status'] == 200) {
-                $response = [
-                            "message" => "Record Updated Successfully.",
-                            "success" => true,
-                            "status" => 200,
-                        ];
-            }
+
 
         return response()->json($response);
     }
