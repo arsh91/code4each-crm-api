@@ -37,15 +37,23 @@ class CustomComponentFieldsController extends Controller
         $componentFormFields = $component->formFields;
 
         foreach ($componentFormFields as $formField) {
+            $defaultValue = $formField->default_value;
+            if($formField->field_type == 'image' &&  $formField->default_value != null ){
+                $defaultValue = '/storage/'. $defaultValue;
+            }
 
             $formFieldArray = [
                 "field_name" =>  $formField->field_name,
                 "field_type" => $formField->field_type,
-                "default_value" => $formField->default_value,
-                "meta1" => $formField->meta_key1,
-                "meta2" => $formField->meta_key2,
-                "value"=> null
+                "default_value" => $defaultValue,
+                "default_meta1" => $formField->meta_key1,
+                "default_meta2" => $formField->meta_key2,
+                "value"=> null,
+                "meta1"=> null,
+                "meta2"=> null,
+
             ];
+
 
             $formFieldsArray[] = $formFieldArray;
         }
@@ -59,7 +67,6 @@ class CustomComponentFieldsController extends Controller
                 $website_url,
                 $fieldNames
             );
-
             if ($getComponentFieldsResponse['success'] && $getComponentFieldsResponse['response']['status'] == 200) {
 
                 $replacementArray = $getComponentFieldsResponse['response']['data'];
@@ -67,7 +74,9 @@ class CustomComponentFieldsController extends Controller
                 $formFieldsArray = array_map(function($formField) use ($replacementArray) {
                     $field_name = $formField['field_name'];
                     if (isset($replacementArray[$field_name])) {
-                        $formField['value'] = $replacementArray[$field_name];
+                        $formField['value'] = $replacementArray[$field_name]['value'];
+                        $formField['meta1'] = $replacementArray[$field_name]['meta1'];
+                        $formField['meta2'] = $replacementArray[$field_name]['meta2'];
                     }
                     return $formField;
                 }, $formFieldsArray);
