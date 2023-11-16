@@ -61,7 +61,8 @@ class ComponentController extends Controller
             'form-fields.*.name' => 'required',
             'form-fields.*.type' => 'required',
             'form-fields.*.default_value' => 'required',
-            'form-fields.*.default_image' => 'nullable|file|max:5120|mimes:jpeg,png',
+            'form-fields.*.default_image.*' => 'nullable|file|max:5120|mimes:jpeg,png',
+            'form-fields.*.multiple_image' => 'nullable',
             'form-fields.*.field_position' => 'required',
             'form-fields.*.meta_key1' => 'nullable',
             'form-fields.*.meta_key2' => 'nullable',
@@ -105,32 +106,73 @@ class ComponentController extends Controller
 
 
                 foreach ($validate['form-fields'] as $formFieldData) {
-                    // Handle default_image upload if it exists
-                    if (isset($formFieldData['default_image']) && $formFieldData['default_image']->isValid()) {
-                        $uploadedFile = $formFieldData['default_image'];
-                        $filename = time() . '_' . $uploadedFile->getClientOriginalName();
-                        $uploadedFile->storeAs('public/Components', $filename);
-                        $path = 'Components/'.$filename;
-                        $formFieldData['default_value'] = $path;
-                    }
+                      // Handle default_image or multiple images upload if it exists
+                        if (isset($formFieldData['default_image'])) {
+                            $uploadedFiles = $formFieldData['default_image'];
 
-                    // Create ComponentFormFields instance
-                   ComponentFormFields::create([
-                        'component_id' => $component->id,
-                        'field_name' => $formFieldData['name'],
-                        'field_type' => $formFieldData['type'],
-                        'field_position' => $formFieldData['field_position'],
-                        'default_value' => $formFieldData['default_value'],
-                        'meta_key1' => $formFieldData['meta_key1'] ?? null,
-                        'meta_key2' => $formFieldData['meta_key2'] ?? null,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
+                            // Check if it's a single file or an array of files
+                            if (is_array($uploadedFiles)) {
+                                foreach ($uploadedFiles as $uploadedFile) {
+                                    // Handle the upload and update $formFieldData as needed for multiple images
+                                    $this->handleUpload($uploadedFile, $formFieldData);
+                                }
+                            } else {
+                                // Handle the upload and update $formFieldData as needed for a single image
+                                $this->handleUpload($uploadedFiles, $formFieldData);
+                            }
+                        }
+
+                        // Create ComponentFormFields instance
+                        $componentFormField = [
+                            'component_id' => $component->id,
+                            'field_name' => $formFieldData['name'],
+                            'field_type' => $formFieldData['type'],
+                            'field_position' => $formFieldData['field_position'],
+                            'default_value' => $formFieldData['default_value'],
+                            'meta_key1' => $formFieldData['meta_key1'] ?? null,
+                            'meta_key2' => $formFieldData['meta_key2'] ?? null,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ];
+
+                        // check for image type multiple then add to the database
+                        if (isset($formFieldData['multiple_image']) && $formFieldData['multiple_image'] == 'on') {
+                            $componentFormField['is_multiple_image'] = true;
+                        }
+
+                        ComponentFormFields::create($componentFormField);
                 }
             $message = "Component Saved Successfully.";
             return redirect()->route('components.index')->with('message', $message);
         }
     }
+
+    private function handleUpload($uploadedFile, &$formFieldData)
+    {
+        if ($uploadedFile->isValid()) {
+            $filename = time() . '_' . $uploadedFile->getClientOriginalName();
+            $uploadedFile->storeAs('public/Components', $filename);
+            $path = 'Components/' . $filename;
+
+            // Check if multiple_image is 'on', update default_value accordingly
+            if (isset($formFieldData['multiple_image']) && $formFieldData['multiple_image'] == 'on') {
+                // Convert default_value to a string if it's not already
+                $formFieldData['default_value'] = is_array($formFieldData['default_value'])
+                    ? implode(',', $formFieldData['default_value'])
+                    : $formFieldData['default_value'];
+
+                // Append the new path to the comma-separated string
+                $formFieldData['default_value'] .= ',' . $path;
+            } else {
+                // Store a single path
+                $formFieldData['default_value'] = $path;
+            }
+        }
+    }
+
+
+
+
 
     /**
      * Display the specified resource.
@@ -218,6 +260,7 @@ class ComponentController extends Controller
 
         }
         if ($component) {
+            //Update Component Id on changes in Name of Component
             if($validate['edit_component_name'] != $componentDetail->component_name){
                 $componentName = str_replace(' ', '_', $component->component_name);
                 $uniqueId = strtoupper('comp_' . $componentName . '_' . $component->id);

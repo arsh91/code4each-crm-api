@@ -15,6 +15,7 @@ class ComponentFormFields extends Model
         'field_type',
         'field_position',
         'default_value',
+        'is_multiple_image',
         'meta_key1',
         'meta_key2',
     ];
