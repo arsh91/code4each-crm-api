@@ -76,4 +76,40 @@ class ImageController extends Controller
         }
         return response()->json($response);
     }
+
+    public function getComponentImages()
+    {
+        $response = [
+            'success' => false,
+            'status' => 400,
+        ];
+        if (!request()->website_url) {
+            return response()->json(['website url  is required'], 400);
+        }
+        if (!request()->type) {
+            return response()->json(['type is required'], 400);
+        }
+
+        $request =  request()->all();
+        $website_url = $request['website_url'];
+        $type = $request['type'];
+
+        $getUploadedImagesResponse = $this->wordpressComponentClass->getUploadedImages(
+            $website_url,
+            $type
+        );
+
+        if ($getUploadedImagesResponse['success'] && $getUploadedImagesResponse['response']['status'] == 200) {
+            $response = [
+                "message" => "Images Fetched Successfully.",
+                'data' => $getUploadedImagesResponse['response']['data'],
+                'success' => true,
+                'status' => 200,
+            ];
+
+        }
+
+        return response()->json($response);
+
+    }
 }

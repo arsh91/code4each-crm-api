@@ -51,6 +51,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/agency-website-details',[ComponentsControllers::class,'agencyWebsiteDetails']);
     // Route::get('/agency-website-info/{agency_id}',[DashboardController::class,'getAgencyWebsiteInfo']);
     Route::get('/get-website-categories',[DashboardController::class,'getWebsiteCategories']);
+
     Route::post('store-components', [ComponentsControllers::class, 'sendComponentToWordpress' ]);
     Route::post('components/regenerate', [ComponentsControllers::class, 'regenerateComponents' ]);
     Route::get('/get-active-components',[ComponentsControllers::class,'getActiveWordpressComponents']);
@@ -58,6 +59,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/get-components-global-colors',[ComponentsControllers::class,'getWordpressGlobalColors']);
     Route::post('/update-global-colors',[ComponentsControllers::class,'updateWordpressGlobalColors']);
     Route::post('/add-global-colors',[ComponentsControllers::class,'addWordpressGlobalColors']);
+
     Route::get('/fetch-components',[CustomizeComponentController::class,'fetchComponent']);
     Route::get('/color-combinations',[CustomizeComponentController::class,'getColorCombination']);
     Route::post('/update-color-combination',[CustomizeComponentController::class,'updateColorCombination']);
@@ -65,13 +67,17 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/change-component',[CustomizeComponentController::class,'updateComponent']);
     Route::post('/change-font-family',[CustomizeComponentController::class,'updateFont']);
     Route::post('update-component-position',[CustomizeComponentController::class,'updateComponentPosition']);
+
     Route::get('settings',[WebsiteSettingsController::class,'settings']);
     Route::post('/update-settings',[WebsiteSettingsController::class,'updateSettings']);
+
     Route::get('get-component-form-fields',[CustomComponentFieldsController::class,'getFormFields']);
     Route::post('update-component-form-fields',[CustomComponentFieldsController::class,'updateComponentFormFields']);
 
 
     Route::post('upload-images',[ImageController::class,'uploadImages']);
+    Route::get('uploaded-images',[ImageController::class,'getComponentImages']);
+
 
 
 
