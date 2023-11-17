@@ -265,5 +265,23 @@ class WordpressComponentController extends Controller
 
     }
 
+    public function deleteComponentUploadedImages($websiteUrl, $data)
+    {
+        $deleteUploadImagesUrl = $websiteUrl . '/wp-json/v1/delete-component-images';
+        $deleteUploadedImagesResponse = Http::delete($deleteUploadImagesUrl,$data);
+        if ($deleteUploadedImagesResponse->successful()) {
+            $response['response'] = $deleteUploadedImagesResponse->json();
+            $response['status'] = $deleteUploadedImagesResponse->status();
+            $response['success'] = true;
+        } else {
+            $response['response'] = $deleteUploadedImagesResponse->json();
+            $response['status'] = 400;
+            $response['success'] = false;
+        }
+        return $response;
+
+    }
+
+
 
 }

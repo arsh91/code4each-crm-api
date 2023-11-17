@@ -112,4 +112,37 @@ class ImageController extends Controller
         return response()->json($response);
 
     }
+
+
+    public function deleteUploadedImages(Request $request)
+    {
+        $response = [
+            'success' => false,
+            'status' => 400,
+        ];
+        if (!request()->website_url) {
+            return response()->json(['website url  is required'], 400);
+        }
+        if (!request()->delete_images) {
+            return response()->json(['array data is required  to delete images'], 400);
+        }
+
+        $delete_images = $request->delete_images;
+        $website_url = $request->website_url;
+
+        $deleteUploadedImagesResponse = $this->wordpressComponentClass->deleteComponentUploadedImages(
+            $website_url,
+            $delete_images
+        );
+
+        if ($deleteUploadedImagesResponse['success'] && $deleteUploadedImagesResponse['response']['status'] == 200) {
+            $response = [
+                "message" => "Images Deleted Successfully.",
+                'success' => true,
+                'status' => 200,
+            ];
+
+        }
+        return response()->json($response);
+    }
 }
