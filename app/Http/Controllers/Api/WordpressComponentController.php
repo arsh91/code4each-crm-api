@@ -225,4 +225,22 @@ class WordpressComponentController extends Controller
         return $response;
     }
 
+    public function uploadComponentImages($websiteUrl, $data)
+    {
+        $uploadComponentImagesUrl = $websiteUrl . '/wp-json/v1/update-component-images';
+        $uploadComponentImagesResponse = Http::post($uploadComponentImagesUrl,$data);
+        if ($uploadComponentImagesResponse->successful()) {
+            $response['response'] = $uploadComponentImagesResponse->json();
+            $response['status'] = $uploadComponentImagesResponse->status();
+            $response['success'] = true;
+        } else {
+            $response['response'] = $uploadComponentImagesResponse->json();
+            $response['status'] = 400;
+            $response['success'] = false;
+        }
+        return $response;
+
+    }
+
+
 }

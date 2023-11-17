@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\VerificationController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\FeedBackController;
 use App\Http\Controllers\Api\ForgotPasswordController;
+use App\Http\Controllers\Api\ImageController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ResetPasswordController;
 use App\Http\Controllers\Api\WebsiteSettingsController;
@@ -68,6 +69,10 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/update-settings',[WebsiteSettingsController::class,'updateSettings']);
     Route::get('get-component-form-fields',[CustomComponentFieldsController::class,'getFormFields']);
     Route::post('update-component-form-fields',[CustomComponentFieldsController::class,'updateComponentFormFields']);
+
+
+    Route::post('upload-images',[ImageController::class,'uploadImages']);
+
 
 
 
