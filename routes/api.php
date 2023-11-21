@@ -17,6 +17,8 @@ use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ResetPasswordController;
 use App\Http\Controllers\Api\WebsiteSettingsController;
 use App\Http\Controllers\Api\WordpressComponentController;
+use App\Http\Controllers\Api\PreBookingController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -79,9 +81,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('uploaded-images',[ImageController::class,'getComponentImages']);
     Route::delete('delete-uploaded-images',[ImageController::class,'deleteUploadedImages']);
 
-
-
-
+    Route::post('pre-booking', [PreBookingController::class,'saveEmailForPreBooking']);
 
     });
 });
