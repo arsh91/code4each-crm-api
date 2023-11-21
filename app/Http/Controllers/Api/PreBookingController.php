@@ -19,7 +19,11 @@ class PreBookingController extends Controller
             'email' => $request->input('email'),
         ]);
 
-        return response()->json(['message' => 'Email inserted successfully'], 201);
+        $count = PreBooking::count();
+        return response()->json([
+            'message' => 'Email inserted successfully',
+            'data' => ['count' => $count],
+        ], 201);
     }
 
 }
