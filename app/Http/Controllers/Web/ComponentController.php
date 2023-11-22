@@ -226,6 +226,8 @@ class ComponentController extends Controller
             'edit_form-fields.*.type' => 'required',
             'edit_form-fields.*.field_position' => 'required',
             'edit_form-fields.*.default_value' => 'required',
+            'edit_form-fields.*.default_image.*' => 'nullable|file|max:5120|mimes:jpeg,png',
+            'edit_form-fields.*.multiple_image' => 'nullable',
             'edit_form-fields.*.meta_key1' => 'nullable',
             'edit_form-fields.*.meta_key2' => 'nullable',
         ]);
@@ -308,40 +310,56 @@ class ComponentController extends Controller
 
             //Create or Update the formFields
             foreach ($formFieldsData as $formFieldData) {
-                //check if image in request then add path to the default_value field
-                if (isset($formFieldData['default_image']) && $formFieldData['default_image']->isValid()) {
-                    $uploadedFile = $formFieldData['default_image'];
-                    $filename = time() . '_' . $uploadedFile->getClientOriginalName();
-                    $uploadedFile->storeAs('public/Components', $filename);
-                    $path = 'Components/'.$filename;
-                    $formFieldData['default_value'] = $path;
-                }
 
-                if (isset($formFieldData['id'])) {
-                    ComponentFormFields::where('id', $formFieldData['id'])
-                        ->where('component_id', $id)
-                        ->update([
+                   // Handle default_image or multiple images upload if it exists
+                    if (isset($formFieldData['default_image'])) {
+                        $uploadedFiles = $formFieldData['default_image'];
+
+                        // Check if it's a single file or an array of files
+                        if (is_array($uploadedFiles)) {
+                            foreach ($uploadedFiles as $uploadedFile) {
+                                // Handle the upload and update $formFieldData as needed for multiple images
+                                $this->handleUpload($uploadedFile, $formFieldData);
+                            }
+                        } else {
+                            // Handle the upload and update $formFieldData as needed for a single image
+                            $this->handleUpload($uploadedFiles, $formFieldData);
+                        }
+                    }
+
+                    if (isset($formFieldData['id'])) {
+                        ComponentFormFields::where('id', $formFieldData['id'])
+                            ->where('component_id', $id)
+                            ->update([
+                                'field_name' => $formFieldData['name'],
+                                'field_type' => $formFieldData['type'],
+                                'field_position' => $formFieldData['field_position'],
+                                'default_value' => $formFieldData['default_value'],
+                                'meta_key1' => $formFieldData['meta_key1'] ?? null,
+                                'meta_key2' => $formFieldData['meta_key2'] ?? null,
+                                'is_multiple_image' => isset($formFieldData['multiple_image']) && $formFieldData['multiple_image'] == 'on',
+                                'updated_at' => now(),
+                            ]);
+                    } else {
+                        $componentFormField = [
+                            'component_id' => $id,
                             'field_name' => $formFieldData['name'],
                             'field_type' => $formFieldData['type'],
                             'field_position' => $formFieldData['field_position'],
                             'default_value' => $formFieldData['default_value'],
                             'meta_key1' => $formFieldData['meta_key1'] ?? null,
                             'meta_key2' => $formFieldData['meta_key2'] ?? null,
+                            'created_at' => now(),
                             'updated_at' => now(),
-                        ]);
-                } else {
-                    ComponentFormFields::create([
-                        'component_id' => $id,
-                        'field_name' => $formFieldData['name'],
-                        'field_type' => $formFieldData['type'],
-                        'field_position' => $formFieldData['field_position'],
-                        'default_value' => $formFieldData['default_value'],
-                        'meta_key1' => $formFieldData['meta_key1'] ?? null,
-                        'meta_key2' => $formFieldData['meta_key2'] ?? null,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
-                }
+                        ];
+
+                        // check for image type multiple then add to the database
+                        if (isset($formFieldData['multiple_image']) && $formFieldData['multiple_image'] == 'on') {
+                            $componentFormField['is_multiple_image'] = true;
+                        }
+
+                        ComponentFormFields::create($componentFormField);
+                    }
             }
 
              //Delete Removed FormFields From fromFieldsArray

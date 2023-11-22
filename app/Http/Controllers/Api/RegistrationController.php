@@ -60,7 +60,7 @@ class RegistrationController extends Controller
             $token = $userObj->createToken('access-token')->accessToken;
 
             $messages = [
-                'greeting-text' => 'Hey '. $userObj->name,
+                'greeting-text' => 'Hey! '. $userObj->name,
             ];
             // Send Verification Email Using Custom Verify Notification
             $userObj->notify(new VerifyEmail($messages));
