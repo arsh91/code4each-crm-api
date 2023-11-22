@@ -12,7 +12,7 @@ class PreBookingController extends Controller
     public function saveEmailForPreBooking(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|unique:pre_booking,email',
+            'email' => 'required|email|unique:user_notify_emails,email',
         ]);
 
         PreBooking::create([
