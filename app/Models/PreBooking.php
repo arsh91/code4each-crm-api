@@ -9,7 +9,7 @@ class PreBooking extends Model
 {
     use HasFactory;
 
-    protected $table = 'pre_booking';
+    protected $table = 'user_notify_emails';
     protected $fillable = ['email'];
 
 }
