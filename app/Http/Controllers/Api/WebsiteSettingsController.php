@@ -76,6 +76,10 @@ class WebsiteSettingsController extends Controller
             'category_id' => 'required',
             'business_name' => 'required|string',
             'address' => 'required|string',
+            'city' => 'required',
+            'state' => 'required',
+            'country' => 'required',
+            'zip'  => 'required',
             'description' => 'nullable',
             'logo' => 'nullable|file|mimes:jpeg,png|max:2048',
         ]);
@@ -98,6 +102,10 @@ class WebsiteSettingsController extends Controller
         $agencyWebsiteDetails = AgencyWebsite::where('id',$agency_website_id)->update([
             'website_category_id' => $validated['category_id'],
             'address' => $validated['address'],
+            'city' => $validated['city'],
+            'state' => $validated['state'],
+            'country' => $validated['country'],
+            'pin' => $validated['zip'],
             'description'  => $description,
             'business_name' => $validated['business_name'],
             'updated_at' => Carbon::now(),

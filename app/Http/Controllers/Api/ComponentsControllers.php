@@ -35,6 +35,10 @@ class ComponentsControllers extends Controller
             'category_id' => 'required',
             'description' => 'nullable|string',
             'address' => 'required',
+            'city' => 'required',
+            'state' => 'required',
+            'country' => 'required',
+            'zip'  => 'required',
             'business_name' => 'required',
             'logo' => 'nullable',
         ]);
@@ -58,6 +62,10 @@ class ComponentsControllers extends Controller
             $agencyWebsiteDetails = AgencyWebsite::create([
                 'website_category_id' => $validate['category_id'],
                 'address' => $validate['address'],
+                'city' => $validate['city'],
+                'state' => $validate['state'],
+                'country' => $validate['country'],
+                'pin' => $validate['zip'],
                 'description'  => $description,
                 'agency_id' => $validate['agency_id'],
                 'business_name' => $validate['business_name'],
