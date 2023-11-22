@@ -100,9 +100,10 @@ class WebsiteSettingsController extends Controller
         $agencyWebsiteData = AgencyWebsite::where('id',$agency_website_id)->first();
 
         $description = null;
-        if($validated['description'] != null){
+        if(isset($validated['description']) && $validated['description'] !== null){
             $description = $validated['description'];
         }
+
         $agencyWebsiteDetails = AgencyWebsite::where('id',$agency_website_id)->update([
             'website_category_id' => $validated['category_id'],
             'address' => $validated['address'],
