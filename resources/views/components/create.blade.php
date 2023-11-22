@@ -129,7 +129,25 @@
                     @endforeach
                     @endif
                 </div>
+                <!-- add button for new form field in component -->
                 <span class="js-add-form-fields clone text-success" style="font-size: 20px;">+</span>
+
+                <!-- status for the Component -->
+                <div class="row mb-5">
+                    <label for="status" class="col-sm-3 col-form-label required ">Status</label>
+                    <div class="col-sm-4">
+                        <select name="status" class="form-select" id="status">
+                            <option value="draft">Draft</option>
+                            <option value="testing">Testing</option>
+                            <option value="active">Active</option>
+                            <option value="deactive">Deactive</option>
+                        </select>
+                        @if ($errors->has('status'))
+                             <span style="font-size: 12px;" class="text-danger">{{ $errors->first('status') }}</span>
+                        @endif
+                    </div>
+                </div>
+
 
                 <div class="text-center">
                     <button type="submit" class="btn btn-primary">Save</button>
@@ -139,6 +157,7 @@
     </div>
 </div>
 
+<!-- code for clone new row for dependency -->
 <div class="js-hidden-dependency-option d-none">
     <div class="row mb-2 js-dependency-option">
         <div class="col-md">
@@ -162,6 +181,8 @@
         </div>
     </div>
 </div>
+
+<!-- code for clone new row for form fields -->
 
 <div class="js-hidden-form-fields-option d-none">
     <div class="overflow-auto">

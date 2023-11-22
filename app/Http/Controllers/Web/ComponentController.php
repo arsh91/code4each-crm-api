@@ -51,6 +51,7 @@ class ComponentController extends Controller
             'path' => 'required',
             'type' => 'required',
             'category' => 'required',
+            'status' => 'required',
             'preview' => 'required|file|mimes:jpg,jpeg,png,gif|max:5000',
             'dependencies' => 'required|array',
             'dependencies.*.name' => 'required',
@@ -79,6 +80,7 @@ class ComponentController extends Controller
             'path' => $validate['path'],
             'type'  => $validate['type'],
             'category' => $category,
+            'status' => $validate['status'],
         ]);
         if ($request->hasFile('preview')) {
             $uploadedFile = $request->file('preview');
@@ -212,6 +214,7 @@ class ComponentController extends Controller
             'edit_path' => 'required',
             'edit_type' => 'required',
             'edit_category' => 'required',
+            'edit_status' => 'required',
             'edit_preview.*' => 'file|mimes:jpg,jpeg,png,gif|max:5000',
             'edit_dependencies' => 'required|array',
             'edit_dependencies.*.name' => 'required',
@@ -231,6 +234,7 @@ class ComponentController extends Controller
             return Redirect::back()->withErrors($validator);
         }
         $validate = $validator->valid();
+
         $dependencyData = $validate['edit_dependencies'];
         $formFieldsData  = $validate['edit_form-fields'];
         $componentDetail = Component::with('dependencies','formFields')->find($id);
@@ -242,6 +246,7 @@ class ComponentController extends Controller
             'path' => $validate['edit_path'],
             'type'  => $validate['edit_type'],
             'category' => $category,
+            'status'  => $validate['edit_status'],
         ]);
 
         //Only if Needs to update the preview image then this will update the image

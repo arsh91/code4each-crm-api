@@ -178,18 +178,35 @@
                             <div class="col-md">
                                 <input type="text" class="form-control" placeholder="Field Position" name="edit_form-fields[{{$index}}][field_position]" value="{{$fieldsData->field_position}}"   size="2"/>
                             </div>
-                            <div class="col-md" id="defaultField">
-                                <input type="text" class="form-control formDefaultValue"  placeholder="Default Value" name="edit_form-fields[{{$index}}][default_value]"
-                                @if ($fieldsData->field_type == 'image' && $fieldsData->default_value)
-                                style="display:none"
-                                @endif
-                                value="{{$fieldsData->default_value}}" />
-                                @if ($fieldsData->field_type == 'image' && $fieldsData->default_value)
-                                    <input type="file" class="form-control imageUploadValue" name="edit_form-fields[{{$index}}][default_image]" onchange="updateDefaultValue(this)" />
-                                    <img src="{{ asset('storage/' . $fieldsData->default_value) }}"  height="50" width="70" alt="Image Preview"/>
 
+
+
+                            <div class="col-md" id="defaultField">
+                                <input type="text" class="form-control formDefaultValue" placeholder="Default Value" name="edit_form-fields[{{$index}}][default_value]"
+                                    @if ($fieldsData->field_type == 'image' && $fieldsData->default_value)
+                                        style="display:none"
+                                    @endif
+                                    value="{{$fieldsData->default_value}}" />
+                                    @if ($fieldsData->field_type == 'image' && $fieldsData->default_value)
+                                        @if ($fieldsData->is_multiple_image)
+                                            <input type="file" class="form-control imageUploadValue" name="edit_form-fields[{{$index}}][default_image][]" onchange="updateDefaultValue(this)" multiple />
+                                            <?php $imagePaths = explode(',', $fieldsData->default_value); ?>
+                                            <div class="d-flex flex-nowrap">
+                                                @foreach($imagePaths as $imagePath)
+                                                    <div class="mx-2 my-1 border border-danger">
+                                                        <img src="{{ asset('storage/' . trim($imagePath)) }}" height="50" width="70" alt="Image Preview"/>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <input type="file" class="form-control imageUploadValue" name="edit_form-fields[{{$index}}][default_image]" onchange="updateDefaultValue(this)" />
+                                            <div class="mx-2 my-1 border border-danger">
+                                                <img src="{{ asset('storage/' . trim($fieldsData->default_value)) }}" height="50" width="70" alt="Image Preview"/>
+                                            </div>
+                                        @endif
                                     @endif
                             </div>
+
 
                             <div class="col-md">
                                 <input type="text" class="form-control" placeholder="Meta Key 1 (optional)" name="edit_form-fields[{{$index}}][meta_key1]" value="{{$fieldsData->meta_key1}}"  />
@@ -221,6 +238,22 @@
                     @endif
                 </div>
                 <span class="js-add-form-fields clone text-success" style="font-size: 20px;">+</span>
+
+
+                <div class="row mb-5">
+                    <label for="edit_status" class="col-sm-3 col-form-label required ">Status</label>
+                    <div class="col-sm-4">
+                        <select name="edit_status" class="form-select" id="edit_status" >
+                                <option value="draft" {{$componentData->status == 'draft' ? 'selected' : ' ' }} >Draft</option>
+                                <option value="testing" {{$componentData->status == 'testing' ? 'selected' : ' ' }} >Testing</option>
+                                <option value="active" {{$componentData->status == 'active' ? 'selected' : ' ' }}>Active</option>
+                                <option value="deactive" {{$componentData->status == 'deactive' ? 'selected' : ' ' }} >Deactive</option>
+                        </select>
+                        @if ($errors->has('edit_category'))
+                             <span style="font-size: 12px;" class="text-danger">{{ $errors->first('edit_category') }}</span>
+                        @endif
+                    </div>
+                </div>
 
                 <div class="text-center">
                     <button type="submit" class="btn btn-primary">Save</button>
@@ -273,8 +306,9 @@
         </div>
         <div class="col-md">
             <input type="text" class="form-control formDefaultValue" placeholder="Default Value" name="edit_form-fields[][default_value]"/>
-            <input type="file" class="form-control imageUploadValue" name="edit_form-fields[][default_image]" style="display: none;" onchange="updateDefaultValue(this)" />
-
+            <input type="file" class="form-control imageUploadValue imageFilePath" name="edit_form-fields[][default_image][]" style="display: none;" onchange="updateDefaultValue(this)" />
+            <label for="multipleImageUpload" class="js-multiple-image-upload imageUploadValue" style="display: none;">multiple</label>
+            <input type="checkbox" id="multipleImageUpload" name="edit_form-fields[][multiple_image]" class="js-multiple-image-upload imageUploadValue" style="margin-top: 5px; display: none;">
         </div>
         <div class="col-md">
             <input type="text" class="form-control" placeholder="Meta Key 1 (optional)" name="edit_form-fields[][meta_key1]"/>
@@ -341,7 +375,9 @@
         clonedFormFieldItem.find('[name="edit_form-fields[][type]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][type]');
         clonedFormFieldItem.find('[name="edit_form-fields[][field_position]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][field_position]');
         clonedFormFieldItem.find('[name="edit_form-fields[][default_value]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][default_value]');
-        clonedFormFieldItem.find('[name="edit_form-fields[][default_image]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][default_image]');
+        // clonedFormFieldItem.find('[name="edit_form-fields[][default_image]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][default_image]');
+        clonedFormFieldItem.find('[name="edit_form-fields[][default_image][]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][default_image][]');
+        clonedFormFieldItem.find('[name="edit_form-fields[][multiple_image]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][multiple_image]');
         clonedFormFieldItem.find('[name="edit_form-fields[][meta_key1]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][meta_key1]');
         clonedFormFieldItem.find('[name="edit_form-fields[][meta_key2]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][meta_key2]');
         // console.log(formFieldIndex)
@@ -377,6 +413,21 @@
                 imageUpload.hide();
             }
         });
+
+        $(document).on('change', '#multipleImageUpload', function () {
+                const isChecked = $(this).prop('checked');
+                const imageUpload = $(this).closest('.js-form-fields-option').find('.imageFilePath');
+
+                if (isChecked) {
+                    // If checkbox is checked, show multiple file input
+                    imageUpload.attr('multiple', 'multiple');
+                } else {
+                    // If checkbox is unchecked, hide multiple file input
+                    imageUpload.removeAttr('multiple');
+                }
+            });
+
+
     });
     //end document ready function
 
