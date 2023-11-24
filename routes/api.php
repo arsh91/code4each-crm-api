@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\VerificationController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\FeedBackController;
 use App\Http\Controllers\Api\ForgotPasswordController;
+use App\Http\Controllers\Api\GoogleSocialiteController;
 use App\Http\Controllers\Api\ImageController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ResetPasswordController;
@@ -33,6 +34,10 @@ use App\Http\Controllers\Api\PreBookingController;
 
 Route::post('/register',[RegistrationController::class,'store']);
 Route::post('/login',[AuthController::class,'Login'])->name('login');
+//Login By Google
+Route::get('auth/google', [GoogleSocialiteController::class, 'redirectToGoogle']);
+Route::get('/auth/google/callback', [GoogleSocialiteController::class, 'handleCallback']);
+
 Route::get('email/verify/{id}',[VerificationController::class,'verify'])->name('verification.verify');
 Route::post('/forgot-password',[ForgotPasswordController::class,'forgotPassword']);
 Route::post('/reset-password',[ResetPasswordController::class,'resetPassword']);
