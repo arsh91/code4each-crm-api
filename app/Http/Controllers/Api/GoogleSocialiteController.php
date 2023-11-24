@@ -30,7 +30,7 @@ class GoogleSocialiteController extends Controller
                 return response()->json(['message' => 'User logged in successfully', 'user' => $findUser, 'access_token' => $token]);
             } else {
                 $agencyObj = new Agency();
-                $agencyObj->name = $user->name;
+                $agencyObj->name = 'Agency Name';
                 $agencyObj->save();
                 $agencyId = $agencyObj->id;
 
@@ -38,7 +38,7 @@ class GoogleSocialiteController extends Controller
                     $userObj = new User();
                     $userObj->name = $user->name;
                     $userObj->email = $user->email;
-                    $userObj->phone = '+91-'; // Adjust as needed
+                    $userObj->phone = 'N/A'; // Adjust as needed
                     $userObj->agency_id = $agencyId;
                     $userObj->social_id = $user->id;
                     $userObj->social_type = 'google';
