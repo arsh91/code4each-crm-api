@@ -73,8 +73,6 @@ class WebsiteSettingsController extends Controller
     }
     public function updateSettings(Request $request)
     {
-        dd(response()->json($request));
-
         $response = [
             'success' => false,
             'status' => 400,
@@ -101,18 +99,18 @@ class WebsiteSettingsController extends Controller
         $id = $request->website_id;
         $website = Websites::findOrFail($id);
         $website_url = $website->website_domain;
-        $agency_website_id = $website->assigned;
-        if(!$agency_website_id){
+        $website_id = $website->id;
+        if(!$website_id){
             return response()->json(["error" => "website is not assigned yet to any Agency."],400);
         }
-        $agencyWebsiteData = AgencyWebsite::where('id',$agency_website_id)->first();
+        $agencyWebsiteData = AgencyWebsite::where('website_id',$website_id)->first();
 
         $description = null;
         if(isset($validated['description']) && $validated['description'] !== null){
             $description = $validated['description'];
         }
 
-        $agencyWebsiteDetails = AgencyWebsite::where('id',$agency_website_id)->update([
+        $agencyWebsiteDetails = AgencyWebsite::where('website_id',$website_id)->update([
             'website_category_id' => $validated['category_id'],
             'address' => $validated['address'],
             'city' => $validated['city'],
@@ -131,7 +129,7 @@ class WebsiteSettingsController extends Controller
             $filename = time() . '_' . $uploadedFile->getClientOriginalName();
             $uploadedFile->storeAs('public/AgencyWebsiteDetails', $filename);
             $path = 'AgencyWebsiteDetails/' . $filename;
-            $updateLogo = AgencyWebsite::where('id',$agency_website_id)->update([
+            $updateLogo = AgencyWebsite::where('website_id',$website_id)->update([
                 'logo' => $path,
             ]);
             if($updateLogo){
