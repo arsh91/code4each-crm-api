@@ -98,6 +98,9 @@ class WebsiteSettingsController extends Controller
         $validated = $validator->valid();
         $id = $request->website_id;
         $website = Websites::findOrFail($id);
+        if(!$website){
+            return response()->json(["error" => "Website Not Found."],400);
+        }
         $website_url = $website->website_domain;
         $website_id = $website->id;
         if(!$website_id){
