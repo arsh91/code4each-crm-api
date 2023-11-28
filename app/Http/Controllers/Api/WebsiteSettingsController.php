@@ -25,6 +25,9 @@ class WebsiteSettingsController extends Controller
         }
         $websiteData = Websites::with('agencyWebsiteDetail')->where('id', $website_id)->first();
         $agencyWebsiteDetail = $websiteData->agencyWebsiteDetail;
+        if(!$agencyWebsiteDetail){
+            return response()->json(["error" => "currently website is not assigned."],400);
+        }
         $logo = null;
         if($agencyWebsiteDetail->logo){
             $logo = '/storage/'.$agencyWebsiteDetail->logo;
