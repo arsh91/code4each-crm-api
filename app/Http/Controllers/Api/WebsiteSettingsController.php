@@ -36,7 +36,7 @@ class WebsiteSettingsController extends Controller
             "id" => $websiteData->id,
             "website_domain" => $websiteData->website_domain,
             "assigned" => $websiteData->assigned,
-            "agency_website_detail" =>[
+            "agency_website_detail" => [
                 "id" => $agencyWebsiteDetail->id,
                 "business_name" => $agencyWebsiteDetail->business_name,
                 "website_category_id" => $agencyWebsiteDetail->website_category_id,
@@ -100,6 +100,9 @@ class WebsiteSettingsController extends Controller
         $website = Websites::findOrFail($id);
         $website_url = $website->website_domain;
         $agency_website_id = $website->assigned;
+        if(!$agency_website_id){
+            return response()->json(["error" => "website is not assigned yet to any Agency."],400);
+        }
         $agencyWebsiteData = AgencyWebsite::where('id',$agency_website_id)->first();
 
         $description = null;
