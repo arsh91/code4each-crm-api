@@ -73,6 +73,8 @@ class WebsiteSettingsController extends Controller
     }
     public function updateSettings(Request $request)
     {
+        dd(response()->json($request));
+
         $response = [
             'success' => false,
             'status' => 400,
