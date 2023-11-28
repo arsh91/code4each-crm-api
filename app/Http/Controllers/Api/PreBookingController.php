@@ -29,7 +29,7 @@ class PreBookingController extends Controller
             'subject' => '🚀 Pre-Registered for Beta SpeedySites!',
             'greeting-text' => 'Hi! '.$username,
             'url-title' => 'Speedy Sites',
-            'url' => '/',
+            'url' => config('app.frontend_url'),
             'lines_array' => [
                 'title' => "Great news! 🎉 You're pre-registered for Beta SpeedySites. Get ready for lightning-fast websites!",
                 'body-text' => "We'll notify you as soon as it goes live. Stay tuned for exclusive updates!",
@@ -38,12 +38,11 @@ class PreBookingController extends Controller
 
         $intrestedUser->notify(new CommonEmailNotification($messages));
 
-
         $messages = [
             'subject' => 'New User Pre-Registered',
             'greeting-text' => 'Hello Admin,',
             'url-title' => 'Speedy Sites',
-            'url' => '/',
+            'url' => config('app.frontend_url'),
             'lines_array' => [
                 'title' => "A new user has pre-registered on your platform. Here are the details:",
                 // 'body-text' => "We'll notify you as soon as it goes live. Stay tuned for exclusive updates!",
