@@ -81,7 +81,6 @@ class ComponentsControllers extends Controller
 
             }
             DB::commit();
-
             if($agencyWebsiteDetails->agency_id && $websitesData->website_domain){
                 $agency_id = $agencyWebsiteDetails->agency_id;
                 $website_domain =  $websitesData->website_domain;
@@ -99,7 +98,7 @@ class ComponentsControllers extends Controller
                     $messages = [
                         'greeting-text' => "Hey User,",
                         'subject' => 'Your Domain is Ready',
-                        'additional-info' => 'Need assistance? Contact us at [support@code4eachcrm.com] or [SupportPhone: +1 (555) 123-4567].',
+                        'additional-info' => 'Need assistance? Contact us at [support@speedysites.in] or [SupportPhone: +91-79736 30617].',
                         'lines_array' => [
                             'title' => 'Your domain is now ready for use after successfully updating your agency details. Enjoy a seamless online presence with the latest information.',
                             'body-text' => 'Here Is The Details For Your Website',

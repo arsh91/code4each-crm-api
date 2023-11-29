@@ -65,6 +65,11 @@ class CustomizeComponentController extends Controller
     }
     public function updateComponent(Request $request)
     {
+        $response = [
+            "success" => false,
+            "status"  => 400,
+        ];
+
         $validator = Validator::make($request->all(), [
             'website_url' => 'required|url',
             'component_unique_id_old' => 'required',
