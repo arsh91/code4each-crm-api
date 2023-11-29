@@ -253,6 +253,13 @@ class CustomizeComponentController extends Controller
             ];
             $fontData[] = $fontArray;
         }
+
+                // Sort the $fontData array based on the "active" flag
+        usort($fontData, function ($a, $b) {
+            // Compare "active" flag in reverse order (true first)
+            return ($b['active'] === true) - ($a['active'] === true);
+        });
+
         $response = [
             "message" => "Record Fetched SuccessFully.",
             "status" => 200,
