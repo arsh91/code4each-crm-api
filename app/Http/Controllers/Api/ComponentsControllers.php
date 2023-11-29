@@ -110,6 +110,7 @@ class ComponentsControllers extends Controller
 
                     $response = [
                         'message' => "Agency Website Detail Saved Successfully.",
+                        'website_domain' => $website_domain,
                         'success' => true,
                         'status' => 200,
                     ];
