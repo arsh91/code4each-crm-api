@@ -35,8 +35,9 @@ use App\Http\Controllers\Api\PreBookingController;
 Route::post('/register',[RegistrationController::class,'store']);
 Route::post('/login',[AuthController::class,'Login'])->name('login');
 //Login By Google
-Route::get('auth/google', [GoogleSocialiteController::class, 'redirectToGoogle']);
-Route::get('/auth/google/callback', [GoogleSocialiteController::class, 'handleCallback']);
+// Route::get('auth/google', [GoogleSocialiteController::class, 'redirectToGoogle']);
+// Route::get('/auth/google/callback', [GoogleSocialiteController::class, 'handleCallback']);
+Route::get('/auth/google/register', [GoogleSocialiteController::class, 'handleGoogleLogin']);
 
 Route::get('email/verify/{id}',[VerificationController::class,'verify'])->name('verification.verify');
 Route::post('/forgot-password',[ForgotPasswordController::class,'forgotPassword']);
@@ -50,6 +51,7 @@ Route::middleware('auth:api')->group(function () {
     });
     Route::get('/dashboard',[DashboardController::class,'index'])->middleware('verifiedEmail');
     Route::post('/feedback',[FeedBackController::class,'feedback']);
+    Route::post('/update-left-fields',[GoogleSocialiteController::class,'updateLeftFields']);
     Route::middleware('throttle:3,20')->get('email/resend',[VerificationController::class,'resend'])->name('verification.resend');
     Route::post('/logout',[AuthController::class,'logout']);
 
@@ -86,7 +88,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get('uploaded-images',[ImageController::class,'getComponentImages']);
     Route::delete('delete-uploaded-images',[ImageController::class,'deleteUploadedImages']);
     });
+    //End of Verified Routes
 });
+//End of Authenticated Group Routes
 
 Route::post('pre-booking', [PreBookingController::class,'saveEmailForPreBooking']);
 
