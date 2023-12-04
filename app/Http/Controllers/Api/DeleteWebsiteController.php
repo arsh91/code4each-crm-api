@@ -13,7 +13,6 @@ class DeleteWebsiteController extends Controller
 {
     public function deleteWebsite(Request $request)
     {
-        // dd("delete Website");
         $response = [
             'success' => false,
             'status' => 400,
@@ -36,6 +35,7 @@ class DeleteWebsiteController extends Controller
             $recipient = $agencyWebsite->websiteUser;
 
             $agencyWebsite->delete();
+
             if($agencyWebsite){
 
                 $messages = [
