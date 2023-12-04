@@ -64,6 +64,11 @@ class GoogleSocialiteController extends Controller
 
     public function handleGoogleLogin(Request $request)
     {
+        $response = [
+            'success'=> false,
+            'status' => 400,
+        ];
+
         try {
             $idToken = $request->input('id_token');
 
@@ -75,8 +80,14 @@ class GoogleSocialiteController extends Controller
                 $findUser = User::where('social_id', $user['sub'])->first();
                 if ($findUser) {
                     $token = $findUser->createToken('access-token')->accessToken;
-
-                    return response()->json(['message' => 'User logged in successfully', 'user' => $findUser, 'access_token' => $token]);
+                    $response = [
+                        'message' => 'User logged in successfully',
+                        'user' => $findUser,
+                        'access_token'=> $token,
+                        'success'=> true,
+                        'status' => 200,
+                    ];
+                    return response()->json($response);
                 } else {
                     $agencyObj = new Agency();
                     $agencyObj->name = 'Agency Name';
@@ -97,12 +108,17 @@ class GoogleSocialiteController extends Controller
                         $userObj->save();
 
                         $token = $userObj->createToken('access-token')->accessToken;
+                        $response = [
+                            'message' => 'User registered and logged in successfully',
+                            'user' => $userObj,
+                            'access_token'=> $token,
+                            'success'=> true,
+                            'status' => 200,
+                        ];
 
-                        return response()->json(['message' => 'User registered and logged in successfully', 'user' => $userObj, 'access_token' => $token]);
+                        return response()->json($response);
                     }
                 }
-
-                return response()->json(['message' => 'User logged in successfully', 'user' => $googleUser, 'access_token' => $token]);
             } else {
 
                 // The ID token is invalid
