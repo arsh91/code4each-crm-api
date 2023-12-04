@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\RegistrationController;
 use App\Http\Controllers\Api\VerificationController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\DeleteWebsiteController;
 use App\Http\Controllers\Api\FeedBackController;
 use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\GoogleSocialiteController;
@@ -46,6 +47,7 @@ Route::post('/reset-password',[ResetPasswordController::class,'resetPassword']);
 
 //Authenticated Group Routes
 Route::middleware('auth:api')->group(function () {
+    //Unverified Routes
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
@@ -53,6 +55,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/feedback',[FeedBackController::class,'feedback']);
     Route::post('/update-left-fields',[GoogleSocialiteController::class,'updateLeftFields']);
     Route::middleware('throttle:3,20')->get('email/resend',[VerificationController::class,'resend'])->name('verification.resend');
+    //Delete Website On User Request
+    Route::post('/delete-website',[DeleteWebsiteController::class,'deleteWebsite']);
     Route::post('/logout',[AuthController::class,'logout']);
 
     //Email Verified Routes
