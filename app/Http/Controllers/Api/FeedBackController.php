@@ -17,9 +17,13 @@ class FeedBackController extends Controller
         ];
 
         $validator = Validator::make($request->all(), [
-            'user_id' => 'required',
+            'user_id' => 'nullable',
+            'website_id' => 'nullable',
+            'agency_id' => 'nullable',
             'type' => 'required',
+            'title' => 'required|string|max:255',
             'message' => 'required|string',
+            'rating' => 'nullable',
         ]);
 
         if ($validator->fails()) {
@@ -29,9 +33,16 @@ class FeedBackController extends Controller
         $validate = $validator->valid();
 
         $feedbackObj = new Feedback();
-        $feedbackObj->user_id = $validate['user_id'];
-        $feedbackObj->type = $validate['type'];
-        $feedbackObj->message = $validate['message'];
+        $feedbackObj->user_id       = $validate['user_id'] ?? null;
+        $feedbackObj->website_id    = $validate['website_id'] ?? null;
+        $feedbackObj->agency_id     = $validate['agency_id'] ?? null;
+        $feedbackObj->type          = $validate['type'];
+        $feedbackObj->name          = $validate['name'] ?? null;
+        $feedbackObj->email         = $validate['email'] ?? null;
+        $feedbackObj->phone         = $validate['phone'] ?? null;
+        $feedbackObj->title       = $validate['title'];
+        $feedbackObj->message       = $validate['message'];
+        $feedbackObj->rating       = $validate['rating'] ?? null;
         $feedbackObj->save();
         if($feedbackObj){
             $response = [
