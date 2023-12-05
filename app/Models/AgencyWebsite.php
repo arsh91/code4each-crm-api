@@ -11,6 +11,7 @@ class AgencyWebsite extends Model
     use HasFactory, SoftDeletes;
     protected $fillable = [
         'website_category_id',
+        'others_category_name',
         'business_name',
         'address',
         'city',

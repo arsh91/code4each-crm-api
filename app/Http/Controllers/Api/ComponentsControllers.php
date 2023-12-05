@@ -33,6 +33,7 @@ class ComponentsControllers extends Controller
         $validator = Validator::make($request->all(), [
             'agency_id' => 'required',
             'category_id' => 'required',
+            'others_category_name' => 'nullable',
             'description' => 'nullable|string',
             'address' => 'required',
             'city' => 'required',
@@ -59,8 +60,13 @@ class ComponentsControllers extends Controller
             if($validate['description']){
                 $description = $validate['description'];
             }
+            $othersCategoryName = null;
+            if($validate['others_category_name']){
+                $othersCategoryName = $validate['others_category_name'];
+            }
             $agencyWebsiteDetails = AgencyWebsite::create([
                 'website_category_id' => $validate['category_id'],
+                'others_category_name' => $othersCategoryName,
                 'address' => $validate['address'],
                 'city' => $validate['city'],
                 'state' => $validate['state'],
@@ -95,10 +101,12 @@ class ComponentsControllers extends Controller
 
                     // send mail to user
                     $recipient = User::find($agencyWebsiteDetails->created_by);
+                    $supportEmail = env('SUPPORT_EMAIL');
+                    $supportPhone = env('SUPPORT_PHONE');
                     $messages = [
                         'greeting-text' => "Hey User,",
                         'subject' => 'Your Domain is Ready',
-                        'additional-info' => 'Need assistance? Contact us at [support@speedysites.in] or [SupportPhone: +91-79736 30617].',
+                        'additional-info' => 'Need assistance? Contact us at ' . $supportEmail . ' or SupportPhone: ' . $supportPhone . '.',
                         'lines_array' => [
                             'title' => 'Your domain is now ready for use after successfully updating your agency details. Enjoy a seamless online presence with the latest information.',
                             'body-text' => 'Here Is The Details For Your Website',

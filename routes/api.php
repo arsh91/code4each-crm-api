@@ -48,6 +48,7 @@ Route::post('/reset-password',[ResetPasswordController::class,'resetPassword']);
 //Authenticated Group Routes
 Route::middleware('auth:api')->group(function () {
     //Unverified Routes
+
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
@@ -58,6 +59,8 @@ Route::middleware('auth:api')->group(function () {
     //Delete Website On User Request
     Route::post('/delete-website',[DeleteWebsiteController::class,'deleteWebsite']);
     Route::post('/logout',[AuthController::class,'logout']);
+
+    //End Unverified Routes
 
     //Email Verified Routes
     Route::middleware('verified')->group(function () {

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Agency;
 use App\Models\User;
+use App\Notifications\CommonEmailNotification;
+use App\Notifications\VerifyEmail;
 use Carbon\Carbon;
 use Exception;
 use Google_Client;
@@ -108,6 +110,31 @@ class GoogleSocialiteController extends Controller
                         $userObj->save();
 
                         $token = $userObj->createToken('access-token')->accessToken;
+
+                        $messages = [
+                            'greeting-text' => 'Hey! '. $userObj->name,
+                        ];
+                        // Send Verification Email Using Custom Verify Notification
+                        $userObj->notify(new VerifyEmail($messages));
+
+                        $messages = [
+                            'subject' => 'New Agency Is Register With Our CRM Platform',
+                            'url-title' => 'Find Detail',
+                            'url' => '/',
+                            'lines_array' => [
+                                'title' => 'Dear Admin,',
+                                'body-text' => 'We have found that New Agency Is Register With Us. Please Find Detail Below:',
+                                'special_Agency_Name' => $agencyObj->name,
+                                'special_Email' => $userObj->email,
+                            ],
+                        ];
+                        $admins = User::where('role', 'super_admin')->get();
+
+                        if ($admins->count() > 0) {
+                            foreach ($admins as $admin) {
+                                $admin->notify(new CommonEmailNotification($messages));
+                            }
+                        }
                         $response = [
                             'message' => 'User registered and logged in successfully',
                             'user' => $userObj,
