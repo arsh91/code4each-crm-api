@@ -13,6 +13,7 @@ class AgencyWebsite extends Model
         'website_category_id',
         'others_category_name',
         'business_name',
+        'phone',
         'address',
         'city',
         'state',

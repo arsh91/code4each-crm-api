@@ -40,6 +40,7 @@ class WebsiteSettingsController extends Controller
                 "id" => $agencyWebsiteDetail->id,
                 "business_name" => $agencyWebsiteDetail->business_name,
                 "website_category_id" => $agencyWebsiteDetail->website_category_id,
+                "phone" => $agencyWebsiteDetail->phone,
                 "address" => $agencyWebsiteDetail->address,
                 'city' => $agencyWebsiteDetail->city,
                 'state' => $agencyWebsiteDetail->state,
@@ -88,6 +89,7 @@ class WebsiteSettingsController extends Controller
             'category_id' => 'required',
             'others_category_name' => 'nullable',
             'business_name' => 'required|string',
+            'phone' => 'nullable',
             'address' => 'required|string',
             'city' => 'required',
             'state' => 'required',
@@ -114,6 +116,11 @@ class WebsiteSettingsController extends Controller
         }
         $agencyWebsiteData = AgencyWebsite::where('website_id',$website_id)->first();
 
+        $phone = null;
+        if(isset($validated['phone']) && $validated['phone'] !== null){
+            $phone = $validated['phone'];
+        }
+
         $description = null;
         if(isset($validated['description']) && $validated['description'] !== null){
             $description = $validated['description'];
@@ -127,6 +134,7 @@ class WebsiteSettingsController extends Controller
         $agencyWebsiteDetails = AgencyWebsite::where('website_id',$website_id)->update([
             'website_category_id' => $validated['category_id'],
             'others_category_name' => $othersCategoryName,
+            'phone' => $phone,
             'address' => $validated['address'],
             'city' => $validated['city'],
             'state' => $validated['state'],

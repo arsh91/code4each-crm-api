@@ -15,12 +15,13 @@ use App\Http\Controllers\Api\FeedBackController;
 use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\GoogleSocialiteController;
 use App\Http\Controllers\Api\ImageController;
+use App\Http\Controllers\Api\OtpVerificationControlller;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ResetPasswordController;
 use App\Http\Controllers\Api\WebsiteSettingsController;
 use App\Http\Controllers\Api\WordpressComponentController;
 use App\Http\Controllers\Api\PreBookingController;
-
+use Google\Service\Monitoring\Custom;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,6 +58,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/update-left-fields',[GoogleSocialiteController::class,'updateLeftFields']);
     Route::middleware('throttle:3,20')->get('email/resend',[VerificationController::class,'resend'])->name('verification.resend');
     //Delete Website On User Request
+    Route::post('/get-otp',[OtpVerificationControlller::class,'generateOtp']);
+    Route::post('/verify-otp',[OtpVerificationControlller::class,'verifyOtp']);
     Route::post('/delete-website',[DeleteWebsiteController::class,'deleteWebsite']);
     Route::post('/logout',[AuthController::class,'logout']);
 
@@ -89,7 +92,8 @@ Route::middleware('auth:api')->group(function () {
 
     Route::get('get-component-form-fields',[CustomComponentFieldsController::class,'getFormFields']);
     Route::post('update-component-form-fields',[CustomComponentFieldsController::class,'updateComponentFormFields']);
-
+    Route::get('/get-social-links',[CustomComponentFieldsController::class,'getSocialLinks']);
+    Route::post('/update-social-links',[CustomComponentFieldsController::class,'updateSocialLinks']);
 
     Route::post('upload-images',[ImageController::class,'uploadImages']);
     Route::get('uploaded-images',[ImageController::class,'getComponentImages']);

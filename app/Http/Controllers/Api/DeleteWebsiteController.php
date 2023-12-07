@@ -28,9 +28,12 @@ class DeleteWebsiteController extends Controller
 
         $validated = $validator->valid();
         try {
+
             $agencyWebsiteId = $validated['agency_website_id'];
+
             // Get agency Website Detail with the detail of its user
             $agencyWebsite = AgencyWebsite::with('websiteUser')->findOrFail($agencyWebsiteId);
+
             //Use this as resipient of mail
             $recipient = $agencyWebsite->websiteUser;
 

@@ -51,4 +51,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsTo(Agency::class,);
     }
+
+    public function verificationCode()
+    {
+        return $this->hasMany(VerificationCode::class);
+    }
 }

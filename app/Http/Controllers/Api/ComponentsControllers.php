@@ -35,6 +35,7 @@ class ComponentsControllers extends Controller
             'category_id' => 'required',
             'others_category_name' => 'nullable',
             'description' => 'nullable|string',
+            'phone' => 'nullable',
             'address' => 'required',
             'city' => 'required',
             'state' => 'required',
@@ -56,6 +57,10 @@ class ComponentsControllers extends Controller
             if(!$websitesData){
                 return response()->json(['error' => 'An Error occur While Creating Your site. Domain may not exists related to your business name. Ask for the Support.'],500);
             }
+            $phone = null;
+            if($validate['phone']){
+                $phone = $validate['phone'];
+            }
             $description = null;
             if($validate['description']){
                 $description = $validate['description'];
@@ -67,6 +72,7 @@ class ComponentsControllers extends Controller
             $agencyWebsiteDetails = AgencyWebsite::create([
                 'website_category_id' => $validate['category_id'],
                 'others_category_name' => $othersCategoryName,
+                'phone' => $phone,
                 'address' => $validate['address'],
                 'city' => $validate['city'],
                 'state' => $validate['state'],
@@ -95,8 +101,9 @@ class ComponentsControllers extends Controller
                 if ($result['success'] == true && $result['response']['status'] == 200) {
                     $websiteUrl = $result['domain'];
 
-                    //assigned site to user
+                    //assigned domain to agency Website
                     AgencyWebsite::where('id', $agencyWebsiteDetails->id)->update(['website_id' => $websitesData->id]);
+                    //add assignee agency website id on domain
                     Websites::where('id', $websitesData->id)->update(['assigned' => $agencyWebsiteDetails->id]);
 
                     // send mail to user
@@ -209,10 +216,12 @@ class ComponentsControllers extends Controller
         $startAddResponse = Http::post($startAddComponentUrl, ['start' => true]);
         if ($startAddResponse->successful()) {
             $this->addWordpressGlobalColors($websiteUrl);
+            //add font family to wordpress site
            $addFontFamilyResponse = $this->wordpressComponentClass->addWordpressFontFamily($websiteUrl);
            if($addFontFamilyResponse['success'] && $addFontFamilyResponse['response']['status'] == 200)
            {
                 $activeFontId = $addFontFamilyResponse['response']['font_id'];
+                //set  active font family name in wordpress db
                 $defaultFontFamilyResponse = $this->wordpressComponentClass->setDefaultColorOrFont($websiteUrl , $activeFontId);
                 // if($defaultFontFamilyResponse['success'] == false && $defaultFontFamilyResponse['response']['status'] == 400){
 

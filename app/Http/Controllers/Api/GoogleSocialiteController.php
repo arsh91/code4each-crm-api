@@ -120,7 +120,7 @@ class GoogleSocialiteController extends Controller
                         $messages = [
                             'subject' => 'New Agency Is Register With Our CRM Platform',
                             'url-title' => 'Find Detail',
-                            'url' => '/',
+                            'url' => env('FRONTEND_URL'),
                             'lines_array' => [
                                 'title' => 'Dear Admin,',
                                 'body-text' => 'We have found that New Agency Is Register With Us. Please Find Detail Below:',
