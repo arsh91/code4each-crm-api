@@ -53,6 +53,11 @@ class WebsiteSettingsController extends Controller
                 "created_by" => $agencyWebsiteDetail->created_by,
             ],
         ];
+        // Check if others_category_name is not null
+        if ($agencyWebsiteDetail->others_category_name !== null) {
+            // Add others_category_name to the array
+            $websiteDetail['agency_website_detail']['others_category_name'] = $agencyWebsiteDetail->others_category_name;
+        }
         if (!empty($websiteDetail)) {
             $response = [
                 'message' => "Detail Fetched Successfully.",
@@ -81,6 +86,7 @@ class WebsiteSettingsController extends Controller
         $validator = Validator::make($request->all(), [
             'website_id' => 'required',
             'category_id' => 'required',
+            'others_category_name' => 'nullable',
             'business_name' => 'required|string',
             'address' => 'required|string',
             'city' => 'required',
@@ -113,8 +119,14 @@ class WebsiteSettingsController extends Controller
             $description = $validated['description'];
         }
 
+        $othersCategoryName = null;
+        if(isset($validated['others_category_name'])){
+            $othersCategoryName = $validated['others_category_name'];
+        }
+
         $agencyWebsiteDetails = AgencyWebsite::where('website_id',$website_id)->update([
             'website_category_id' => $validated['category_id'],
+            'others_category_name' => $othersCategoryName,
             'address' => $validated['address'],
             'city' => $validated['city'],
             'state' => $validated['state'],
