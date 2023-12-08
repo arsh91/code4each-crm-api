@@ -132,4 +132,71 @@ class CustomComponentFieldsController extends Controller
 
         return response()->json($response);
     }
+
+    public function getSocialLinks(Request $request)
+    {
+        $response = [
+            'success' => false,
+            'status' => 400,
+        ];
+
+        $websiteUrl = $request->input('website_url');
+        if(!$websiteUrl){
+            return response()->json(["error" => "website url is required."],400);
+        }
+        $getSocialLinksResponse = $this->wordpressComponentClass->getSocialLinks($websiteUrl);
+        if ($getSocialLinksResponse['success'] && $getSocialLinksResponse['response']['status'] == 200) {
+            $socialLinks = $getSocialLinksResponse['response']['data'];
+            $response = [
+                        "message" => "Detail Fetched Successfully.",
+                        "social_links" => $socialLinks,
+                        "success" => true,
+                        "status" => 200,
+                    ];
+        }
+
+        return response()->json($response);
+    }
+
+
+    public function updateSocialLinks(Request $request)
+    {
+        $response = [
+            'success' => false,
+            'status' => 400,
+        ];
+
+        $validator = Validator::make($request->all(), [
+            'website_url' => 'required',
+            'social_links' => 'required|array',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+
+        $validate = $validator->valid();
+
+        $socialLinksArray = $validate['social_links'];
+        $websiteUrl = $validate['website_url'];
+        $socialLinksData = [];
+        foreach ($socialLinksArray as $index => $socialLink) {
+            $socialLinksData[$index] = [
+                "value" => $socialLink,
+                "type" => "social_links"
+            ];
+        }
+
+        $updateSocialLinksResponse = $this->wordpressComponentClass->updateGlobalVariables($websiteUrl , $socialLinksData);
+        if($updateSocialLinksResponse['success'] && $updateSocialLinksResponse['response']['status'] == 200){
+            $response = [
+                "message" => "Social Links Updated Successfully.",
+                'success' => true,
+                'status' => 200,
+            ];
+        }
+
+
+        return response()->json($response);
+    }
 }

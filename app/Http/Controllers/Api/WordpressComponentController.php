@@ -125,6 +125,23 @@ class WordpressComponentController extends Controller
        return $response;
      }
 
+     public function updateGlobalVariables($websiteUrl,$Data)
+     {
+
+        $addWebsitesGlobalVariablesUrl = $websiteUrl . 'wp-json/v1/change_global_variables';
+            $addWebsitesGlobalVariablesResponse = Http::post($addWebsitesGlobalVariablesUrl,$Data);
+            if($addWebsitesGlobalVariablesResponse->successful()){
+                $response['response'] =$addWebsitesGlobalVariablesResponse->json();
+                $response['status'] = $addWebsitesGlobalVariablesResponse->status();
+                $response['success'] = true;
+         } else{
+           $response['response'] = $addWebsitesGlobalVariablesResponse->json();
+           $response['status'] = 400;
+           $response['success'] = false;
+       }
+       return $response;
+     }
+
      public function uploadLogoToWordpress($logoPath,$url)
      {
         if(!$logoPath){
@@ -281,6 +298,24 @@ class WordpressComponentController extends Controller
         return $response;
 
     }
+
+
+    public function getSocialLinks($websiteUrl) {
+
+          $getSocialLinksUrl = $websiteUrl . '/wp-json/v1/social-links';
+          $getSocialLinksResponse = Http::get($getSocialLinksUrl);
+              if ($getSocialLinksResponse->successful()) {
+                  $response['response'] =$getSocialLinksResponse->json();
+                  $response['status'] = $getSocialLinksResponse->status();
+                  $response['success'] = true;
+              }
+              else{
+                  $response['response'] = $getSocialLinksResponse->json();
+                  $response['status'] = 400;
+                  $response['success'] = false;
+              }
+          return $response;
+      }
 
 
 

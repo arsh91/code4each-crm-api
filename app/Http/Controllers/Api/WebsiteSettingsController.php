@@ -144,9 +144,23 @@ class WebsiteSettingsController extends Controller
             'business_name' => $validated['business_name'],
             'updated_at' => Carbon::now(),
         ]);
-        if($agencyWebsiteData->business_name != $validated['business_name']){
-            $updateAgencyName = $this->wordpressComponentClass->agencyName($website_url , $validated['business_name']);
+        if($agencyWebsiteDetails){
+            $data = [
+                "agency_name" => ["value" => $validated['business_name']],
+                "phone" => ["value" => $phone],
+                "address" => ["value" => $validated['address']],
+                "state" => ["value" => $validated['state']],
+                "city" => ["value" => $validated['city']],
+                "country" => ["value" => $validated['country']],
+                "pincode" => ["value" => $validated['zip']]
+            ];
+            $updateAgencyDetailResponse = $this->wordpressComponentClass->updateGlobalVariables($website_url , $data);
+            if($updateAgencyDetailResponse['success'] == false){
+                return response()->json(['error' => 'An Error occur While Updating Website Settings.'],400);
+            }
         }
+
+
         if($request->hasFile('logo')) {
             $uploadedFile = $request->file('logo');
             $filename = time() . '_' . $uploadedFile->getClientOriginalName();

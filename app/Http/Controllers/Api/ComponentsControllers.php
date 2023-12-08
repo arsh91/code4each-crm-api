@@ -94,10 +94,19 @@ class ComponentsControllers extends Controller
             }
             DB::commit();
             if($agencyWebsiteDetails->agency_id && $websitesData->website_domain){
+
                 $agency_id = $agencyWebsiteDetails->agency_id;
                 $website_domain =  $websitesData->website_domain;
-                $business_name = $agencyWebsiteDetails->business_name;
-                $result = $this->sendComponentToWordpress($agency_id, $website_domain ,$business_name);
+                $dataToSend = [];
+                $dataToSend['business_name'] = $agencyWebsiteDetails->business_name;
+                $dataToSend['phone'] = $agencyWebsiteDetails->phone;
+                $dataToSend['address'] = $agencyWebsiteDetails->address;
+                $dataToSend['state'] = $agencyWebsiteDetails->state;
+                $dataToSend['city'] = $agencyWebsiteDetails->city;
+                $dataToSend['country'] = $agencyWebsiteDetails->country;
+                $dataToSend['pincode'] = $agencyWebsiteDetails->pin;
+
+                $result = $this->sendComponentToWordpress($agency_id, $website_domain ,$dataToSend);
                 if ($result['success'] == true && $result['response']['status'] == 200) {
                     $websiteUrl = $result['domain'];
 
@@ -187,24 +196,32 @@ class ComponentsControllers extends Controller
         return $response;
     }
 
-    public function sendComponentToWordpress($agency_id, $websiteUrl,$website_name = false, $regenerateFlag = false)
+    public function sendComponentToWordpress($agency_id, $websiteUrl,$Data = false, $regenerateFlag = false)
     {
         $response = [
             'success' => false,
         ];
-
         $agencyWebsiteDetail = AgencyWebsite::where('agency_id',$agency_id)->first();
         $logo = $agencyWebsiteDetail->logo;
         if ($regenerateFlag) {
             $components = $this->generateComponents($agency_id, $websiteUrl);
 
         } else {
-            $addWebsiteNameUrl = $websiteUrl . 'wp-json/v1/change_global_variables';
-            if($website_name){
-                $data = array(
-                    "agency_name" => array("value" => $website_name)
-                );
-                $addWebsiteNameResponse = Http::post($addWebsiteNameUrl,$data);
+            $addWebsitesGlobalVariablesUrl = $websiteUrl . 'wp-json/v1/change_global_variables';
+            if($Data){
+                $data = [
+                    "agency_name" => ["value" => $Data["business_name"]],
+                    "address" => ["phone" => $Data["phone"]],
+                    "address" => ["value" => $Data["address"]],
+                    "state" => ["value" => $Data["state"]],
+                    "city" => ["value" => $Data["city"]],
+                    "country" => ["value" => $Data["country"]],
+                    "pincode" => ["value" => $Data["pincode"]]
+                ];
+                $addWebsitesGlobalVariablesResponse = Http::post($addWebsitesGlobalVariablesUrl,$data);
+                if(!$addWebsitesGlobalVariablesResponse->successful()){
+                return response()->json(['error' => 'An Error occur While Updating Details for Website.'],400);
+                }
 
             }
             if($logo){
