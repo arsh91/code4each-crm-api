@@ -10,6 +10,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         // ...
         \App\Console\Commands\ClearCaches::class,
+        \App\Console\Commands\ProductLiveAlert::class,
     ];
 
     /**
