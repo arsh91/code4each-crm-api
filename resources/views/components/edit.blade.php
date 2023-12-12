@@ -60,13 +60,13 @@
                         <select name="edit_category[]" class="form-select" id="edit_category" multiple size="3">
                             <option>Select Category</option>
                             @foreach ($category as $data)
-                                <option value="{{ $data['name'] }}" {{ in_array($data['name'], explode(',', $componentData->category)) ? 'selected' : '' }}>
-                                    {{ $data['name'] }}
-                                </option>
+                            <option value="{{ $data['name'] }}" {{ in_array($data['name'], explode(',', $componentData->category)) ? 'selected' : '' }}>
+                                {{ $data['name'] }}
+                            </option>
                             @endforeach
                         </select>
                         @if ($errors->has('edit_category'))
-                             <span style="font-size: 12px;" class="text-danger">{{ $errors->first('edit_category') }}</span>
+                        <span style="font-size: 12px;" class="text-danger">{{ $errors->first('edit_category') }}</span>
                         @endif
                     </div>
                 </div>
@@ -90,13 +90,13 @@
                     @endif
                 </div>
                 <div class="row mb-5">
-                    <label for=""  class="col-sm-3 col-form-label">Uploaded Preview</label>
+                    <label for="" class="col-sm-3 col-form-label">Uploaded Preview</label>
                     <div class="col-sm-9">
-                    @if ($componentData->preview)
-                    <img src="{{ asset('storage/' . $componentData->preview) }}" height="150" width="200" alt="Preview Image">
-                    @else
+                        @if ($componentData->preview)
+                        <img src="{{ asset('storage/' . $componentData->preview) }}" height="150" width="200" alt="Preview Image">
+                        @else
                         NO Preview Image
-                    @endif
+                        @endif
                     </div>
                 </div>
 
@@ -106,42 +106,42 @@
                     </div>
                 </div>
                 <div class="dependencies-container">
-                <div class="js-dependency-option-old">
-                    @foreach ( $componentData->dependencies as $index =>  $dependencies)
-                    <div class="row mb-2 js-dependency-option">
-                            <input type="hidden" class="form-control" name="edit_dependencies[{{$index}}][id]"  value="{{$dependencies->id}}"/>
-                        <div class="col-md">
-                            <input type="text" class="form-control" placeholder="Name" name="edit_dependencies[{{$index}}][name]"  value="{{$dependencies->name}}"/>
+                    <div class="js-dependency-option-old">
+                        @foreach ( $componentData->dependencies as $index => $dependencies)
+                        <div class="row mb-2 js-dependency-option">
+                            <input type="hidden" class="form-control" name="edit_dependencies[{{$index}}][id]" value="{{$dependencies->id}}" />
+                            <div class="col-md">
+                                <input type="text" class="form-control" placeholder="Name" name="edit_dependencies[{{$index}}][name]" value="{{$dependencies->name}}" />
+                            </div>
+                            <div class="col-md">
+                                <select class="form-control" name="edit_dependencies[{{$index}}][type]">
+                                    <option selected>Select Type</option>
+                                    <option value="js" {{$dependencies->type == 'js' ? 'selected' : ' ' }}>Javascript</option>
+                                    <option value="css" {{$dependencies->type == 'css' ? 'selected' : ' ' }}>Css</option>
+                                </select>
+                            </div>
+                            <div class="col-md">
+                                <input type="text" class="form-control" placeholder="Path" name="edit_dependencies[{{$index}}][path]" value="{{$dependencies->path}}" />
+                            </div>
+                            <div class="col-md">
+                                <input type="text" class="form-control" placeholder="Version" name="edit_dependencies[{{$index}}][version]" value="{{$dependencies->version}}" />
+                            </div>
+                            <div class="col-md-1">
+                                <span class="js-remove-cloned-item text-danger" style="font-size: 20px;">&times;</span>
+                            </div>
                         </div>
-                        <div class="col-md">
-                            <select class="form-control" name="edit_dependencies[{{$index}}][type]">
-                                <option selected>Select Type</option>
-                                <option value="js"  {{$dependencies->type == 'js' ? 'selected' : ' ' }}>Javascript</option>
-                                <option value="css" {{$dependencies->type == 'css' ? 'selected' : ' ' }}>Css</option>
-                            </select>
-                        </div>
-                        <div class="col-md">
-                            <input type="text" class="form-control" placeholder="Path" name="edit_dependencies[{{$index}}][path]" value="{{$dependencies->path}}" />
-                        </div>
-                        <div class="col-md">
-                            <input type="text" class="form-control" placeholder="Version" name="edit_dependencies[{{$index}}][version]" value="{{$dependencies->version}}" />
-                        </div>
-                        <div class="col-md-1">
-                            <span class="js-remove-cloned-item text-danger" style="font-size: 20px;">&times;</span>
-                        </div>
+                        @endforeach
                     </div>
-                    @endforeach
-                </div>
-                @if ($errors->has('edit_dependencies.*'))
+                    @if ($errors->has('edit_dependencies.*'))
                     @foreach($errors->get('edit_dependencies.*') as $key => $errorMessages)
                     <span style="font-size: 12px; padding-left:15px;" class="text-danger">
-                    @foreach($errorMessages as $error)
+                        @foreach($errorMessages as $error)
                         @if ($error == 'The dependencies.0.name field is required.')
-                            Name Field is required in Dependency.
+                        Name Field is required in Dependency.
                         @elseif ($error == 'The dependencies.0.path field is required.')
-                                Path Field is required in Dependency.
+                        Path Field is required in Dependency.
                         @elseif ($error == 'The dependencies.0.version field is required.')
-                                    Versioin is required in  Dependency.
+                        Versioin is required in Dependency.
                         @else
                         {{$error}}
                         @endif
@@ -154,15 +154,15 @@
 
                 <div class="row mb-5 mt-4">
                     <div class="col-md-3">
-                        <label  class="required" >Form Fields:</label>
+                        <label class="required">Form Fields:</label>
                     </div>
                 </div>
 
                 <div class="form-fields-container">
-                <div class="js-form-fields-option-old">
-                    @foreach ( $componentData->formFields  as $index => $fieldsData)
+                    <div class="js-form-fields-option-old">
+                        @foreach ( $componentData->formFields as $index => $fieldsData)
                         <div class="row mb-2 js-form-fields-option">
-                        <input type="hidden" class="form-control" name="edit_form-fields[{{$index}}][id]" value="{{$fieldsData->id}}" />
+                            <input type="hidden" class="form-control" name="edit_form-fields[{{$index}}][id]" value="{{$fieldsData->id}}" />
                             <div class="col-md">
                                 <input type="text" class="form-control" placeholder="Field Name" name="edit_form-fields[{{$index}}][name]" value="{{$fieldsData->field_name}}" />
                             </div>
@@ -170,69 +170,69 @@
                                 <select class="form-control selectFieldType" name="edit_form-fields[{{$index}}][type]" id="fieldType">
                                     <option selected>Select Field Type</option>
                                     <option value="text" {{$fieldsData->field_type == 'text' ? 'selected' : ' ' }}>Text</option>
-                                    <option value="image" {{$fieldsData->field_type == 'image' ? 'selected' : ' ' }} >Image</option>
-                                    <option value="textarea" {{$fieldsData->field_type == 'textarea' ? 'selected' : ' ' }} >TextArea</option>
-                                    <option value="button" {{$fieldsData->field_type == 'button' ? 'selected' : ' ' }} >Button</option>
+                                    <option value="image" {{$fieldsData->field_type == 'image' ? 'selected' : ' ' }}>Image</option>
+                                    <option value="textarea" {{$fieldsData->field_type == 'textarea' ? 'selected' : ' ' }}>TextArea</option>
+                                    <option value="button" {{$fieldsData->field_type == 'button' ? 'selected' : ' ' }}>Button</option>
+                                    <option value="multiple_list" {{$fieldsData->field_type == 'multiple_list' ? 'selected' : ' ' }}>Multiple List</option>
                                 </select>
                             </div>
                             <div class="col-md">
-                                <input type="text" class="form-control" placeholder="Field Position" name="edit_form-fields[{{$index}}][field_position]" value="{{$fieldsData->field_position}}"   size="2"/>
+                                <input type="text" class="form-control" placeholder="Field Position" name="edit_form-fields[{{$index}}][field_position]" value="{{$fieldsData->field_position}}" size="2" />
                             </div>
 
 
 
                             <div class="col-md" id="defaultField">
-                                <input type="text" class="form-control formDefaultValue" placeholder="Default Value" name="edit_form-fields[{{$index}}][default_value]"
-                                    @if ($fieldsData->field_type == 'image' && $fieldsData->default_value)
-                                        style="display:none"
-                                    @endif
-                                    value="{{$fieldsData->default_value}}" />
-                                    @if ($fieldsData->field_type == 'image' && $fieldsData->default_value)
-                                        @if ($fieldsData->is_multiple_image)
-                                            <input type="file" class="form-control imageUploadValue" name="edit_form-fields[{{$index}}][default_image][]" onchange="updateDefaultValue(this)" multiple />
-                                            <?php $imagePaths = explode(',', $fieldsData->default_value); ?>
-                                            <div class="d-flex flex-nowrap">
-                                                @foreach($imagePaths as $imagePath)
-                                                    <div class="mx-2 my-1 border border-danger">
-                                                        <img src="{{ asset('storage/' . trim($imagePath)) }}" height="50" width="70" alt="Image Preview"/>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        @else
-                                            <input type="file" class="form-control imageUploadValue" name="edit_form-fields[{{$index}}][default_image]" onchange="updateDefaultValue(this)" />
-                                            <div class="mx-2 my-1 border border-danger">
-                                                <img src="{{ asset('storage/' . trim($fieldsData->default_value)) }}" height="50" width="70" alt="Image Preview"/>
-                                            </div>
-                                        @endif
-                                    @endif
+                                <input type="text" class="form-control formDefaultValue" placeholder="Default Value" name="edit_form-fields[{{$index}}][default_value]" @if ($fieldsData->field_type == 'image' && $fieldsData->default_value)
+                                style="display:none"
+                                @endif
+                                value="{{$fieldsData->default_value}}" />
+                                @if ($fieldsData->field_type == 'image' && $fieldsData->default_value)
+                                @if ($fieldsData->is_multiple_image)
+                                <input type="file" class="form-control imageUploadValue" name="edit_form-fields[{{$index}}][default_image][]" onchange="updateDefaultValue(this)" multiple />
+                                <?php $imagePaths = explode(',', $fieldsData->default_value); ?>
+                                <div class="d-flex flex-nowrap">
+                                    @foreach($imagePaths as $imagePath)
+                                    <div class="mx-2 my-1 border border-danger">
+                                        <img src="{{ asset('storage/' . trim($imagePath)) }}" height="50" width="70" alt="Image Preview" />
+                                    </div>
+                                    @endforeach
+                                </div>
+                                @else
+                                <input type="file" class="form-control imageUploadValue" name="edit_form-fields[{{$index}}][default_image]" onchange="updateDefaultValue(this)" />
+                                <div class="mx-2 my-1 border border-danger">
+                                    <img src="{{ asset('storage/' . trim($fieldsData->default_value)) }}" height="50" width="70" alt="Image Preview" />
+                                </div>
+                                @endif
+                                @endif
                             </div>
 
 
                             <div class="col-md">
-                                <input type="text" class="form-control" placeholder="Meta Key 1 (optional)" name="edit_form-fields[{{$index}}][meta_key1]" value="{{$fieldsData->meta_key1}}"  />
+                                <input type="text" class="form-control" placeholder="Meta Key 1 (optional)" name="edit_form-fields[{{$index}}][meta_key1]" value="{{$fieldsData->meta_key1}}" />
                             </div>
                             <div class="col-md">
-                                <input type="text" class="form-control" placeholder="Meta Key 2 (optional)" name="edit_form-fields[{{$index}}][meta_key2]" value="{{$fieldsData->meta_key2}}"  />
+                                <input type="text" class="form-control" placeholder="Meta Key 2 (optional)" name="edit_form-fields[{{$index}}][meta_key2]" value="{{$fieldsData->meta_key2}}" />
                             </div>
                             <div class="col-md-1">
                                 <span class="js-remove-form-fields-cloned-item text-danger" style="font-size: 20px;">&times;</span>
                             </div>
                         </div>
-                    @endforeach
-                </div>
+                        @endforeach
+                    </div>
 
-                @if ($errors->has('edit_form-fields.*'))
+                    @if ($errors->has('edit_form-fields.*'))
                     @foreach($errors->get('edit_form-fields.*') as $key => $errorMessages)
                     <span style="font-size: 12px; padding: 10px 100px;" class="text-danger">
-                    @foreach($errorMessages as $error)
+                        @foreach($errorMessages as $error)
                         @if ($error == 'The form-fields.0.name field is required.')
-                            Name field is required in Form Field.
+                        Name field is required in Form Field.
                         @elseif ($error == 'The form-fields.0.default_value field is required.')
-                            default value is required in Form Feild.
+                        default value is required in Form Feild.
                         @else
                         {{$error}}
                         @endif
-                    @endforeach
+                        @endforeach
                     </span>
                     @endforeach
                     @endif
@@ -243,14 +243,14 @@
                 <div class="row mb-5">
                     <label for="edit_status" class="col-sm-3 col-form-label required ">Status</label>
                     <div class="col-sm-4">
-                        <select name="edit_status" class="form-select" id="edit_status" >
-                                <option value="draft" {{$componentData->status == 'draft' ? 'selected' : ' ' }} >Draft</option>
-                                <option value="testing" {{$componentData->status == 'testing' ? 'selected' : ' ' }} >Testing</option>
-                                <option value="active" {{$componentData->status == 'active' ? 'selected' : ' ' }}>Active</option>
-                                <option value="deactive" {{$componentData->status == 'deactive' ? 'selected' : ' ' }} >Deactive</option>
+                        <select name="edit_status" class="form-select" id="edit_status">
+                            <option value="draft" {{$componentData->status == 'draft' ? 'selected' : ' ' }}>Draft</option>
+                            <option value="testing" {{$componentData->status == 'testing' ? 'selected' : ' ' }}>Testing</option>
+                            <option value="active" {{$componentData->status == 'active' ? 'selected' : ' ' }}>Active</option>
+                            <option value="deactive" {{$componentData->status == 'deactive' ? 'selected' : ' ' }}>Deactive</option>
                         </select>
                         @if ($errors->has('edit_category'))
-                             <span style="font-size: 12px;" class="text-danger">{{ $errors->first('edit_category') }}</span>
+                        <span style="font-size: 12px;" class="text-danger">{{ $errors->first('edit_category') }}</span>
                         @endif
                     </div>
                 </div>
@@ -266,7 +266,7 @@
 <div class="js-hidden-dependency-option d-none">
     <div class="row mb-2 js-dependency-option">
         <div class="col-md">
-            <input type="text" class="form-control" placeholder="Name" name="edit_dependencies[][name]"/>
+            <input type="text" class="form-control" placeholder="Name" name="edit_dependencies[][name]" />
         </div>
         <div class="col-md">
             <select class="form-control" name="edit_dependencies[][type]">
@@ -276,10 +276,10 @@
             </select>
         </div>
         <div class="col-md">
-            <input type="text" class="form-control" placeholder="Path" name="edit_dependencies[][path]"  />
+            <input type="text" class="form-control" placeholder="Path" name="edit_dependencies[][path]" />
         </div>
         <div class="col-md">
-            <input type="text" class="form-control" placeholder="Version" name="edit_dependencies[][version]"/>
+            <input type="text" class="form-control" placeholder="Version" name="edit_dependencies[][version]" />
         </div>
         <div class="col-md-1">
             <span class="js-remove-cloned-item text-danger" style="font-size: 20px;">&times;</span>
@@ -289,8 +289,11 @@
 
 <div class="js-hidden-form-fields-option d-none">
     <div class="row mb-2 js-form-fields-option">
+        <input type="hidden" value="" class="js-rowIndex">
+        <input type="hidden" value="" class="js-rowSubIndex">
+
         <div class="col-md">
-            <input type="text" class="form-control" placeholder="Field Name" name="edit_form-fields[][name]"  />
+            <input type="text" class="form-control" placeholder="Field Name" name="edit_form-fields[][name]" />
         </div>
         <div class="col-md">
             <select class="form-control selectFieldType" name="edit_form-fields[][type]">
@@ -299,22 +302,23 @@
                 <option value="image">Image</option>
                 <option value="textarea">TextArea</option>
                 <option value="button">Button</option>
+                <option value="multiple_list">Multiple List</option>
             </select>
         </div>
         <div class="col-md">
-            <input type="text" class="form-control" placeholder="Field Position" name="edit_form-fields[][field_position]"/>
+            <input type="text" class="form-control" placeholder="Field Position" name="edit_form-fields[][field_position]" />
         </div>
         <div class="col-md">
-            <input type="text" class="form-control formDefaultValue" placeholder="Default Value" name="edit_form-fields[][default_value]"/>
+            <input type="text" class="form-control formDefaultValue" placeholder="Default Value" name="edit_form-fields[][default_value]" />
             <input type="file" class="form-control imageUploadValue imageFilePath" name="edit_form-fields[][default_image][]" style="display: none;" onchange="updateDefaultValue(this)" />
             <label for="multipleImageUpload" class="js-multiple-image-upload imageUploadValue" style="display: none;">multiple</label>
             <input type="checkbox" id="multipleImageUpload" name="edit_form-fields[][multiple_image]" class="js-multiple-image-upload imageUploadValue" style="margin-top: 5px; display: none;">
         </div>
         <div class="col-md">
-            <input type="text" class="form-control" placeholder="Meta Key 1 (optional)" name="edit_form-fields[][meta_key1]"/>
+            <input type="text" class="form-control" placeholder="Meta Key 1 (optional)" name="edit_form-fields[][meta_key1]" />
         </div>
         <div class="col-md">
-            <input type="text" class="form-control" placeholder="Meta Key 2 (optional)" name="edit_form-fields[][meta_key2]"/>
+            <input type="text" class="form-control" placeholder="Meta Key 2 (optional)" name="edit_form-fields[][meta_key2]" />
         </div>
 
         <div class="col-md-1">
@@ -330,9 +334,9 @@
 
         var dependencyLastChild = $('.js-dependency-option:last-child');
         let dependencyIndex = dependencyLastChild.find('input[name^="edit_dependencies"]').attr('name').match(/\[(.*?)\]/)[1];
-        if(!dependencyIndex){
+        if (!dependencyIndex) {
             dependencyIndex = 0;
-        }else{
+        } else {
             dependencyIndex = parseInt(dependencyIndex) + 1;
         }
 
@@ -362,37 +366,94 @@
         var lastChild = $('.js-form-fields-option:last-child');
         let formFieldIndex = lastChild.find('input[name^="edit_form-fields"]').attr('name').match(/\[(.*?)\]/)[1];
 
-        if(!formFieldIndex){
+        if (!formFieldIndex) {
             formFieldIndex = 0;
-        }else{
+        } else {
             formFieldIndex = parseInt(formFieldIndex) + 1;
         }
-    function cloneFormField() {
-        console.log(formFieldIndex);
-        var clonedFormFieldItem = $('.js-hidden-form-fields-option .js-form-fields-option').clone().removeClass('d-none').addClass('js-cloned-item');
 
-        clonedFormFieldItem.find('[name="edit_form-fields[][name]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][name]');
-        clonedFormFieldItem.find('[name="edit_form-fields[][type]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][type]');
-        clonedFormFieldItem.find('[name="edit_form-fields[][field_position]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][field_position]');
-        clonedFormFieldItem.find('[name="edit_form-fields[][default_value]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][default_value]');
-        // clonedFormFieldItem.find('[name="edit_form-fields[][default_image]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][default_image]');
-        clonedFormFieldItem.find('[name="edit_form-fields[][default_image][]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][default_image][]');
-        clonedFormFieldItem.find('[name="edit_form-fields[][multiple_image]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][multiple_image]');
-        clonedFormFieldItem.find('[name="edit_form-fields[][meta_key1]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][meta_key1]');
-        clonedFormFieldItem.find('[name="edit_form-fields[][meta_key2]"]').attr('name', 'edit_form-fields[' + formFieldIndex + '][meta_key2]');
-        // console.log(formFieldIndex)
+        function createClonedItem(formFieldIndex, isSubClone, subFieldIndex = false) {
+            // console.log('SUb Field Index', subFieldIndex);
+            //     console.log('form Field ', formFieldIndex - 1);
 
-        $('.form-fields-container').append(clonedFormFieldItem);
-        formFieldIndex++;
-    }
 
-    // cloneFormField();
+            var clonedFormFieldItem = $('.js-hidden-form-fields-option .js-form-fields-option').clone().removeClass('d-none');
 
-    $('.js-add-form-fields').click(function () {
-        cloneFormField();
-    });
+            var namePrefix = isSubClone ? 'edit_form-fields['+formFieldIndex+'][multiple_list]['+subFieldIndex+'][' : 'edit_form-fields[' + formFieldIndex + '][';
+            clonedFormFieldItem.find('.js-rowIndex').val(formFieldIndex);
+            clonedFormFieldItem.find('.js-rowSubIndex').val(subFieldIndex);
+            clonedFormFieldItem.find('[name="edit_form-fields[][name]"]').attr('name', namePrefix + 'name]');
+            clonedFormFieldItem.find('[name="edit_form-fields[][type]"]').attr('name', namePrefix + 'type]');
+            clonedFormFieldItem.find('[name="edit_form-fields[][field_position]"]').attr('name', namePrefix + 'field_position]');
+            clonedFormFieldItem.find('[name="edit_form-fields[][default_value]"]').attr('name', namePrefix + 'default_value]');
+            clonedFormFieldItem.find('[name="edit_form-fields[][default_image][]"]').attr('name', namePrefix + 'default_image][]');
+            clonedFormFieldItem.find('[name="edit_form-fields[][multiple_image]"]').attr('name', namePrefix + 'multiple_image]');
+            clonedFormFieldItem.find('[name="edit_form-fields[][meta_key1]"]').attr('name', namePrefix + 'meta_key1]');
+            clonedFormFieldItem.find('[name="edit_form-fields[][meta_key2]"]').attr('name', namePrefix + 'meta_key2]');
 
-    $('body').on('click', '.js-remove-form-fields-cloned-item', function() {
+            return clonedFormFieldItem;
+        }
+
+        function cloneFormField(target = false, subClone = false, innerSubClone = false) {
+
+            // console.log("fomindex", formFieldIndex);
+            if (subClone && target) {
+
+                var subformFieldIndex = target.find('.js-rowSubIndex').val();
+                console.log("start", subformFieldIndex);
+
+                if (subformFieldIndex === "false") {
+                    console.log("in", subformFieldIndex);
+                    subformFieldIndex = 1;
+                } else {
+                    // Increment subformFieldIndex by 1
+                    subformFieldIndex++;
+                    target.find('.js-rowSubIndex').val(subformFieldIndex);
+                }
+
+                console.log("out", subformFieldIndex);
+
+                var currentRowIndex = target.find('.js-rowIndex').val();
+                console.log(currentRowIndex);
+
+                var newDiv = '';
+                console.log('target', target);
+                console.log('subclone', subClone);
+                console.log('innseer', innerSubClone);
+
+                newDiv = innerSubClone ? target : $('<div>').addClass('mx-4 my-2 border border-dark js-sub-cloned-item ');
+
+                var addButton = $('<span>').addClass('js-add-sub-form-fields clone text-success').css('font-size', '20px').text('+');
+                innerSubClone ? '' : newDiv.append(addButton);
+                newDiv.append(createClonedItem(currentRowIndex, true, subformFieldIndex));
+
+
+                innerSubClone ? '' : $('.form-fields-container').append(newDiv);
+                target.after(newDiv);
+                // console.log("subclone");
+            } else {
+                // console.log('form Field ', formFieldIndex);
+                // console.log("else");
+                var clonedFormFieldItem = createClonedItem(formFieldIndex, false);
+                $('.form-fields-container').append(clonedFormFieldItem);
+                formFieldIndex++;
+            }
+
+        }
+
+        // cloneFormField();
+
+        $('body').on('click', '.js-add-form-fields', function() {
+            // console.log("pressed");
+            cloneFormField();
+        });
+
+        $('body').on('click', '.js-add-sub-form-fields', function() {
+            const closestParent = $(this).closest('.js-sub-cloned-item');
+            cloneFormField(closestParent, true, true);
+        });
+
+        $('body').on('click', '.js-remove-form-fields-cloned-item', function() {
             $(this).closest('.js-form-fields-option').remove()
         });
 
@@ -404,6 +465,7 @@
             const closestParent = $(this).closest('.js-form-fields-option');
             const defaultValueInput = closestParent.find('.formDefaultValue');
             const imageUpload = closestParent.find('.imageUploadValue');
+            const formFieldsContainer = closestParent.find('.form-fields-container');
 
             if (selectedValue === 'image') {
                 defaultValueInput.hide();
@@ -412,32 +474,36 @@
                 defaultValueInput.show();
                 imageUpload.hide();
             }
+
+            if (selectedValue === 'multiple_list') {
+                console.log("in multiple list");
+                cloneFormField(closestParent, true);
+            }
         });
 
-        $(document).on('change', '#multipleImageUpload', function () {
-                const isChecked = $(this).prop('checked');
-                const imageUpload = $(this).closest('.js-form-fields-option').find('.imageFilePath');
 
-                if (isChecked) {
-                    // If checkbox is checked, show multiple file input
-                    imageUpload.attr('multiple', 'multiple');
-                } else {
-                    // If checkbox is unchecked, hide multiple file input
-                    imageUpload.removeAttr('multiple');
-                }
-            });
+        $(document).on('change', '#multipleImageUpload', function() {
+            const isChecked = $(this).prop('checked');
+            const imageUpload = $(this).closest('.js-form-fields-option').find('.imageFilePath');
+
+            if (isChecked) {
+                // If checkbox is checked, show multiple file input
+                imageUpload.attr('multiple', 'multiple');
+            } else {
+                // If checkbox is unchecked, hide multiple file input
+                imageUpload.removeAttr('multiple');
+            }
+        });
 
 
     });
     //end document ready function
 
     function updateDefaultValue(input) {
-            const closestParent = $(input).closest('.js-form-fields-option');
-            const defaultValueInput = closestParent.find('.formDefaultValue');
-            // Update the default value input with the file name (temporary name for now)
-            defaultValueInput.val(input.files[0].name);
-        }
-
-
+        const closestParent = $(input).closest('.js-form-fields-option');
+        const defaultValueInput = closestParent.find('.formDefaultValue');
+        // Update the default value input with the file name (temporary name for now)
+        defaultValueInput.val(input.files[0].name);
+    }
 </script>
 @endsection
