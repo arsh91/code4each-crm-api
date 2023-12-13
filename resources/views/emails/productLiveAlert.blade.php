@@ -124,9 +124,9 @@
 
         .button-start {
             display: flex;
-            justify-content: center;
-            gap: 22px;
             padding: 0px 0px 30px;
+            justify-content: center;
+            gap: 20px;
             align-items: center;
         }
 
@@ -192,10 +192,9 @@
 
         .soical-links {
             display: flex;
-            justify-content: center;
             margin: 0px auto;
-            gap: 20px;
             padding: 10px 0px 0px;
+            justify-content: center;
         }
 
         .soical-links a img {
