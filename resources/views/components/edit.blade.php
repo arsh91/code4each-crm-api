@@ -218,6 +218,55 @@
                                 <span class="js-remove-form-fields-cloned-item text-danger" style="font-size: 20px;">&times;</span>
                             </div>
                         </div>
+                        @if ($fieldsData && isset($fieldsData['children']) && count($fieldsData['children']) > 0)
+                        <div class="mx-4 my-2 border border-dark js-sub-cloned-item">
+                            <p class="h6 text-decoration-underline text-success my-2 mx-2"> Sub Form Fields For  Multiple List:</p>
+                        <span class="js-add-sub-form-fields clone text-success" style="font-size: 20px;">+</span>
+                            @foreach ($fieldsData['children'] as $subIndx => $childFieldsData )
+                            <div class="row mb-2 js-form-fields-option">
+                                <input type="hidden" value="7" class="js-rowIndex">
+                                <input type="hidden" value="1" class="js-rowSubIndex">
+                                <input type="hidden" name="edit_form-fields[{{$index}}][multiple_list][$subIndx][id]" value="{{$childFieldsData->id}}">
+
+                                <div class="col-md">
+                                    <input type="text" class="form-control" placeholder="Field Name" name="edit_form-fields[{{$index}}][multiple_list][{{$subIndx}}][name]" value="{{$childFieldsData->field_name}}">
+                                </div>
+                                <div class="col-md">
+                                    <select class="form-control selectFieldType" name="edit_form-fields[{{$index}}][multiple_list][{{$subIndx}}][type]">
+                                        <option selected="">Select Field Type</option>
+                                        <option value="text" {{$childFieldsData->field_type == 'text' ? 'selected' : ' ' }}>Text</option>
+                                        <option value="image" {{$childFieldsData->field_type == 'image' ? 'selected' : ' ' }}>Image</option>
+                                        <option value="textarea" {{$childFieldsData->field_type == 'textarea' ? 'selected' : ' ' }}>TextArea</option>
+                                        <option value="button" {{$childFieldsData->field_type == 'button' ? 'selected' : ' ' }}>Button</option>
+                                        <option value="multiple_list" {{$childFieldsData->field_type == 'multiple_list' ? 'selected' : ' ' }}>Multiple List</option>
+                                    </select>
+                                </div>
+                                <div class="col-md">
+                                    <input type="text" class="form-control" placeholder="Field Position" name="edit_form-fields[{{$index}}][multiple_list][{{$subIndx}}][field_position]" value="{{$childFieldsData->field_position}}">
+                                </div>
+                                <div class="col-md">
+                                    <input type="text" class="form-control formDefaultValue" placeholder="Default Value" name="edit_form-fields[{{$index}}][multiple_list][{{$subIndx}}][default_value]" value="{{$childFieldsData->default_value}}">
+                                    <input type="file" class="form-control imageUploadValue imageFilePath" name="edit_form-fields[{{$index}}][multiple_list][{{$subIndx}}][default_image][]" style="display: none;" onchange="updateDefaultValue(this)">
+                                    <label for="multipleImageUpload" class="js-multiple-image-upload imageUploadValue" style="display: none;">multiple</label>
+                                    <input type="checkbox" id="multipleImageUpload" name="edit_form-fields[{{$index}}][multiple_list][{{$subIndx}}][multiple_image]" class="js-multiple-image-upload imageUploadValue" style="margin-top: 5px; display: none;">
+                                </div>
+                                <div class="col-md">
+                                    <input type="text" class="form-control" placeholder="Meta Key 1 (optional)" name="edit_form-fields[{{$index}}][multiple_list][{{$subIndx}}][meta_key1]" value="{{$childFieldsData->meta_key1}}">
+                                </div>
+                                <div class="col-md">
+                                    <input type="text" class="form-control" placeholder="Meta Key 2 (optional)" name="edit_form-fields[{{$index}}][multiple_list][{{$subIndx}}][meta_key2]" value="{{$childFieldsData->meta_key2}}">
+                                </div>
+                                <div class="col-md-1">
+                                    <span class="js-remove-form-fields-cloned-item text-danger" style="font-size: 20px;">×</span>
+                                </div>
+                            </div>
+                            @endforeach
+
+                        </div>
+                        <!-- Your HTML/Blade code for the case where $fieldsData has children -->
+                        @else
+                        {{-- $fieldsData is either null or has no children --}}
+                        @endif
                         @endforeach
                     </div>
 
@@ -379,7 +428,7 @@
 
             var clonedFormFieldItem = $('.js-hidden-form-fields-option .js-form-fields-option').clone().removeClass('d-none');
 
-            var namePrefix = isSubClone ? 'edit_form-fields['+formFieldIndex+'][multiple_list]['+subFieldIndex+'][' : 'edit_form-fields[' + formFieldIndex + '][';
+            var namePrefix = isSubClone ? 'edit_form-fields[' + formFieldIndex + '][multiple_list][' + subFieldIndex + '][' : 'edit_form-fields[' + formFieldIndex + '][';
             clonedFormFieldItem.find('.js-rowIndex').val(formFieldIndex);
             clonedFormFieldItem.find('.js-rowSubIndex').val(subFieldIndex);
             clonedFormFieldItem.find('[name="edit_form-fields[][name]"]').attr('name', namePrefix + 'name]');
@@ -422,6 +471,9 @@
                 console.log('innseer', innerSubClone);
 
                 newDiv = innerSubClone ? target : $('<div>').addClass('mx-4 my-2 border border-dark js-sub-cloned-item ');
+
+                var titleText = $('<p>').addClass('h6 text-decoration-underline text-success').text('Sub Form Fields For  Multiple List:');
+                innerSubClone ? '' : newDiv.append(titleText);
 
                 var addButton = $('<span>').addClass('js-add-sub-form-fields clone text-success').css('font-size', '20px').text('+');
                 innerSubClone ? '' : newDiv.append(addButton);

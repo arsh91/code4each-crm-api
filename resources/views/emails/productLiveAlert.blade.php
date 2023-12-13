@@ -214,7 +214,7 @@
                     <div class="text-wrapper">
                         <h4>Welcome to Speedy Sites</h4>
                         <h2>Let's get ready for service</h2>
-                        <a href="" class="start-button">let's Start Now</a>
+                        <a href="https://speedysites.in/" class="start-button">let's Start Now</a>
                     </div>
                     <div class="image-wrapper">
                         <img src="{{ url('img/datailedimg1.png') }}">
@@ -225,10 +225,10 @@
                     <p>This handy tool helps you create dummy text for all your layout needs.</p>
                     <p>We are gradually adding new functionality and we welcome your suggestions and feedback.</p>
                 </div>
-                <div class="button-start">
-                    <a href="" class="button1">let's Start Now</a>
+                <div class="button-start" style="display: flex;justify-content: center;">
+                    <a href="https://speedysites.in/" class="button1">let's Start Now</a>
 
-                    <a href="" class="button2">Learn More <i class="fa fa-long-arrow-right"></i></a>
+                    <a href="https://speedysites.in/learn-more/" class="button2">Learn More <i class="fa fa-long-arrow-right"></i></a>
                 </div>
 
                 <hr>
@@ -238,11 +238,11 @@
                         Stay up to date with our latest news & features
                     </h3>
 
-                    <div class="soical-links">
+                    <div class="soical-links" style="display: flex;justify-content: center;gap:20px;">
                         <a href=""><img src="{{ url('img/icons8-facebook-circled.gif') }}"></a>
-                        <a href=""><img src="{{ url('img/icons8-linkedin-logo.gif') }}"></a>
-                        <a href=""><img src="{{ url('img/icons8-whatsapp.gif') }}"></a>
-                        <a href=""><img src="{{ url('img/icons8-gmail-logo.gif') }}"></a>
+                        <a href="https://www.linkedin.com/company/code-4-each/"><img src="{{ url('img/icons8-linkedin-logo.gif') }}"></a>
+                        <a href="https://wa.me/7973630617"><img src="{{ url('img/icons8-whatsapp.gif') }}"></a>
+                        <a href="mailto:info@code4each.com"><img src="{{ url('img/icons8-gmail-logo.gif') }}"></a>
                     </div>
                 </div>
 

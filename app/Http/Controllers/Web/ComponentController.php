@@ -196,7 +196,8 @@ class ComponentController extends Controller
     public function edit($id)
     {
         $category = WebsiteCategory::all();
-        $componentData = Component::with('dependencies','formFields')->find($id);
+        $componentData = Component::with('dependencies','formFields','formFields.children')->find($id);
+        // dd($componentData->toArray());
         return view('components.edit',compact('category','componentData'));
     }
 
@@ -209,6 +210,7 @@ class ComponentController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // dd($request);
         $validator = Validator::make($request->all(), [
             'edit_component_name' => 'required|string|max:255',
             'edit_path' => 'required',
@@ -228,6 +230,13 @@ class ComponentController extends Controller
             'edit_form-fields.*.default_value' => 'required',
             'edit_form-fields.*.default_image.*' => 'nullable|file|max:5120|mimes:jpeg,png',
             'edit_form-fields.*.multiple_image' => 'nullable',
+            'edit_form-fields.*.multiple_list' => 'nullable|array',
+            'edit_form-fields.*.multiple_list.*.name' => 'required_with:edit_form-fields.*.multiple_list|string',
+            'edit_form-fields.*.multiple_list.*.type' => 'required_with:edit_form-fields.*.multiple_list|string',
+            'edit_form-fields.*.multiple_list.*.field_position' => 'required_with:edit_form-fields.*.multiple_list|integer',
+            'edit_form-fields.*.multiple_list.*.default_value' => 'required_with:edit_form-fields.*.multiple_list|string',
+            'edit_form-fields.*.multiple_list.*.meta_key1' => 'nullable',
+            'edit_form-fields.*.multiple_list.*.meta_key2' => 'nullable',
             'edit_form-fields.*.meta_key1' => 'nullable',
             'edit_form-fields.*.meta_key2' => 'nullable',
         ]);
@@ -236,9 +245,14 @@ class ComponentController extends Controller
             return Redirect::back()->withErrors($validator);
         }
         $validate = $validator->valid();
-
+        //Assign All dependency Data from edit_dependencies
         $dependencyData = $validate['edit_dependencies'];
+        //Assign All dependency Data from edit_form-fields
         $formFieldsData  = $validate['edit_form-fields'];
+        // dd($formFieldsData[]['multiple_list']);
+
+
+        // get detail of Component with id of Component
         $componentDetail = Component::with('dependencies','formFields')->find($id);
         $formFieldsDetail = $componentDetail->formFields->toArray();
         $dependencyDetail = $componentDetail->dependencies->toArray();
@@ -319,13 +333,15 @@ class ComponentController extends Controller
                         if (is_array($uploadedFiles)) {
                             foreach ($uploadedFiles as $uploadedFile) {
                                 // Handle the upload and update $formFieldData as needed for multiple images
-                                $this->handleUpload($uploadedFile, $formFieldData);
+                                 $this->handleUpload($uploadedFile, $formFieldData);
                             }
+                            // dd($result);
                         } else {
                             // Handle the upload and update $formFieldData as needed for a single image
                             $this->handleUpload($uploadedFiles, $formFieldData);
                         }
                     }
+
 
                     if (isset($formFieldData['id'])) {
                         ComponentFormFields::where('id', $formFieldData['id'])
@@ -358,7 +374,35 @@ class ComponentController extends Controller
                             $componentFormField['is_multiple_image'] = true;
                         }
 
-                        ComponentFormFields::create($componentFormField);
+                      $componentFormFields =  ComponentFormFields::create($componentFormField);
+                      $componentFormFieldId = $componentFormFields->id;
+                      if($componentFormFields){
+                        foreach ($formFieldsData as $field) {
+                            if ($field['type'] === 'multiple_list') {
+                                // Access and process elements where type is 'multiple_list'
+                                // dd($field);
+
+                                // If you also want to loop through the 'multiple_list' array
+                                foreach ($field['multiple_list'] as $item) {
+                                    // Access individual items in the 'multiple_list' array
+                                    // dd($item);
+                                    $componentFormSubField = [
+                                        'component_id' => $id,
+                                        'parent_id' => $componentFormFieldId,
+                                        'field_name' => $item['name'],
+                                        'field_type' => $item['type'],
+                                        'field_position' => $item['field_position'],
+                                        'default_value' => $item['default_value'],
+                                        'meta_key1' => $item['meta_key1'] ?? null,
+                                        'meta_key2' => $item['meta_key2'] ?? null,
+                                        'created_at' => now(),
+                                        'updated_at' => now(),
+                                    ];
+                                   $componentFormSubFields =  ComponentFormFields::create($componentFormSubField);
+                                }
+                            }
+                        }
+                      }
                     }
             }
 

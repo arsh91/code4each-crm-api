@@ -32,19 +32,19 @@ class ProductLiveAlert extends Command
     {
         $PreIntrestedUser = PreBooking::all();
         $emails = $PreIntrestedUser->pluck('email');
-        // $data = ['subject' => 'Your Subject', 'message' => 'Your Message'];
-        // // You can use the `each` method to loop through each email and send the mail
-        // $emails->each(function ($email) use ($data) {
-        //     // You may customize the mail sending logic as needed
-        //     Mail::to($email)->send(new ProductLiveAlertMail($data));
-        // });
+        $data = ['subject' => 'Exciting News: Our Beta Site is Now Live!', 'message' => 'Your Message'];
+        // You can use the `each` method to loop through each email and send the mail
+        $emails->each(function ($email) use ($data) {
+            // You may customize the mail sending logic as needed
+            Mail::to($email)->send(new ProductLiveAlertMail($data));
+        });
 
         // info("Email Sent To Pre Interested User.");
-        $email = "fuzail.code4each@gmail.com";
-        $data = ['subject' => 'Your Subject', 'message' => 'Your Message'];
+        // $email = "fuzail.code4each@gmail.com";
+        // $data = ['subject' => 'Your Subject', 'message' => 'Your Message'];
 
         // You can directly use Mail::to with a single email address
-        Mail::to($email)->send(new ProductLiveAlertMail($data));
+        // Mail::to($email)->send(new ProductLiveAlertMail($data));
 
         info("Email Sent To Pre Interested User.");
         dd("Email Sent");
