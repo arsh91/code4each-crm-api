@@ -6,18 +6,18 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap CSS -->
-    <link href="{{ asset('productLiveAlertEmail/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url('productLiveAlertEmail/css/bootstrap.min.css') }}" rel="stylesheet">
     <!-- <link rel = "icon" href = "images/logoicon.png" type = "image/x-icon"> -->
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="{{ asset('productLiveAlertEmail/css/animate.min.css') }}" />
-    <link rel="stylesheet" type="text/css" href="{{ asset('productLiveAlertEmail/css/style.css') }}">
+    <link rel="stylesheet" href="{{ url('productLiveAlertEmail/css/animate.min.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url('productLiveAlertEmail/css/style.css') }}">
     <title>Real-Estate</title>
     </head>
   <body>
          <header class="header">
             <div class="container">
                 <div class="full-wrap">
-                  <img  src="{{ asset('img/speedy-logo-3.png') }}">
+                  <img  src="{{ url('img/speedy-logo-3.png') }}">
 
 
                     <div class="main-wrapper">
@@ -27,7 +27,7 @@
                             <a href="" class="start-button">let's Start Now</a>
                         </div>
                         <div class="image-wrapper">
-                            <img  src="{{ asset('img/datailedimg1.png') }}">
+                            <img  src="{{ url('img/datailedimg1.png') }}">
                         </div>
                     </div>
 
@@ -48,10 +48,10 @@
                               </h3>
 
                               <div  class="soical-links">
-                                   <a href=""><img src="{{ asset('img/icons8-facebook-circled.gif') }}"></a>
-                                   <a href=""><img src="{{ asset('img/icons8-linkedin-logo.gif') }}"></a>
-                                   <a href=""><img src="{{ asset('img/icons8-whatsapp.gif') }}"></a>
-                                   <a href=""><img src="{{ asset('img/icons8-gmail-logo.gif') }}"></a>
+                                   <a href=""><img src="{{ url('img/icons8-facebook-circled.gif') }}"></a>
+                                   <a href=""><img src="{{ url('img/icons8-linkedin-logo.gif') }}"></a>
+                                   <a href=""><img src="{{ url('img/icons8-whatsapp.gif') }}"></a>
+                                   <a href=""><img src="{{ url('img/icons8-gmail-logo.gif') }}"></a>
                               </div>
                         </div>
 
@@ -62,7 +62,7 @@
 
 
 
-    <script src="{{ asset('productLiveAlertEmail/js/code.jquery.com_jquery-3.6.4.min.js') }}"></script>
-    <script src="{{ asset('productLiveAlertEmail/js/cdn.jsdelivr.net_npm_bootstrap@5.0.2_dist_js_bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url('productLiveAlertEmail/js/code.jquery.com_jquery-3.6.4.min.js') }}"></script>
+    <script src="{{ url('productLiveAlertEmail/js/cdn.jsdelivr.net_npm_bootstrap@5.0.2_dist_js_bootstrap.bundle.min.js') }}"></script>
   </body>
 </html>
