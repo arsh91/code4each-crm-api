@@ -197,7 +197,6 @@ class ComponentController extends Controller
     {
         $category = WebsiteCategory::all();
         $componentData = Component::with('dependencies','formFields','formFields.children')->find($id);
-        // dd($componentData->toArray());
         return view('components.edit',compact('category','componentData'));
     }
 
@@ -210,7 +209,6 @@ class ComponentController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // dd($request);
         $validator = Validator::make($request->all(), [
             'edit_component_name' => 'required|string|max:255',
             'edit_path' => 'required',
@@ -249,8 +247,6 @@ class ComponentController extends Controller
         $dependencyData = $validate['edit_dependencies'];
         //Assign All dependency Data from edit_form-fields
         $formFieldsData  = $validate['edit_form-fields'];
-        // dd($formFieldsData[]['multiple_list']);
-
 
         // get detail of Component with id of Component
         $componentDetail = Component::with('dependencies','formFields')->find($id);
@@ -335,7 +331,6 @@ class ComponentController extends Controller
                                 // Handle the upload and update $formFieldData as needed for multiple images
                                  $this->handleUpload($uploadedFile, $formFieldData);
                             }
-                            // dd($result);
                         } else {
                             // Handle the upload and update $formFieldData as needed for a single image
                             $this->handleUpload($uploadedFiles, $formFieldData);
@@ -380,12 +375,10 @@ class ComponentController extends Controller
                         foreach ($formFieldsData as $field) {
                             if ($field['type'] === 'multiple_list') {
                                 // Access and process elements where type is 'multiple_list'
-                                // dd($field);
 
                                 // If you also want to loop through the 'multiple_list' array
                                 foreach ($field['multiple_list'] as $item) {
                                     // Access individual items in the 'multiple_list' array
-                                    // dd($item);
                                     $componentFormSubField = [
                                         'component_id' => $id,
                                         'parent_id' => $componentFormFieldId,
