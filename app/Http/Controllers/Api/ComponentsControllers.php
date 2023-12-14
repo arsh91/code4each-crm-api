@@ -58,7 +58,7 @@ class ComponentsControllers extends Controller
                 return response()->json(['error' => 'An Error occur While Creating Your site. Domain may not exists related to your business name. Ask for the Support.'],500);
             }
             $phone = null;
-            if($validate['phone']){
+            if(isset($validate['phone'])){
                 $phone = $validate['phone'];
             }
             $description = null;
