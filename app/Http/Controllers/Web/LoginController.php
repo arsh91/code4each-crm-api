@@ -20,15 +20,16 @@ class LoginController extends Controller
     }
 
 	public function login(Request $request)
-	{
+    {
         if ($request->isMethod('get')) {
-            $userId = request()->user()->id ?? null;
+            $userId = $request->user()->id ?? null;
             if ($userId) {
                 return redirect()->route('components.index');
             } else {
                 return view('auth.login');
             }
         }
+
         if ($request->isMethod('post')) {
             $credentials = $request->validate([
                 'email' => ['required', 'email'],
@@ -36,17 +37,27 @@ class LoginController extends Controller
             ]);
 
             if (Auth::attempt($credentials)) {
-                $request->session()->regenerate();
+                $user = Auth::user();
 
-                return redirect()->intended('dashboard');
+                // Check if the user has the role 'super_admin'
+                if ($user->role === 'super_admin') {
+                    $request->session()->regenerate();
+
+                    return redirect()->intended('dashboard');
+                } else {
+                    // User does not have the 'super_admin' role, not authorized
+                    Auth::logout();
+                    return back()->withErrors([
+                        'credentials_error' => 'You are not authorized to log in.',
+                    ])->onlyInput('email');
+                }
             }
 
             return back()->withErrors([
                 'credentials_error' => 'The provided credentials do not match our records.',
             ])->onlyInput('email');
         }
-
-	}
+    }
 
 	public function logOut()
     {

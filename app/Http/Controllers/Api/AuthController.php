@@ -49,7 +49,12 @@ class AuthController extends Controller
     public function logout()
     {
         $user = Auth::user();
-        $user->tokens()->delete();
+        $tokens =  $user->tokens;
+
+        // Revoke (delete) each token
+        $tokens->each(function ($token) {
+            $token->delete();
+        });
 
         $response = [
             'success' => true,
