@@ -30,111 +30,6 @@
                     </a>
                 </li><!-- End Search Icon-->
 
-                <!-- <li class="nav-item dropdown"> -->
-
-                <!-- <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
-                        <i class="bi bi-bell"></i>
-                        <span class="badge bg-primary badge-number">4</span> -->
-                <!-- /  </a>End Notification Icon -->
-
-                <!-- <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
-                        <li class="dropdown-header">
-                            You have 4 new notifications
-                            <a href="#"><span class="badge rounded-pill bg-primary p-2 ms-2">View all</span></a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li class="notification-item">
-                            <i class="bi bi-exclamation-circle text-warning"></i>
-                            <div>
-                                <h4>Test</h4>
-                                <p>Test here</p>
-                                <p>30 min. ago</p>
-                            </div>
-                        </li>
-
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li class="notification-item">
-                            <i class="bi bi-x-circle text-danger"></i>
-                            <div>
-                                <h4>Test</h4>
-                                <p>Test here</p>
-                                <p>1 hr. ago</p>
-                            </div>
-                        </li>
-
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li class="dropdown-footer">
-                            <a href="#">Show all notifications</a>
-                        </li> -->
-
-                <!-- / </ul>End Notification Dropdown Items -->
-
-                <!-- </li>End Notification Nav -->
-
-                <!-- <li class="nav-item dropdown">-->
-
-                <!-- <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
-                    <i class="bi bi-chat-left-text"></i>
-                    <span class="badge bg-success badge-number">3</span>
-                </a>End Messages Icon -->
-
-                <!-- <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow messages">
-                        <li class="dropdown-header">
-                            You have 3 new messages
-                            <a href="#"><span class="badge rounded-pill bg-primary p-2 ms-2">View all</span></a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li class="message-item">
-                            <a href="#">
-                                <img src="" alt="" class="rounded-circle">
-                                <div>
-                                    <h4>Test</h4>
-                                    <p>Test here...</p>
-                                    <p>4 hrs. ago</p>
-                                </div>
-                            </a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li class="message-item">
-                            <a href="#">
-                                <img src="" alt="" class="rounded-circle">
-                                <div>
-                                    <h4>Test</h4>
-                                    <p>Test here...</p>
-                                    <p>6 hrs. ago</p>
-                                </div>
-                            </a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li class="dropdown-footer">
-                            <a href="#">Show all messages</a>
-                        </li>
-
-                    </ul>End Messages Dropdown Items -->
-
-                <!-- </li>End Messages Nav -->
                 <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
                     {{-- @if (auth()->user()->profile_picture)
                     <img src="{{asset('assets/img/').'/'.auth()->user()->profile_picture}}" id="profile_picture"
@@ -219,8 +114,15 @@
     <aside id="sidebar" class="sidebar">
 
         <ul class="sidebar-nav" id="sidebar-nav">
+        <li class="nav-item">
+                <a class="nav-link {{ request()->is('dashboard') ? '' : 'collapsed' }}" href="{{ route('dashboard.index') }}">
+                    <i class="bi bi-person-square"></i>
+                    <span>Dashboard
+                    </span>
+                </a>
+            </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->is('users') ? '' : 'collapsed' }}" href="{{ route('components.index') }}">
+                <a class="nav-link {{ request()->is('components') ? '' : 'collapsed' }}" href="{{ route('components.index') }}">
                     <i class="bi bi-person-square"></i>
                     <span>Components
                     </span>
