@@ -18,7 +18,7 @@
                             </div>
                             <div class="ps-3">
 
-                                <h6>1</h6>
+                                <h6>{{ $userCount}}</h6>
                             </div>
                         </div>
                     </div>
@@ -40,7 +40,7 @@
                             </div>
                             <div class="ps-3">
 
-                                <h6>1</h6>
+                                <h6>{{ $componentsCount}}</h6>
                             </div>
                         </div>
                     </div>
