@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Web\ComponentController;
+use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\LoginController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +27,10 @@ Route::match(['get', 'post'], '/login', [LoginController::class, 'login'])->name
 
 //Protect Routes With Auth
 Route::group(['middleware' => ['auth']], function() {
+    //Dashboard Controller
+    Route::get('/dashboard',[DashboardController::class,'index'])->name('dashboard.index');
+
+
     //Component Section Routes
     Route::get('/components',[ComponentController::class,'index'])->name('components.index');
     Route::get('/components/create',[ComponentController::class,'create'])->name('components.create');
