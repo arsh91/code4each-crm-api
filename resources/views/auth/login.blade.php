@@ -16,7 +16,7 @@
 
                             <div class="d-flex justify-content-center py-4">
                                 <a href="" class="logo d-flex align-items-center w-auto" >
-                                    <img src="assets/img/code4each_logo.png" alt="Code4Each" style="margin:auto;" >
+                                    <img src="{{ asset('/img/speedy-logo-3.png')}}" alt="Speedy Sites" style="margin:auto;" >
                                     <!-- <span class="d-none d-lg-block">Management</span> -->
                                 </a>
                             </div><!-- End Logo -->

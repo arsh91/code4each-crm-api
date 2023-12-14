@@ -8,7 +8,7 @@
 
         <div class="d-flex align-items-center justify-content-between">
             <a href="{{ url('/dashboard') }}" class="logo d-flex align-items-center">
-                <img src="{{ asset('img/code4each_logo.png') }}" alt="Code4Each">
+                <img src="{{ asset('img/speedy-logo-3.png') }}" alt="Speedy Sites">
                 <!-- <span class="d-none d-lg-block">Management</span> -->
             </a>
             <i class="bi bi-list toggle-sidebar-btn"></i>
