@@ -187,6 +187,8 @@
 <div class="js-hidden-form-fields-option d-none">
     <div class="overflow-auto">
         <div class="row mb-2 js-form-fields-option">
+        <input type="hidden" value="" class="js-rowIndex">
+        <input type="hidden" value="" class="js-rowSubIndex">
             <!-- Your existing fields -->
             <div class="col-md">
                 <input type="text" class="form-control" placeholder="Field Name" name="form-fields[][name]" />
@@ -256,38 +258,94 @@
                 $(this).closest('.js-dependency-option.js-cloned-item').remove();
             });
 
-
+            //Form Fields Starts
             let formFieldIndex = 0;
 
-            function cloneFormField() {
-                var clonedFormFieldItem = $('.js-hidden-form-fields-option .js-form-fields-option').clone().removeClass('d-none').addClass('js-cloned-item');
+            function createClonedItem(firstItem ,formFieldIndex, isSubClone, subFieldIndex = false) {
 
-                clonedFormFieldItem.find('[name="form-fields[][name]"]').attr('name', 'form-fields[' + formFieldIndex + '][name]');
-                clonedFormFieldItem.find('[name="form-fields[][type]"]').attr('name', 'form-fields[' + formFieldIndex + '][type]');
-                clonedFormFieldItem.find('[name="form-fields[][field_position]"]').attr('name', 'form-fields[' + formFieldIndex + '][field_position]');
-                clonedFormFieldItem.find('[name="form-fields[][default_value]"]').attr('name', 'form-fields[' + formFieldIndex + '][default_value]');
-                clonedFormFieldItem.find('[name="form-fields[][default_image][]"]').attr('name', 'form-fields[' + formFieldIndex + '][default_image][]');
-                clonedFormFieldItem.find('[name="form-fields[][multiple_image]"]').attr('name', 'form-fields[' + formFieldIndex + '][multiple_image]');
-                clonedFormFieldItem.find('[name="form-fields[][meta_key1]"]').attr('name', 'form-fields[' + formFieldIndex + '][meta_key1]');
-                clonedFormFieldItem.find('[name="form-fields[][meta_key2]"]').attr('name', 'form-fields[' + formFieldIndex + '][meta_key2]');
+            var clonedFormFieldItem = $('.js-hidden-form-fields-option .js-form-fields-option').clone().removeClass('d-none');
+                if (firstItem) {
+                    clonedFormFieldItem.addClass(firstItem);
+                }else{
+                    clonedFormFieldItem.addClass('js-cloned-item');
+                }
+            var namePrefix = isSubClone ? 'form-fields[' + formFieldIndex + '][multiple_list][' + subFieldIndex + '][' : 'form-fields[' + formFieldIndex + '][';
+            clonedFormFieldItem.find('.js-rowIndex').val(formFieldIndex);
+            clonedFormFieldItem.find('.js-rowSubIndex').val(subFieldIndex);
+            clonedFormFieldItem.find('[name="form-fields[][name]"]').attr('name', namePrefix + 'name]');
+            clonedFormFieldItem.find('[name="form-fields[][type]"]').attr('name', namePrefix + 'type]');
+            clonedFormFieldItem.find('[name="form-fields[][field_position]"]').attr('name', namePrefix + 'field_position]');
+            clonedFormFieldItem.find('[name="form-fields[][default_value]"]').attr('name', namePrefix + 'default_value]');
+            clonedFormFieldItem.find('[name="form-fields[][default_image][]"]').attr('name', namePrefix + 'default_image][]');
+            clonedFormFieldItem.find('[name="form-fields[][multiple_image]"]').attr('name', namePrefix + 'multiple_image]');
+            clonedFormFieldItem.find('[name="form-fields[][meta_key1]"]').attr('name', namePrefix + 'meta_key1]');
+            clonedFormFieldItem.find('[name="form-fields[][meta_key2]"]').attr('name', namePrefix + 'meta_key2]');
 
-                $('.form-fields-container').append(clonedFormFieldItem);
-                console.log("before",formFieldIndex);
+            return clonedFormFieldItem;
+        }
+
+        function cloneFormField(firstItem = false ,target = false, subClone = false, innerSubClone = false) {
+            if (subClone && target) {
+
+                var subformFieldIndex = target.find('.js-rowSubIndex').val();
+
+                if (subformFieldIndex === "false") {
+                    subformFieldIndex = 1;
+                } else {
+                    // Increment subformFieldIndex by 1
+                    subformFieldIndex++;
+                    target.find('.js-rowSubIndex').val(subformFieldIndex);
+                }
+
+                var currentRowIndex = target.find('.js-rowIndex').val();
+
+                var newDiv = '';
+
+                newDiv = innerSubClone ? target : $('<div>').addClass('mx-4 my-2 border border-dark js-sub-cloned-item ');
+
+                var titleText = $('<p>').addClass('h6 text-decoration-underline text-success').text('Sub Form Fields For  Multiple List:');
+                innerSubClone ? '' : newDiv.append(titleText);
+
+                var addButton = $('<span>').addClass('js-add-sub-form-fields clone text-success').css('font-size', '20px').text('+');
+                innerSubClone ? '' : newDiv.append(addButton);
+                newDiv.append(createClonedItem(firstItem,currentRowIndex, true, subformFieldIndex));
+
+
+                innerSubClone ? '' : $('.form-fields-container').append(newDiv);
+                target.after(newDiv);
+            } else {
+                if(firstItem){
+                    var clonedFormFieldItem = createClonedItem(firstItem ,formFieldIndex, false);
+                    $('.form-fields-container').append(clonedFormFieldItem);
+                }else{
+                    var clonedFormFieldItem = createClonedItem(false,formFieldIndex, false);
+                    $('.form-fields-container').append(clonedFormFieldItem);
+                }
+
                 formFieldIndex++;
-                console.log("after",formFieldIndex);
-
             }
 
-            cloneFormField();
+        }
+
+            cloneFormField('first-cloned-item');
+
 
             $('.js-add-form-fields').click(function () {
                 cloneFormField();
             });
 
-            $('body').on('click', '.js-remove-form-fields-cloned-item', function () {
-                $(this).closest('.js-form-fields-option').remove();
+            $('body').on('click', '.js-add-sub-form-fields', function() {
+                const closestParent = $(this).closest('.js-sub-cloned-item');
+                cloneFormField(false ,closestParent, true, true);
             });
 
+            $('body').on('click', '.js-remove-form-fields-cloned-item', function () {
+                $(this).closest('.js-form-fields-option.js-cloned-item').remove();
+            });
+
+            //Form Fields End
+
+            // On Change Events Starts
             $(document).on('change', '.selectFieldType', function () {
                 const selectedValue = $(this).val();
                 const closestParent = $(this).closest('.js-form-fields-option');
@@ -302,6 +360,9 @@
                     defaultValueInput.show();
                     imageUpload.hide();
                 }
+                if (selectedValue === 'multiple_list') {
+                    cloneFormField('first-cloned-item',closestParent, true);
+                }
             });
 
             $(document).on('change', '#multipleImageUpload', function () {
@@ -312,14 +373,12 @@
                 if (isChecked) {
                     // If checkbox is checked, show multiple file input
                     imageUpload.attr('multiple', 'multiple');
-                    // imageUpload.attr('name', 'form-fields['+ formFieldIndex +'][default_image][]'); // Add [] to the name for array
                 } else {
                     // If checkbox is unchecked, hide multiple file input
                     imageUpload.removeAttr('multiple');
-                    // imageUpload.attr('name', 'form-fields['+ formFieldIndex +'][default_image]'); // Remove [] from the name
                 }
             });
-
+            // On Change Events Starts
         });
 
         function updateDefaultValue(input) {
@@ -327,7 +386,6 @@
             var fileName = file.name;
             const closestParent = $(input).closest('.defaultValueContainer');
             const insertDefaultValue = closestParent.find('.formDefaultValue').val(fileName);
-            // console.log(closestParent.find('.formDefaultValue').val());
         }
 
 </script>
