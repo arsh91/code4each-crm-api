@@ -211,7 +211,7 @@ class ComponentsControllers extends Controller
             if($Data){
                 $data = [
                     "agency_name" => ["value" => $Data["business_name"]],
-                    "address" => ["phone" => $Data["phone"]],
+                    "phone" => ["phone" => $Data["phone"]],
                     "address" => ["value" => $Data["address"]],
                     "state" => ["value" => $Data["state"]],
                     "city" => ["value" => $Data["city"]],
