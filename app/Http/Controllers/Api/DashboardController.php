@@ -36,6 +36,8 @@ class DashboardController extends Controller
         $agencyWebsiteInfo= AgencyWebsite::join('websites', 'agency_websites.website_id', '=', 'websites.id')->where('agency_id','=', $agency_id)->get(['websites.id','agency_websites.*', 'websites.website_domain']);
         if($agencyWebsiteInfo->count() > 0){
         $response['agency_website_info'] = $agencyWebsiteInfo;
+        }else{
+            $response['agency_website_info'] = 'null';
         }
 
         $response['message'] =  "Welcome to the dashboard.";

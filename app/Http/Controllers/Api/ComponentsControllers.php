@@ -48,14 +48,15 @@ class ComponentsControllers extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 400);
         }
-
         $validate = $validator->valid();
         try {
             DB::beginTransaction();
             //Get unassigned Website from website table
             $websitesData = Websites::where('assigned', null)->first();
+            $websiteDomain = $websitesData->website_domain ?? null;
             if(!$websitesData){
-                return response()->json(['error' => 'An Error occur While Creating Your site. Domain may not exists related to your business name. Ask for the Support.'],500);
+                $response['message'] = 'Currently We are Getting Huge Number Of Requests. Well Notified You Soon When Available.';
+                // return response()->json(['error' => 'An Error occur While Creating Your site. Domain may not exists related to your business name. Ask for the Support.'],500);
             }
             $phone = null;
             if(isset($validate['phone'])){
@@ -69,6 +70,7 @@ class ComponentsControllers extends Controller
             if($validate['others_category_name']){
                 $othersCategoryName = $validate['others_category_name'];
             }
+            // Create Agency Website  Detail For Creating Website
             $agencyWebsiteDetails = AgencyWebsite::create([
                 'website_category_id' => $validate['category_id'],
                 'others_category_name' => $othersCategoryName,
@@ -93,10 +95,9 @@ class ComponentsControllers extends Controller
 
             }
             DB::commit();
-            if($agencyWebsiteDetails->agency_id && $websitesData->website_domain){
-
+            if ($websiteDomain !== null && $agencyWebsiteDetails->agency_id) {
                 $agency_id = $agencyWebsiteDetails->agency_id;
-                $website_domain =  $websitesData->website_domain;
+                $website_domain =  $websiteDomain;
                 $dataToSend = [];
                 $dataToSend['business_name'] = $agencyWebsiteDetails->business_name;
                 $dataToSend['phone'] = $agencyWebsiteDetails->phone;
@@ -106,7 +107,8 @@ class ComponentsControllers extends Controller
                 $dataToSend['country'] = $agencyWebsiteDetails->country;
                 $dataToSend['pincode'] = $agencyWebsiteDetails->pin;
 
-                $result = $this->sendComponentToWordpress($agency_id, $website_domain ,$dataToSend);
+                    $result = $this->sendComponentToWordpress($agency_id, $website_domain ,$dataToSend);
+                
                 if ($result['success'] == true && $result['response']['status'] == 200) {
                     $websiteUrl = $result['domain'];
 
@@ -138,7 +140,7 @@ class ComponentsControllers extends Controller
                         'success' => true,
                         'status' => 200,
                     ];
-                } else {
+                }else {
                     DB::rollBack();
                     $response = [
                         'message' => "An error occurred.",
@@ -146,8 +148,10 @@ class ComponentsControllers extends Controller
                         'status' => 400,
                     ];
                 }
+            }else{
+                $response['success'] = true;
+                $response['status'] = 200;
             }
-
         } catch (\Exception $e) {
             DB::rollBack();
             $errorMessage = $e->getMessage();
