@@ -14,4 +14,9 @@ class Agency extends Model
     {
         return $this->belongsTo(User::class, 'agency_id');
     }
+
+    public function agencyWebsites()
+    {
+        return $this->hasMany(AgencyWebsite::class, 'agency_id');
+    }
 }

@@ -40,4 +40,9 @@ class AgencyWebsite extends Model
     {
         return $this->belongsTo(User::class, 'created_by','id');
     }
+
+    public function agency()
+    {
+        return $this->hasOne(Agency::class, 'agency_id','id');
+    }
 }
