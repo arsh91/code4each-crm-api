@@ -30,15 +30,18 @@ class DashboardController extends Controller
             session()->forget('verification_notice');
         }
         //Get Auth User Using laravel auth method
-        $user = User::with('agency')->where('id',auth()->user()->id)->first();
-        $agency_id = $user->agency_id;
+        $user = User::with(['agency','agency.agencyWebsites','agency.agencyWebsites.websiteDetail'])->where('id',auth()->user()->id)->first();
         $response['user'] = $user;
-        $agencyWebsiteInfo= AgencyWebsite::join('websites', 'agency_websites.website_id', '=', 'websites.id')->where('agency_id','=', $agency_id)->get(['websites.id','agency_websites.*', 'websites.website_domain']);
-        if($agencyWebsiteInfo->count() > 0){
-        $response['agency_website_info'] = $agencyWebsiteInfo;
-        }else{
-            $response['agency_website_info'] = 'null';
+
+    if ($user && $user->agency) {
+        $agencyWebsitesInfo = [];
+    
+        foreach ($user->agency->agencyWebsites as $website) {
+            $agencyWebsitesInfo[] = $website;
         }
+    } 
+    
+    $response['agency_website_info'] = $agencyWebsitesInfo ?? [];
 
         $response['message'] =  "Welcome to the dashboard.";
         $response['success'] = true;
