@@ -30,6 +30,8 @@ class RegistrationController extends Controller
             'email' => 'required|email|unique:users',
             'phone' => 'required',
             'password' => 'required',
+        ], [
+            'email.unique' => 'This email is already in use, please try with some other email address.',
         ]);
 
         if ($validator->fails()) {
