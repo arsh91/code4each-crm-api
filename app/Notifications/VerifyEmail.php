@@ -48,6 +48,8 @@ class VerifyEmail extends Notification
     public function toMail($notifiable)
     {
         $verificationUrl = $this->verificationUrl($notifiable);
+        
+        Config::set('app.url', 'https://beta.speedysites.in');
 
         return (new MailMessage)
             ->greeting(isset($this->messages['greeting-text']) ? $this->messages['greeting-text'] : 'Hello')
