@@ -54,7 +54,6 @@ Route::middleware('auth:api')->group(function () {
         return $request->user();
     });
     Route::get('/dashboard',[DashboardController::class,'index'])->middleware('verifiedEmail');
-    Route::post('/feedback',[FeedBackController::class,'feedback']);
     Route::post('/update-left-fields',[GoogleSocialiteController::class,'updateLeftFields']);
     Route::middleware('throttle:3,20')->get('email/resend',[VerificationController::class,'resend'])->name('verification.resend');
     //Delete Website On User Request
@@ -103,5 +102,7 @@ Route::middleware('auth:api')->group(function () {
 });
 //End of Authenticated Group Routes
 
+
+Route::post('/feedback',[FeedBackController::class,'feedback']);
 Route::post('pre-booking', [PreBookingController::class,'saveEmailForPreBooking']);
 
