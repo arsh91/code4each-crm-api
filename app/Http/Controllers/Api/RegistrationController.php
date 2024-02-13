@@ -54,6 +54,7 @@ class RegistrationController extends Controller
             $userObj->email = $validate['email'];
             $userObj->phone = $validate['phone'];
             $userObj->role = "admin";
+            $userObj->user_type = "user";
             $userObj->password = Hash::make($validate['password']);
             $userObj->save();
 
