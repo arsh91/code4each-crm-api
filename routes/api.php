@@ -95,10 +95,10 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/get-social-links',[CustomComponentFieldsController::class,'getSocialLinks']);
     Route::post('/update-social-links',[CustomComponentFieldsController::class,'updateSocialLinks']);
 
-    Route::get('/get-wordpress-menus',[WordpressMenusController::class,'getWordpressMenus']);
-    Route::post('/post-wordpress-menus',[WordpressMenusController::class,'postWordpressMenus']);
-    Route::post('/update-wordpress-menu',[WordpressMenusController::class,'updateWordpressMenu']);
-    Route::delete('/delete-wordpress-menu',[WordpressMenusController::class,'deleteWordpressMenu']);
+    Route::get('/get-site-menus',[WordpressMenusController::class,'getWordpressMenus']);
+    Route::post('/add-site-menus',[WordpressMenusController::class,'postWordpressMenus']);
+    Route::post('/update-site-menu',[WordpressMenusController::class,'updateWordpressMenu']);
+    Route::delete('/delete-site-menu',[WordpressMenusController::class,'deleteWordpressMenu']);
     Route::post('/change-menu-position',[WordpressMenusController::class,'changeMenuPosition']);
 
 
