@@ -54,7 +54,7 @@ class WordpressMenusController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 400);
+           return response()->json(['response' => $validator->errors(),'status' => 400, 'success'=> false], 400);
         }
 
         $validate = $validator->valid();
@@ -78,5 +78,7 @@ class WordpressMenusController extends Controller
         return $response;
 
     }
+
+    //
 
 }  
