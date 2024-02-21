@@ -120,5 +120,48 @@ class WordpressMenusController extends Controller
             $response['success'] = false;
         }
         return $response;
-     }
+    }
+
+    /**
+     * DELETE MENU USING MENU ID
+     */
+
+    public function deleteWordpressMenu(Request $request){
+        $response = [
+            'success' => false,
+            'status' => 400,
+        ];
+
+        $validator = Validator::make($request->all(), [
+            'website_url'=>'required',
+            'menu_data.id' => 'required',
+
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['response' => $validator->errors(),'status' => 400, 'success'=> false], 400);
+         }
+ 
+        $validate = $validator->valid();
+        $deleteData = $validate['menu_data'];
+       //dump($deleteData); dd('hdsgfhdsg');
+         //UPDATE DATA RELATED TO MENUS
+        $websiteUrl =  $validate['website_url'];
+        $deleteApiUrl = $websiteUrl . '/wp-json/v1/delete-menu';
+        $deleteMenuResponse = Http::delete($deleteApiUrl, $deleteData);
+        if($deleteMenuResponse->successful()){
+            $response['response'] =$deleteMenuResponse->json()['success'];
+            $response['status'] = $deleteMenuResponse->status();
+            $response['success'] = true;
+        } else{
+            $response['response'] = $deleteMenuResponse->json();
+            $response['status'] = 400;
+            $response['success'] = false;
+        }
+        return $response;
+
+
+    }
+
+
 }  
