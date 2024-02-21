@@ -49,7 +49,6 @@ class WordpressMenusController extends Controller
             'menu_data.value' => 'required', 
             'menu_data.menu_type' => 'required', 
             'menu_data.menu_value_type' => 'required',
-            'menu_data.position' => 'required|numeric',
 
         ]);
 
