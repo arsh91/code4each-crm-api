@@ -1,0 +1,42 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+
+class WordpressMenusController extends Controller
+{
+    /**
+     * THIS METHOS IS FOR CREATING WORDPRESS MENUS
+     */
+
+    public function getWordpressMenus(Request $request) {
+    $websiteUrl = $request->input('website_url');
+    $websiteUrl = $websiteUrl . '/wp-json/v1/get-menus';
+    $getMenusResponse = Http::get($websiteUrl);
+    
+    if ($getMenusResponse->successful()) {
+        $response['response'] =$getMenusResponse->json();
+        $response['status'] = $getMenusResponse->status();
+        $response['success'] = true;
+    }
+        else{
+            $response['response'] = $getMenusResponse->json();
+            $response['status'] = 400;
+            $response['success'] = false;
+        }
+    return $response;
+    
+    }
+
+    /**
+     * POST MENUS
+     */
+
+     public function postWordpressMenus(Request $request) {
+        
+     }
+
+}
