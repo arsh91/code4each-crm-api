@@ -99,6 +99,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/post-wordpress-menus',[WordpressMenusController::class,'postWordpressMenus']);
     Route::post('/update-wordpress-menu',[WordpressMenusController::class,'updateWordpressMenu']);
     Route::delete('/delete-wordpress-menu',[WordpressMenusController::class,'deleteWordpressMenu']);
+    Route::post('/change-menu-position',[WordpressMenusController::class,'changeMenuPosition']);
 
 
     Route::post('upload-images',[ImageController::class,'uploadImages']);

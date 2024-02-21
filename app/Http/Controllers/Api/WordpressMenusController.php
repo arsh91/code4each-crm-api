@@ -159,9 +159,44 @@ class WordpressMenusController extends Controller
             $response['success'] = false;
         }
         return $response;
-
-
     }
 
+    /**
+     * CHANGE MENU POSITON
+     */
+    public function changeMenuPosition(Request $request){
+        $response = [
+            'success' => false,
+            'status' => 400,
+        ];
+
+        $validator = Validator::make($request->all(), [
+            'website_url' => 'required',
+            'menu_data' => 'required|array',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['response' => $validator->errors(),'status' => 400, 'success'=> false], 400);
+        }
+
+        $validate = $validator->valid();
+        $menuData = $validate['menu_data'];
+
+        $websiteUrl =  $validate['website_url'];
+        $changePositionApiUrl = $websiteUrl . '/wp-json/v1/change-menu-position';
+        $changeMenuResponse = Http::post($changePositionApiUrl, $menuData);
+
+        if($changeMenuResponse->successful()){
+            $response['response'] =$changeMenuResponse->json()['success'];
+            $response['status'] = $changeMenuResponse->status();
+            $response['success'] = true;
+        } else{
+            $response['response'] = $changeMenuResponse->json();
+            $response['status'] = 400;
+            $response['success'] = false;
+        }
+        return $response;
+
+    }
 
 }  
