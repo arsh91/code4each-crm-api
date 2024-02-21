@@ -34,7 +34,7 @@ class WordpressMenusController extends Controller
     }
 
     /**
-     * POST MENUS
+     * ADD POST MENUS
      */
 
      public function postWordpressMenus(Request $request) {
@@ -79,6 +79,46 @@ class WordpressMenusController extends Controller
 
     }
 
-    //
+    /**
+     * UPDATE MENUS
+     */
 
+     public function updateWordpressMenu(Request $request){
+        $response = [
+            'success' => false,
+            'status' => 400,
+        ];
+
+        $validator = Validator::make($request->all(), [
+            'website_url'=>'required',
+            'menu_data.id' => 'required',
+            'menu_data.name' => 'required',
+            'menu_data.value' => 'required', 
+            'menu_data.menu_value_type' => 'required',
+
+        ]);
+
+        if ($validator->fails()) {
+           return response()->json(['response' => $validator->errors(),'status' => 400, 'success'=> false], 400);
+        }
+
+        $validate = $validator->valid();
+        
+        $updateData = $validate['menu_data'];
+
+        //UPDATE DATA RELATED TO MENUS
+        $websiteUrl = $request->input('website_url');
+        $updateApiUrl = $websiteUrl . '/wp-json/v1/edit-menu';
+        $updateMenuResponse = Http::post($updateApiUrl, $updateData);
+        if($updateMenuResponse->successful()){
+            $response['response'] =$updateMenuResponse->json()['success'];
+            $response['status'] = $updateMenuResponse->status();
+            $response['success'] = true;
+        } else{
+            $response['response'] = $updateMenuResponse->json();
+            $response['status'] = 400;
+            $response['success'] = false;
+        }
+        return $response;
+     }
 }  
