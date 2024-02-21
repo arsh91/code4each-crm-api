@@ -18,7 +18,7 @@ class WordpressMenusController extends Controller
     $getMenusResponse = Http::get($websiteUrl);
     
     if ($getMenusResponse->successful()) {
-        $response['response'] =$getMenusResponse->json();
+        $response['response'] =$getMenusResponse->json()['data'];
         $response['status'] = $getMenusResponse->status();
         $response['success'] = true;
     }
@@ -36,7 +36,27 @@ class WordpressMenusController extends Controller
      */
 
      public function postWordpressMenus(Request $request) {
-        
-     }
+        $response = [
+            'success' => false,
+            'status' => 400,
+        ];
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+            'value' => 'required', 
+            'menu_type' => 'required', 
+            'menu_value_type' => 'required',
+            'position' => 'required',
+
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+
+        $validate = $validator->valid();
+        dump($validate);
+
+    }
 
 }
