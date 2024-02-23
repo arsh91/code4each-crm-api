@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\WebsiteSettingsController;
 use App\Http\Controllers\Api\WordpressComponentController;
 use App\Http\Controllers\Api\PreBookingController;
 use Google\Service\Monitoring\Custom;
+use App\Http\Controllers\Api\WordpressMenusController;
 
 /*
 |--------------------------------------------------------------------------
@@ -93,6 +94,13 @@ Route::middleware('auth:api')->group(function () {
     Route::post('update-component-form-fields',[CustomComponentFieldsController::class,'updateComponentFormFields']);
     Route::get('/get-social-links',[CustomComponentFieldsController::class,'getSocialLinks']);
     Route::post('/update-social-links',[CustomComponentFieldsController::class,'updateSocialLinks']);
+
+    Route::get('/get-site-menus',[WordpressMenusController::class,'getWordpressMenus']);
+    Route::post('/add-site-menus',[WordpressMenusController::class,'postWordpressMenus']);
+    Route::post('/update-site-menu',[WordpressMenusController::class,'updateWordpressMenu']);
+    Route::delete('/delete-site-menu',[WordpressMenusController::class,'deleteWordpressMenu']);
+    Route::post('/change-menu-position',[WordpressMenusController::class,'changeMenuPosition']);
+
 
     Route::post('upload-images',[ImageController::class,'uploadImages']);
     Route::get('uploaded-images',[ImageController::class,'getComponentImages']);

@@ -56,7 +56,6 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
     'frontend_url' => env('FRONTEND_URL', 'https://beta.speedysites.in'),
-    'frontend_url1' => env('FRONTEND_URL', 'https://beta.speedysites.in'),
 
 
     'asset_url' => env('ASSET_URL'),
