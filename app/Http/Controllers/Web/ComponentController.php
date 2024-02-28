@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\Component;
+use App\Models\ComponentArea;
 use App\Models\ComponentDependency;
 use App\Models\ComponentFormFields;
 use App\Models\WebsiteCategory;
@@ -46,6 +47,8 @@ class ComponentController extends Controller
      */
     public function store(Request $request)
     {
+        dump($request);dd('---');
+        $multipleList; $parentId;
         $validator = Validator::make($request->all(), [
             'component_name' => 'required|string|max:255',
             'path' => 'required',
@@ -66,8 +69,8 @@ class ComponentController extends Controller
             'form-fields.*.multiple_list.*.type' => 'required_with:form-fields.*.multiple_list|string',
             'form-fields.*.multiple_list.*.field_position' => 'required_with:form-fields.*.multiple_list|integer',
             'form-fields.*.multiple_list.*.default_value' => 'required_with:form-fields.*.multiple_list|string',
-            'form-fields.*.multiple_list.*.meta_key1' => 'nullable',
-            'form-fields.*.multiple_list.*.meta_key2' => 'nullable',
+            //'form-fields.*.multiple_list.*.meta_key1' => 'nullable',
+            //'form-fields.*.multiple_list.*.meta_key2' => 'nullable',
             'form-fields.*.default_value' => 'required',
             'form-fields.*.default_image.*' => 'nullable|file|max:5120|mimes:jpeg,png',
             'form-fields.*.multiple_image' => 'nullable',
@@ -78,9 +81,10 @@ class ComponentController extends Controller
 
         ]);
         if ($validator->fails()) {
-            return Redirect::back()->withErrors($validator);
+            return Redirect::back()->withInput()->withErrors($validator);
         }
         $validate = $validator->valid();
+        
         $category = implode(",",$validate['category'] );
         $component = Component::create([
             'component_name' => $validate['component_name'],
@@ -97,10 +101,14 @@ class ComponentController extends Controller
             $component->preview = $path;
             $component->save();
         }
+
+        //WHEN COMPONENT BASIC INFORMATION GET SAVED IN  'component_crm' TABLE
         if ($component) {
             $componentName = str_replace(' ', '_', $component->component_name);
             $uniqueId = strtoupper('comp_' . $componentName . '_' . $component->id);
             Component::where('id', $component->id)->update(['component_unique_id' => $uniqueId]);
+
+            //INSERT THE DEPEDENCIES INTO 'component_dependencies_crm'
             foreach ($validate['dependencies'] as $dependencyData) {
                 ComponentDependency::create([
                     'component_id' => $component->id,
@@ -113,8 +121,11 @@ class ComponentController extends Controller
                 ]);
             }
 
-
-                foreach ($validate['form-fields'] as $formFieldData) {
+                //CHECK FOR COMPONENT FORM FIELDS AND THEN MOVE DATA INTO 'component_form_fields' TABLE
+                foreach ($validate['form-fields'] as $formFieldData) 
+                {
+                    dump($formFieldData);
+                   
                       // Handle default_image or multiple images upload if it exists
                         if (isset($formFieldData['default_image'])) {
                             $uploadedFiles = $formFieldData['default_image'];
@@ -149,9 +160,64 @@ class ComponentController extends Controller
                             $componentFormField['is_multiple_image'] = true;
                         }
 
-                        ComponentFormFields::create($componentFormField);
+                        $saveComponentFields = ComponentFormFields::create($componentFormField);
+
+                        //check if component form field contains MULTIPLE list
+                        if($formFieldData['type'] == 'multiple_list') {
+                            $multipleList = $formFieldData['multiple_list'];
+                            
+                            foreach($multipleList as $formList)
+                            {
+                                // Handle default_image or multiple images upload if it exists
+                                if (isset($formList['default_image'])) {
+                                    $uploadedFiles = $formList['default_image'];
+
+                                    // Check if it's a single file or an array of files
+                                    if (is_array($uploadedFiles)) {
+                                        foreach ($uploadedFiles as $uploadedFile) {
+                                            // Handle the upload and update $formList as needed for multiple images
+                                            $this->handleUpload($uploadedFile, $formList);
+                                        }
+                                    } else {
+                                        // Handle the upload and update $formList as needed for a single image
+                                        $this->handleUpload($uploadedFiles, $formList);
+                                    }
+                                }
+
+                                // Create ComponentFormFields instance
+                                $componentMultiField = [
+                                    
+                                    'field_name' => $formList['name'],
+                                    'field_type' => $formList['type'],
+                                    'field_position' => $formList['field_position'],
+                                    'default_value' => $formList['default_value'],
+                                    'meta_key1' => $formList['meta_key1'] ?? null,
+                                    'meta_key2' => $formList['meta_key2'] ?? null,
+                                    'created_at' => now(),
+                                    'updated_at' => now(),
+                                ];
+
+                                // check for image type multiple then add to the database
+                                if (isset($formList['multiple_image']) && $formList['multiple_image'] == 'on') {
+                                    $componentMultiField['is_multiple_image'] = true;
+                                }
+
+                                if($saveComponentFields->id){
+                                    $componentMultiField['parent_id'] = $saveComponentFields->id;
+                                    $componentMultiField['component_id'] = $saveComponentFields->component_id;
+                                     
+                                    dump($componentMultiField);dd();
+                                    $saveComponentMultiFields = ComponentFormFields::create($componentMultiField);
+                                }
+
+                            }
+                        }
+                        
+                        //NOW INSERT MULTIPLE LIST WITH PARENT ID
+
                 }
             $message = "Component Saved Successfully.";
+            dd('----Testing----');
             return redirect()->route('components.index')->with('message', $message);
         }
     }
@@ -431,5 +497,34 @@ class ComponentController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    /**
+     * Select component areas
+     */
+    public function areas($componentId){
+       $componentData = Component::find($componentId);
+       //dump($componentData);
+        return view('components.areas',['componentData'=>$componentData]);
+    }
+
+    /**
+     * AJAX METHOD TO SAVE AREAS
+     */
+    public function saveArea(Request $request) 
+    {
+        $componentArea = new ComponentArea();
+        $componentArea->component_id = '1';
+        $componentArea->areaCount = $request->input('areaId');
+        $componentArea->area_name = $request->input('areaName');
+        $componentArea->x_axis = $request->input('x_axis');
+        $componentArea->y_axis = $request->input('y_axis');
+        $user = ComponentArea::updateOrCreate(
+            ['areaCount' => $request->input('areaId')], // conditions to find the user
+            ['component_id' => '1', 'area_name' => $request->input('areaName'), 'x_axis'=>$request->input('x_axis'), 'y_axis'=>$request->input('y_axis'), ] // data to be updated or inserted
+        );
+       // $componentArea->save();
+        dump($request->areaId); dd('hi save ');
+
     }
 }

@@ -26,6 +26,7 @@ Route::get('/', [LoginController::class, 'show'])->name('login');
 Route::match(['get', 'post'], '/login', [LoginController::class, 'login'])->name('login.user');
 
 //Protect Routes With Auth
+ Route::post('/components/saveArea',[ComponentController::class,'saveArea']);
 Route::group(['middleware' => ['auth']], function() {
     //Dashboard Controller
     Route::get('/dashboard',[DashboardController::class,'index'])->name('dashboard.index');
@@ -37,7 +38,7 @@ Route::group(['middleware' => ['auth']], function() {
     Route::post('/components',[ComponentController::class,'store'])->name('components.store');
     Route::get('/components/edit/{id}',[ComponentController::class,'edit'])->name('components.edit');
     Route::post('/components/{id}',[ComponentController::class,'update'])->name('components.update');
-
+    Route::get('/components/areas/{id}',[ComponentController::class,'areas'])->name('components.areas');
 
 
 	Route::get('logout', [LoginController::class, 'logOut'])->name('logout');

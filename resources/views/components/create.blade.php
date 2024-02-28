@@ -30,7 +30,7 @@
                 <div class="row mb-5 mt-4">
                     <label for="component_name" class="col-sm-3 col-form-label required">Component Name</label>
                     <div class="col-sm-9">
-                        <input type="text" class="form-control" name="component_name" id="component_name">
+                        <input type="text" class="form-control" name="component_name" id="component_name" value="{{ old('component_name') }}">
                         @if ($errors->has('component_name'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('component_name') }}</span>
                         @endif
@@ -39,7 +39,7 @@
                 <div class="row mb-5 mt-4">
                     <label for="path" class="col-sm-3 col-form-label required">Path</label>
                     <div class="col-sm-9">
-                        <input type="text" class="form-control" name="path" id="path">
+                        <input type="text" class="form-control" name="path" id="path" value="{{ old('path') }}">
                         @if ($errors->has('path'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('path') }}</span>
                         @endif
@@ -48,7 +48,7 @@
                 <div class="row mb-5 mt-4">
                     <label for="type" class="col-sm-3 col-form-label required">Type</label>
                     <div class="col-sm-9">
-                        <input type="text" class="form-control" name="type" id="type">
+                        <input type="text" class="form-control" name="type" id="type" value="{{ old('type') }}">
                         @if ($errors->has('type'))
                         <span style="font-size: 12px;" class="text-danger">{{ $errors->first('type') }}</span>
                         @endif
@@ -73,7 +73,7 @@
                 <div class="row mb-5">
                     <label for="preview" class="col-sm-3 col-form-label required">Preview Image</label>
                     <div class="col-sm-9">
-                        <input type="file" class="form-control" name="preview" id="preview">
+                        <input type="file" class="form-control" name="preview" id="preview" value="{{ old('preview') }}">
                         @if ($errors->has('preview'))
                              <span style="font-size: 12px; " class="text-danger">{{ $errors->first('preview') }}</span>
                         @endif
@@ -111,23 +111,22 @@
                     </div>
                 </div>
 
-                <div class="form-fields-container">
-
-                @if ($errors->has('form-fields.*'))
-                    @foreach($errors->get('form-fields.*') as $key => $errorMessages)
-                    <span style="font-size: 12px; padding: 10px 100px;" class="text-danger">
-                    @foreach($errorMessages as $error)
-                        @if ($error == 'The form-fields.0.name field is required.')
-                            Name field is required in Form Field.
-                        @elseif ($error == 'The form-fields.0.default_value field is required.')
-                            default value is required in Form Feild.
-                        @else
-                        {{$error}}
+                <div class="form-fields-container" id="formWithFields">              
+                    @if ($errors->has('form-fields.*'))
+                        @foreach($errors->get('form-fields.*') as $key => $errorMessages)
+                        <span style="font-size: 12px; padding: 10px 100px;" class="text-danger">
+                        @foreach($errorMessages as $error)
+                            @if ($error == 'The form-fields.0.name field is required.')
+                                Name field is required in Form Field.
+                            @elseif ($error == 'The form-fields.0.default_value field is required.')
+                                default value is required in Form Feild.
+                            @else
+                            {{$error}}
+                            @endif
+                        @endforeach
+                        </span>
+                        @endforeach
                         @endif
-                    @endforeach
-                    </span>
-                    @endforeach
-                    @endif
                 </div>
                 <!-- add button for new form field in component -->
                 <span class="js-add-form-fields clone text-success" style="font-size: 20px;">+</span>
@@ -161,7 +160,7 @@
 <div class="js-hidden-dependency-option d-none">
     <div class="row mb-2 js-dependency-option">
         <div class="col-md">
-            <input type="text" class="form-control" placeholder="Name" name="dependencies[][name]" />
+            <input type="text" class="form-control" placeholder="Name" name="dependencies[][name]" value="{{ old('dependencies[][name]') }}"/>
         </div>
         <div class="col-md">
             <select class="form-control" name="dependencies[][type]">
@@ -171,10 +170,10 @@
             </select>
         </div>
         <div class="col-md">
-            <input type="text" class="form-control" placeholder="Path" name="dependencies[][path]" />
+            <input type="text" class="form-control" placeholder="Path" name="dependencies[][path]" value="{{ old('dependencies[][path]') }}"/>
         </div>
         <div class="col-md">
-            <input type="text" class="form-control" placeholder="Version" name="dependencies[][version]" />
+            <input type="text" class="form-control" placeholder="Version" name="dependencies[][version]" value="{{ old('dependencies[][version]') }}"/>
         </div>
         <div class="col-md-1">
             <span class="js-remove-cloned-item text-danger" style="font-size: 20px;">&times;</span>
@@ -191,10 +190,10 @@
         <input type="hidden" value="" class="js-rowSubIndex">
             <!-- Your existing fields -->
             <div class="col-md">
-                <input type="text" class="form-control" placeholder="Field Name" name="form-fields[][name]" />
+                <input type="text" class="form-control" placeholder="Field Name" name="form-fields[][name]" value="{{ old('dependencies[][name]') }}"/>
             </div>
             <div class="col-md">
-                <select class="form-control selectFieldType" name="form-fields[][type]" id="fieldType">
+                <select class="form-control selectFieldType" name="form-fields[][type]" id="fieldType" value="{{ old('dependencies[][type]') }}">
                     <option selected>Select Field Type</option>
                     <option value="text">Text</option>
                     <option value="image">Image</option>
@@ -204,7 +203,7 @@
                 </select>
             </div>
             <div class="col-md">
-                <input type="text" class="form-control" placeholder="Field Position" name="form-fields[][field_position]" />
+                <input type="text" class="form-control" placeholder="Field Position" name="form-fields[][field_position]" value="{{ old('field_position]') }}"/>
             </div>
             <div class="col-md-3 defaultValueContainer">
                 <input type="text" class="form-control formDefaultValue" placeholder="Default Value" name="form-fields[][default_value]" value="" />
@@ -213,10 +212,10 @@
                 <input type="checkbox" id="multipleImageUpload" name="form-fields[][multiple_image]" class="js-multiple-image-upload imageUploadValue" style="margin-top: 5px; display: none;">
             </div>
             <div class="col-md">
-                <input type="text" class="form-control" placeholder="Meta Key1 (Optional)" name="form-fields[][meta_key1]" />
+                <input type="text" class="form-control" placeholder="Meta Key1 (Optional)" name="form-fields[][meta_key1]" value="{{ old('meta_key1') }}"/>
             </div>
             <div class="col-md">
-                <input type="text" class="form-control" placeholder="Meta Key2 (Optional)" name="form-fields[][meta_key2]" />
+                <input type="text" class="form-control" placeholder="Meta Key2 (Optional)" name="form-fields[][meta_key2]" value="{{ old('meta_key2') }}"/>
             </div>
             <div class="col-md-1">
                 <span class="js-remove-form-fields-cloned-item text-danger" style="font-size: 20px;">&times;</span>
@@ -263,72 +262,79 @@
 
             function createClonedItem(firstItem ,formFieldIndex, isSubClone, subFieldIndex = false) {
 
-            var clonedFormFieldItem = $('.js-hidden-form-fields-option .js-form-fields-option').clone().removeClass('d-none');
-                if (firstItem) {
-                    clonedFormFieldItem.addClass(firstItem);
-                }else{
-                    clonedFormFieldItem.addClass('js-cloned-item');
-                }
-            var namePrefix = isSubClone ? 'form-fields[' + formFieldIndex + '][multiple_list][' + subFieldIndex + '][' : 'form-fields[' + formFieldIndex + '][';
-            clonedFormFieldItem.find('.js-rowIndex').val(formFieldIndex);
-            clonedFormFieldItem.find('.js-rowSubIndex').val(subFieldIndex);
-            clonedFormFieldItem.find('[name="form-fields[][name]"]').attr('name', namePrefix + 'name]');
-            clonedFormFieldItem.find('[name="form-fields[][type]"]').attr('name', namePrefix + 'type]');
-            clonedFormFieldItem.find('[name="form-fields[][field_position]"]').attr('name', namePrefix + 'field_position]');
-            clonedFormFieldItem.find('[name="form-fields[][default_value]"]').attr('name', namePrefix + 'default_value]');
-            clonedFormFieldItem.find('[name="form-fields[][default_image][]"]').attr('name', namePrefix + 'default_image][]');
-            clonedFormFieldItem.find('[name="form-fields[][multiple_image]"]').attr('name', namePrefix + 'multiple_image]');
-            clonedFormFieldItem.find('[name="form-fields[][meta_key1]"]').attr('name', namePrefix + 'meta_key1]');
-            clonedFormFieldItem.find('[name="form-fields[][meta_key2]"]').attr('name', namePrefix + 'meta_key2]');
+                var clonedFormFieldItem = $('.js-hidden-form-fields-option .js-form-fields-option').clone().removeClass('d-none');
+                    if (firstItem) {
+                        clonedFormFieldItem.addClass(firstItem);
+                    }else{
+                        clonedFormFieldItem.addClass('js-cloned-item');
+                    }
+                var namePrefix = isSubClone ? 'form-fields[' + formFieldIndex + '][multiple_list][' + formFieldIndex + '][' + subFieldIndex + '][' : 'form-fields[' + formFieldIndex + '][';
+                clonedFormFieldItem.find('.js-rowIndex').val(formFieldIndex);
+                clonedFormFieldItem.find('.js-rowSubIndex').val(subFieldIndex);
+                clonedFormFieldItem.find('[name="form-fields[][name]"]').attr('name', namePrefix + 'name]');
+                clonedFormFieldItem.find('[name="form-fields[][type]"]').attr('name', namePrefix + 'type]');
+                clonedFormFieldItem.find('[name="form-fields[][field_position]"]').attr('name', namePrefix + 'field_position]');
+                clonedFormFieldItem.find('[name="form-fields[][default_value]"]').attr('name', namePrefix + 'default_value]');
+                clonedFormFieldItem.find('[name="form-fields[][default_image][]"]').attr('name', namePrefix + 'default_image][]');
+                clonedFormFieldItem.find('[name="form-fields[][multiple_image]"]').attr('name', namePrefix + 'multiple_image]');
+                clonedFormFieldItem.find('[name="form-fields[][meta_key1]"]').attr('name', namePrefix + 'meta_key1]');
+                clonedFormFieldItem.find('[name="form-fields[][meta_key2]"]').attr('name', namePrefix + 'meta_key2]');
 
-            return clonedFormFieldItem;
-        }
-
-        function cloneFormField(firstItem = false ,target = false, subClone = false, innerSubClone = false) {
-            if (subClone && target) {
-
-                var subformFieldIndex = target.find('.js-rowSubIndex').val();
-
-                if (subformFieldIndex === "false") {
-                    subformFieldIndex = 1;
-                } else {
-                    // Increment subformFieldIndex by 1
-                    subformFieldIndex++;
-                    target.find('.js-rowSubIndex').val(subformFieldIndex);
-                }
-
-                var currentRowIndex = target.find('.js-rowIndex').val();
-
-                var newDiv = '';
-
-                newDiv = innerSubClone ? target : $('<div>').addClass('mx-4 my-2 border border-dark js-sub-cloned-item ');
-
-                var titleText = $('<p>').addClass('h6 text-decoration-underline text-success').text('Sub Form Fields For  Multiple List:');
-                innerSubClone ? '' : newDiv.append(titleText);
-
-                var addButton = $('<span>').addClass('js-add-sub-form-fields clone text-success').css('font-size', '20px').text('+');
-                innerSubClone ? '' : newDiv.append(addButton);
-                newDiv.append(createClonedItem(firstItem,currentRowIndex, true, subformFieldIndex));
-
-
-                innerSubClone ? '' : $('.form-fields-container').append(newDiv);
-                target.after(newDiv);
-            } else {
-                if(firstItem){
-                    var clonedFormFieldItem = createClonedItem(firstItem ,formFieldIndex, false);
-                    $('.form-fields-container').append(clonedFormFieldItem);
-                }else{
-                    var clonedFormFieldItem = createClonedItem(false,formFieldIndex, false);
-                    $('.form-fields-container').append(clonedFormFieldItem);
-                }
-
-                formFieldIndex++;
+                return clonedFormFieldItem;
             }
 
-        }
+            function cloneFormField(firstItem = false ,target = false, subClone = false, innerSubClone = false) {
+                if (subClone && target) {
+
+                    var subformFieldIndex = target.find('.js-rowSubIndex').val();
+
+                    if (subformFieldIndex === "false") {
+                        subformFieldIndex = 1;
+                    } else {
+                        // Increment subformFieldIndex by 1
+                        subformFieldIndex++;
+                        target.find('.js-rowSubIndex').val(subformFieldIndex);
+                    }
+
+                    var currentRowIndex = target.find('.js-rowIndex').val();
+
+                    var newDiv = '';
+
+                    newDiv = innerSubClone ? target : $('<div>').addClass('mx-4 my-2 border border-dark js-sub-cloned-item ');
+
+                    var titleText = $('<p>').addClass('h6 text-decoration-underline text-success').text('Sub Form Fields For  Multiple List:');
+                    innerSubClone ? '' : newDiv.append(titleText);
+
+                    var addButton = $('<span>').addClass('js-add-sub-form-fields clone text-success').css('font-size', '20px').text('+');
+                    innerSubClone ? '' : newDiv.append(addButton);
+                    newDiv.append(createClonedItem(firstItem,currentRowIndex, true, subformFieldIndex));
+
+
+                    innerSubClone ? '' : $('.form-fields-container').append(newDiv);
+                    target.after(newDiv);
+
+                    //we will add append button here in new div
+                    var appendBtn = '<div class="container text-end"><span class="again-clone-sub-form clone text-success" style="font-size: 20px;">+</span></div/>';
+                    innerSubClone ? '' : newDiv.prepend(appendBtn);
+
+                    //append delete button for multilist box
+                    var appendBtn = '<div class="container text-end"><span class="delete-clone-sub-form clone text-danger" style="font-size: 20px;">x</span></div/>';
+                    innerSubClone ? '' : newDiv.append(appendBtn);
+
+                } else {
+                    if(firstItem){
+                        var clonedFormFieldItem = createClonedItem(firstItem ,formFieldIndex, false);
+                        $('.form-fields-container').append(clonedFormFieldItem);
+                    }else{
+                        var clonedFormFieldItem = createClonedItem(false,formFieldIndex, false);
+                        $('.form-fields-container').append(clonedFormFieldItem);
+                    }
+
+                    formFieldIndex++;
+                }
+            }
 
             cloneFormField('first-cloned-item');
-
 
             $('.js-add-form-fields').click(function () {
                 cloneFormField();
@@ -379,6 +385,31 @@
                 }
             });
             // On Change Events Starts
+
+            //Need to create clone with multiple list
+            $(this).on('click', '.again-clone-sub-form', function () {
+                //var clone = $('.js-sub-cloned-item').clone(false);
+                // alert()
+                //$('.form-fields-container').append(clone);
+
+               // const closestParent = $(this).closest('.js-sub-cloned-item');
+                //console.log(closestParent);
+               // cloneFormField(false ,closestParent, true, true);
+            //    var countMultiList = $('.border-dark').children('.mb-2').length; alert(countMultiList);
+               for (var i = 1; i < countMultiList; i +=1){
+                    createClonedItem(false,false, false);
+               }
+               
+               
+               
+            });
+
+            //CLICKED AND DELETE MULTIPLE CLONNED ITEMS
+            $('body').on('click', '.delete-clone-sub-form', function () {
+                $(this).closest('.js-sub-cloned-item').remove();
+            });
+
+
         });
 
         function updateDefaultValue(input) {
