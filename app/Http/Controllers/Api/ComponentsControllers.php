@@ -9,6 +9,7 @@ use App\Models\ComponentColorCombination;
 use App\Models\ComponentDependency;
 use App\Models\User;
 use App\Models\Websites;
+use App\Models\WebsiteCategory;
 use App\Notifications\CommonEmailNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -534,6 +535,55 @@ class ComponentsControllers extends Controller
 
         return $response;
     }
+
+    //Get Components
+    public function getComponents(Request $request)
+    {
+        $response = [
+            'success' => false,
+            'status' => 400,
+        ];
+    
+    
+        if (!$request->category_id) {
+            return response()->json(['category id is required'], 400);
+        }
+
+        try {
+            $category_id = $request->category_id;
+            $websiteCategory = WebsiteCategory::find($category_id);
+    
+            if (!$websiteCategory) {
+                return response()->json(['error' => 'Category not found'], 404);
+            }
+    
+            $category = $websiteCategory->name;
+
+            $components = Component::where('status', 'active')->whereNotIn('type', ['header', 'footer'])->whereRaw("FIND_IN_SET('$category', category)")
+            ->orWhere('category', 'Others')
+            ->get();
+
+            foreach ($components as &$component) {
+            $component['preview'] = '/storage/' . $component['preview'];
+            }
+
+            unset($component);
+
+
+            $response = [
+                'message' => "Details Fetched Successfully.",
+                'success' => true,
+                'status' => 200,
+                'components_detail' => $components
+            ];
+        } catch (\Exception $e) {
+            $error = $e->getMessage();
+            return response()->json(['error' => $error], 500);
+        }
+    
+        return response()->json($response);
+    }
+    
 }
 
 
