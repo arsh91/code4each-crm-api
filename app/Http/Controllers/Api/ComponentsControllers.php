@@ -559,9 +559,20 @@ class ComponentsControllers extends Controller
     
             $category = $websiteCategory->name;
 
-            $components = Component::where('status', 'active')->whereNotIn('type', ['header', 'footer'])->whereRaw("FIND_IN_SET('$category', category)")
-            ->orWhere('category', 'Others')
-            ->get();
+            // $components = Component::where('status', 'active')->whereNotIn('type', ['header', 'footer'])->whereRaw("FIND_IN_SET('$category', category)")
+            // ->orWhere('category', 'Others')
+            // ->get();
+
+            $components = Component::where(function ($query) use ($category) {
+                $query->where('status', 'active')
+                    ->whereNotIn('type', ['header', 'footer'])
+                    ->whereRaw("FIND_IN_SET('$category', category)");
+            })
+            ->orWhere(function ($query) use ($category) {
+                $query->where('status', 'active')
+                    ->where('category', 'Others');
+            })->get();
+        
 
             foreach ($components as &$component) {
             $component['preview'] = '/storage/' . $component['preview'];
