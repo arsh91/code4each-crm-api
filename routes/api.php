@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\ResetPasswordController;
 use App\Http\Controllers\Api\WebsiteSettingsController;
 use App\Http\Controllers\Api\WordpressComponentController;
 use App\Http\Controllers\Api\PreBookingController;
+use App\Http\Controllers\Api\CustomSectionsController;
 use Google\Service\Monitoring\Custom;
 use App\Http\Controllers\Api\WordpressMenusController;
 
@@ -78,7 +79,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/get-components-global-colors',[ComponentsControllers::class,'getWordpressGlobalColors']);
     Route::post('/update-global-colors',[ComponentsControllers::class,'updateWordpressGlobalColors']);
     Route::post('/add-global-colors',[ComponentsControllers::class,'addWordpressGlobalColors']);
-    Route::post('/get-components',[ComponentsControllers::class,'getComponents']);
+    Route::get('/get-components',[ComponentsControllers::class,'getComponents']);
 
     Route::get('/fetch-components',[CustomizeComponentController::class,'fetchComponent']);
     Route::get('/color-combinations',[CustomizeComponentController::class,'getColorCombination']);
@@ -87,6 +88,9 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/change-component',[CustomizeComponentController::class,'updateComponent']);
     Route::post('/change-font-family',[CustomizeComponentController::class,'updateFont']);
     Route::post('update-component-position',[CustomizeComponentController::class,'updateComponentPosition']);
+
+    Route::post('/add-new-section',[CustomSectionsController::class,'addComponentSection']);
+    
 
     Route::get('settings',[WebsiteSettingsController::class,'settings']);
     Route::post('/update-settings',[WebsiteSettingsController::class,'updateSettings']);

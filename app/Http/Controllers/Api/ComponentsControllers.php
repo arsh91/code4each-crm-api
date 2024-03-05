@@ -537,7 +537,7 @@ class ComponentsControllers extends Controller
     }
 
     //Get Components
-    public function getComponents(Request $request)
+    public function getComponents()
     {
         $response = [
             'success' => false,
@@ -545,12 +545,12 @@ class ComponentsControllers extends Controller
         ];
     
     
-        if (!$request->category_id) {
+        if (!request()->category_id) {
             return response()->json(['category id is required'], 400);
         }
 
         try {
-            $category_id = $request->category_id;
+            $category_id = request()->category_id;
             $websiteCategory = WebsiteCategory::find($category_id);
     
             if (!$websiteCategory) {
@@ -571,7 +571,7 @@ class ComponentsControllers extends Controller
 
 
             $response = [
-                'message' => "Details Fetched Successfully.",
+                'message' => "Detail Fetched Successfully.",
                 'success' => true,
                 'status' => 200,
                 'components_detail' => $components
