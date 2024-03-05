@@ -61,6 +61,7 @@ class CustomSectionsController extends Controller
                     $data['success'] = false;
                 }
                 $response = $data;
+                $response['success'] = true;
             }else{
                 $response = [
                     "error" => "An error occurred while retrieving the component details." 
