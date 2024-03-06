@@ -42,8 +42,12 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/components/areas/{id}',[ComponentController::class,'areas'])->name('components.areas');
 
     //Themes Section Routes 
+    Route::get('/themes',[ThemesController::class,'index'])->name('themes.index');
     Route::get('/themes/create',[ThemesController::class,'create'])->name('themes.create');
     Route::post('/themes',[ThemesController::class,'store'])->name('themes.store');
+    Route::get('/themes/edit/{id}',[ThemesController::class,'edit'])->name('themes.edit');
+    Route::post('/themes/{id}',[ThemesController::class,'update'])->name('themes.update');
+    Route::delete('/themes/{id}', [ThemesController::class, 'destroy'])->name('themes.destroy');
 
 
 	Route::get('logout', [LoginController::class, 'logOut'])->name('logout');

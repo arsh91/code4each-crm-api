@@ -115,6 +115,24 @@
                         @endif
                     </div>
                 </div>
+
+                <div class="row mb-5">
+                    <label for="default_color" class="col-sm-3 col-form-label required ">Default Color</label>
+                    <div class="col-sm-9">
+                        <select name="default_color" class="form-select" id="default_color" multiple size="3">
+                            <option selected>Select Default Color</option>
+                            @foreach ($colors as $data)
+                            <option value="{{$data['id']}}">
+                                {{$data['title']}}
+                            </option>
+                            @endforeach
+                        </select>
+                        @if ($errors->has('default_color'))
+                             <span style="font-size: 12px;" class="text-danger">{{ $errors->first('default_color') }}</span>
+                        @endif
+                    </div>
+                </div>
+
                 <div class="row mb-5 mt-4">
                     <div class="col-md-3">
                         <label class="required">Dependency:</label>

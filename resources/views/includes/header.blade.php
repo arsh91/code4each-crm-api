@@ -129,6 +129,13 @@
                 </a>
             </li>
 
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('themes') ? '' : 'collapsed' }}" href="{{ route('themes.index') }}">
+                    <i class="bi bi-file-earmark-fill"></i>
+                    <span>Themes</span>
+                </a>
+            </li>
+
         </ul>
 
     </aside><!-- End Sidebar-->
