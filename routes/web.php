@@ -3,6 +3,7 @@
 use App\Http\Controllers\Web\ComponentController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\LoginController;
+use App\Http\Controllers\Web\ThemesController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
@@ -39,6 +40,10 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/components/edit/{id}',[ComponentController::class,'edit'])->name('components.edit');
     Route::post('/components/{id}',[ComponentController::class,'update'])->name('components.update');
     Route::get('/components/areas/{id}',[ComponentController::class,'areas'])->name('components.areas');
+
+    //Themes Section Routes 
+    Route::get('/themes/create',[ThemesController::class,'create'])->name('themes.create');
+    Route::post('/themes',[ThemesController::class,'store'])->name('themes.store');
 
 
 	Route::get('logout', [LoginController::class, 'logOut'])->name('logout');
