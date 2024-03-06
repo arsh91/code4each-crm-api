@@ -28,7 +28,7 @@
                                 @forelse($themes as $data)
                                 <tr>
                                     <td><a href="{{ url('/themes/edit/'.$data->id)}}">{{$data->id}}</a>
-                                    <td>{{($data->namle )}}</td>
+                                    <td>{{($data->name )}}</td>
                                     <td>
                                     <a href="{{($data->demo_url )}}" target="_blank">{{($data->demo_url )}}</a>
                                     

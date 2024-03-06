@@ -22,7 +22,7 @@
     }
 </style>
 @section('content')
-<div class="col-lg-10 mx-auto">
+<div class="col-lg-12 mx-auto">
     <div class="card">
         <div class="card-body">
             <form method="post" action="{{route('themes.store')}}" enctype="multipart/form-data">

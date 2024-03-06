@@ -81,8 +81,8 @@ class ThemesController extends Controller
         $themes =  Theme::create([
             'name' => $validated['name'],
             'primary_font' => $validated['primary_font'],
-            'secondary_font' => $validated['secondary_font'],
-            'tertiary_font' => $validated['tertiary_font'],
+            'secondary_font' => $validated['secondary_font'] ?? null,
+            'tertiary_font' => $validated['tertiary_font'] ?? null,
             'category' => $category,
             'demo_url' => $validated['demo_url'],
             'default_color' => $validated['default_color'],
@@ -193,8 +193,8 @@ class ThemesController extends Controller
         $themes =  Theme::where('id',$id)->update([
             'name' => $validated['edit_name'],
             'primary_font' => $validated['edit_primary_font'],
-            'secondary_font' => $validated['edit_secondary_font'],
-            'tertiary_font' => $validated['edit_tertiary_font'],
+            'secondary_font' => $validated['edit_secondary_font'] ?? null,
+            'tertiary_font' => $validated['edit_tertiary_font'] ?? null,
             'category' => $category,
             'demo_url' => $validated['edit_demo_url'],
             'default_color' => $validated['edit_default_color'],
