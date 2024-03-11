@@ -26,7 +26,7 @@
         width: 100%; /* Make canvas fill container width */
         height: 100%; /* Make canvas fill container height */
         border: 1px solid #000;
-    }
+    } 
 </style>
 @section('content')
 <div class="col-lg-10 mx-auto">
