@@ -17,7 +17,7 @@
         border: 1px solid #ccc; /* Optional: Add border to container */
         position: relative; /* Required for absolute positioning of canvas */
     }
-
+ 
     canvas {
         position: absolute; /* Position canvas absolute inside container */
         top: 0;

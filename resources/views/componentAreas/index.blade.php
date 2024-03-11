@@ -18,7 +18,7 @@
                                     <th>Component Name</th>
                                     <th>Area Name</th>
                                     <th>Actions</th>
-                                </tr>
+                                </tr> 
                             </thead>
                             <tbody>
                             @if ($componentAreas->isEmpty())
