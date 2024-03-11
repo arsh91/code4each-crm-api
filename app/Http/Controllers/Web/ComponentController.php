@@ -433,7 +433,7 @@ class ComponentController extends Controller
                         if (isset($formFieldData['multiple_image']) && $formFieldData['multiple_image'] == 'on') {
                             $componentFormField['is_multiple_image'] = true;
                         }
- 
+  
                       $componentFormFields =  ComponentFormFields::create($componentFormField);
                       $componentFormFieldId = $componentFormFields->id;
                       if($componentFormFields){
