@@ -11,6 +11,7 @@ class ComponentFormFields extends Model
     protected $table = 'component_form_fields';
     protected $fillable = [
         'component_id',
+        'area_id',
         'parent_id',
         'field_name',
         'field_type',

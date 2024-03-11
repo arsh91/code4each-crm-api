@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Component extends Model
+class Component extends Model 
 {
     use HasFactory;
     protected $table = 'components_crm';
@@ -19,5 +19,10 @@ class Component extends Model
     public function formFields()
     {
         return $this->hasMany(ComponentFormFields::class, 'component_id')->orderBy('field_position');
+    }
+
+    public function componentAreas()
+    {
+        return $this->hasMany(ComponentArea::class);
     }
 }

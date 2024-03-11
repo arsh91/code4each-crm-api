@@ -1,113 +1,67 @@
 @extends('layout')
-@section('title', 'Components')
-@section('subtitle', 'Components')
+@section('title', 'Component Area')
+@section('subtitle', 'Component Area')
 <style>
-    .block {
-        display: block;
+    .imagemaps-wrapper{
+        position:relative;
     }
-
-    input {
-        width: 50%;
+    .imagemaps-wrapper img {
+        max-width:100%        
+    }
+    .controls {
         display: inline-block;
     }
 
-    span {
-        display: inline-block;
-        cursor: pointer;
-        text-decoration: underline;
+    #canvas-container {
+        width: 100%; /* Set the width of the container */
+        height: 500px; /* Set the height of the container */
+        border: 1px solid #ccc; /* Optional: Add border to container */
+        position: relative; /* Required for absolute positioning of canvas */
     }
 
-    .d-none {
-        display: none;
-    }
+    canvas {
+        position: absolute; /* Position canvas absolute inside container */
+        top: 0;
+        left: 0;
+        width: 100%; /* Make canvas fill container width */
+        height: 100%; /* Make canvas fill container height */
+        border: 1px solid #000;
+    } 
 </style>
 @section('content')
 <div class="col-lg-10 mx-auto">
     <div class="card">
         <div class="card-body">
-            <form method="post" action="{{route('components.store')}}" enctype="multipart/form-data">
+            <div class="row mb-5 mt-4">
+                <div class="font-weight-bold"><h4>Add area and fields under <i class="text-danger fw-bold">{{$componentData->component_name}}</i> Component</h4></div>
+            </div>
+            
+            <form method="post" action="{{url('/componentareas/saveareafields/'.$componentId)}}" enctype="multipart/form-data">
                 @csrf
-                <div class="row mb-5 mt-4">
-                    <label for="component_name" class="col-sm-3 col-form-label required">Component Name</label>
-                    <div class="col-sm-9">
-                        <input type="text" class="form-control" name="component_name" id="component_name" value="{{ old('component_name') }}">
-                        @if ($errors->has('component_name'))
-                        <span style="font-size: 12px;" class="text-danger">{{ $errors->first('component_name') }}</span>
-                        @endif
-                    </div>
-                </div>
-                <div class="row mb-5 mt-4">
-                    <label for="path" class="col-sm-3 col-form-label required">Path</label>
-                    <div class="col-sm-9">
-                        <input type="text" class="form-control" name="path" id="path" value="{{ old('path') }}">
-                        @if ($errors->has('path'))
-                        <span style="font-size: 12px;" class="text-danger">{{ $errors->first('path') }}</span>
-                        @endif
-                    </div>
-                </div>
-                <div class="row mb-5 mt-4">
-                    <label for="type" class="col-sm-3 col-form-label required">Type</label>
-                    <div class="col-sm-9">
-                        <input type="text" class="form-control" name="type" id="type" value="{{ old('type') }}">
-                        @if ($errors->has('type'))
-                        <span style="font-size: 12px;" class="text-danger">{{ $errors->first('type') }}</span>
-                        @endif
-                    </div>
-                </div>
-                <div class="row mb-5">
-                    <label for="category" class="col-sm-3 col-form-label required ">Category</label>
-                    <div class="col-sm-9">
-                        <select name="category[]" class="form-select" id="category" multiple size="3">
-                            <option>Select Category</option>
-                            @foreach ($category as $data)
-                            <option value="{{$data['name']}}">
-                                {{$data['name']}}
-                            </option>
-                            @endforeach
-                        </select>
-                        @if ($errors->has('category'))
-                             <span style="font-size: 12px;" class="text-danger">{{ $errors->first('category') }}</span>
-                        @endif
-                    </div>
-                </div>
-                <div class="row mb-5">
-                    <label for="preview" class="col-sm-3 col-form-label required">Preview Image</label>
-                    <div class="col-sm-9">
-                        <input type="file" class="form-control" name="preview" id="preview" value="{{ old('preview') }}">
-                        @if ($errors->has('preview'))
-                             <span style="font-size: 12px; " class="text-danger">{{ $errors->first('preview') }}</span>
-                        @endif
-                    </div>
-                </div>
-                <div class="row mb-5 mt-4">
-                    <div class="col-md-3">
-                        <label class="required">Dependency:</label>
-                    </div>
-                </div>
-                <div class="dependencies-container">
-                @if ($errors->has('dependencies.*'))
-                    @foreach($errors->get('dependencies.*') as $key => $errorMessages)
-                    <span style="font-size: 12px; padding-left:15px;" class="text-danger">
-                    @foreach($errorMessages as $error)
-                        @if ($error == 'The dependencies.0.name field is required.')
-                            Name Field is required in Dependency.
-                        @elseif ($error == 'The dependencies.0.path field is required.')
-                                Path Field is required in Dependency.
-                        @elseif ($error == 'The dependencies.0.version field is required.')
-                                    Versioin is required in  Dependency.
-                        @else
-                        {{$error}}
-                        @endif
-                    </span>
-                    @endforeach
-                    @endforeach
-                    @endif
-                </div>
-                <span class="js-add-dependency clone text-success" style="font-size: 20px;">+</span>
 
+            <!--############  CANVA DIV #################-->    
+            <div class="row mb-5 mt-4">
+                    <div id="canvas-container">
+                        <canvas id="c"></canvas>
+                    </div>
+                    <input type="hidden" id="rectLeft" name="rectLeft" value="10">
+                    <input type="hidden" id="rectTop" name="rectTop" value="10">
+                    <input type="hidden" id="rectWidth" name="rectWidth" value="150">
+                    <input type="hidden" id="rectHeight" name="rectHeight" value="100">
+            </div>
+            <!--############  CANVA DIV #################-->
+            
+            <div class="row mb-5 mt-4">
+                <label for="component_name" class="col-sm-3 col-form-label required">Area Name</label>
+                <div class="col-sm-9">
+                <input type="text" name = "area_name" class="form-control" required>
+                </div>
+            </div>
+
+            <!--add fields under this area-->                
                 <div class="row mb-5 mt-4">
                     <div class="col-md-3">
-                        <label  class="required" >Form Fields:</label>
+                        <label  class="required" >Area Form Fields:</label>
                     </div>
                 </div>
 
@@ -131,52 +85,12 @@
                 <!-- add button for new form field in component -->
                 <span class="js-add-form-fields clone text-success" style="font-size: 20px;">+</span>
 
-                <!-- status for the Component -->
-                <div class="row mb-5">
-                    <label for="status" class="col-sm-3 col-form-label required ">Status</label>
-                    <div class="col-sm-4">
-                        <select name="status" class="form-select" id="status">
-                            <option value="draft">Draft</option>
-                            <option value="testing">Testing</option>
-                            <option value="active">Active</option>
-                            <option value="deactive">Deactive</option>
-                        </select>
-                        @if ($errors->has('status'))
-                             <span style="font-size: 12px;" class="text-danger">{{ $errors->first('status') }}</span>
-                        @endif
-                    </div>
-                </div>
-
-
                 <div class="text-center">
                     <button type="submit" class="btn btn-primary">Save</button>
+                    <a href="{{ route('componentareas.index', ['id' => $componentId]) }}" class="btn btn-secondary">Back</a>
                 </div>
             </form>
-        </div>
-    </div>
-</div>
-
-<!-- code for clone new row for dependency -->
-<div class="js-hidden-dependency-option d-none">
-    <div class="row mb-2 js-dependency-option">
-        <div class="col-md">
-            <input type="text" class="form-control" placeholder="Name" name="dependencies[][name]" value="{{ old('dependencies[][name]') }}"/>
-        </div>
-        <div class="col-md">
-            <select class="form-control" name="dependencies[][type]">
-                <option selected>Select Type</option>
-                <option value="js">Javascript</option>
-                <option value="css">Css</option>
-            </select>
-        </div>
-        <div class="col-md">
-            <input type="text" class="form-control" placeholder="Path" name="dependencies[][path]" value="{{ old('dependencies[][path]') }}"/>
-        </div>
-        <div class="col-md">
-            <input type="text" class="form-control" placeholder="Version" name="dependencies[][version]" value="{{ old('dependencies[][version]') }}"/>
-        </div>
-        <div class="col-md-1">
-            <span class="js-remove-cloned-item text-danger" style="font-size: 20px;">&times;</span>
+            <!--##add fields-->
         </div>
     </div>
 </div>
@@ -186,25 +100,27 @@
 <div class="js-hidden-form-fields-option d-none">
     <div class="overflow-auto">
         <div class="row mb-2 js-form-fields-option">
+        <input type="hidden" value="" class="js-rowIndex">
+        <input type="hidden" value="" class="js-rowSubIndex">
             <!-- Your existing fields -->
             <div class="col-md">
-                <input type="text" class="form-control" placeholder="Field Name" name="form-fields[][name]" value="{{ old('dependencies[][name]') }}"/>
+                <input type="text" class="form-control" placeholder="Field Name" name="form-fields[][name]" value="{{ old('dependencies[][name]') }}" required/>
             </div>
             <div class="col-md">
-                <select class="form-control selectFieldType" name="form-fields[][type]" id="fieldType" value="{{ old('dependencies[][type]') }}">
+                <select class="form-control selectFieldType" name="form-fields[][type]" id="fieldType" value="{{ old('dependencies[][type]') }}" required>
                     <option selected>Select Field Type</option>
                     <option value="text">Text</option>
                     <option value="image">Image</option>
                     <option value="textarea">TextArea</option>
                     <option value="button">Button</option>
-                    <option value="multiple_list">Multiple List</option>
+                   <!-- <option value="multiple_list">Multiple List</option>-->
                 </select>
             </div>
             <div class="col-md">
-                <input type="text" class="form-control" placeholder="Field Position" name="form-fields[][field_position]" value="{{ old('field_position]') }}"/>
+                <input type="text" class="form-control" placeholder="Field Position" name="form-fields[][field_position]" value="{{ old('field_position]') }}" required/>
             </div>
             <div class="col-md-3 defaultValueContainer">
-                <input type="text" class="form-control formDefaultValue" placeholder="Default Value" name="form-fields[][default_value]" value="" />
+                <input type="text" class="form-control formDefaultValue" placeholder="Default Value" name="form-fields[][default_value]" value="" required/>
                 <input type="file" class="form-control imageUploadValue imageFilePath" name="form-fields[][default_image][]" style="display: none;" onchange="updateDefaultValue(this)" />
                 <label for="multipleImageUpload" class="js-multiple-image-upload imageUploadValue" style="display: none;">multiple</label>
                 <input type="checkbox" id="multipleImageUpload" name="form-fields[][multiple_image]" class="js-multiple-image-upload imageUploadValue" style="margin-top: 5px; display: none;">
@@ -222,9 +138,99 @@
     </div>
 </div>
 
-
 @endsection
+
 @section('js_scripts')
+<script src="{{ asset('js/fabric.min.js') }}"></script>
+<script>
+/**
+ *###################################### Script for canvas  #############################
+ */
+var jsonObject = <?php echo $prefilledAreas; ?>;
+var canvas = this.__canvas = new fabric.Canvas('c');
+
+fabric.Image.fromURL('{{ asset('/storage/' . $componentData->preview) }}', function(img) {
+        // Calculate scaling factors
+        var containerWidth = document.getElementById('canvas-container').offsetWidth;
+    var containerHeight = document.getElementById('canvas-container').offsetHeight;
+    var scaleToFitWidth = containerWidth / img.width;
+    var scaleToFitHeight = containerHeight / img.height;
+    var scaleToFit = Math.min(scaleToFitWidth, scaleToFitHeight);
+
+    // Set canvas dimensions
+    canvas.setWidth(img.width * scaleToFit);
+    canvas.setHeight(img.height * scaleToFit);
+
+    // Add image to canvas
+    canvas.add(img);
+    img.set({
+        scaleX: scaleToFit,
+        scaleY: scaleToFit
+    });
+    canvas.renderAll();
+    img.selectable = false; // Make the image unselectable
+
+    $.each(jsonObject, function(index, element) {
+        Add(element.x_axis, element.y_axis, element.area_width,element.area_height, 'rect1Left', 'rect1Top', 'rect1Width', 'rect1Height','#7F8A8C','#06242A',1,2); // Position of the first rectangle
+    });
+
+    Add(10,10, 150,100, 'rectLeft', 'rectTop', 'rectWidth', 'rectHeight', '#E3F03E', '#49F03E'); // Call the Add() function to add a new rectangle
+
+});
+
+function Add(left, top, width, height, leftInputId, topInputId, widthInputId, heightInputId,fillColor,StrokeColor,isMovable) {
+    var rect = new fabric.Rect({
+        left: left,
+        top: top,
+        fill: fillColor,
+        width: width,
+        height: height,
+        objectCaching: false,
+        stroke: StrokeColor, 
+        strokeWidth: 2,
+        hasControls: true, // Enable controls (handles) for moving the rectangle
+        hasBorders: false, // Disable borders for a cleaner look
+        perPixelTargetFind: true, // Prevent deselection when clicking outside
+        opacity: 0.5 // Set opacity to 50%
+    });
+
+	// Make the rectangle unselectable
+	if(isMovable == 1){
+		   rect.selectable = false;
+	}
+
+    canvas.add(rect);
+
+    // Log coordinates while moving
+    rect.on('moving', function() {
+        document.getElementById(leftInputId).value = rect.left;
+        document.getElementById(topInputId).value = rect.top;
+       // document.getElementById(widthInputId).value = rect.width;
+       // document.getElementById(heightInputId).value = rect.height;
+    });
+	
+	 rect.on('scaling', function() {
+        var scaleX = rect.scaleX;
+        var scaleY = rect.scaleY;
+        var width = rect.width * scaleX;
+        var height = rect.height * scaleY;
+
+        // Update hidden input fields
+        document.getElementById(widthInputId).value = width;
+        document.getElementById(heightInputId).value = height;
+    });
+}
+
+// Event listener for the Add button
+/*document.getElementById('add').addEventListener('click', function() {
+    Add(20,50, 250,50, 'rectLeft', 'rectTop', 'rectWidth', 'rectHeight', '#888', '#444'); // Call the Add() function to add a new rectangle
+});*/
+
+/**
+ ############################### Script for canvas#########################
+ */
+
+</script>
 <script>
         $(document).ready(function () {
             let dependencyIndex = 0;
@@ -255,7 +261,7 @@
                 $(this).closest('.js-dependency-option.js-cloned-item').remove();
             });
 
-
+            //Form Fields Starts
             let formFieldIndex = 0;
 
             function createClonedItem(firstItem ,formFieldIndex, isSubClone, subFieldIndex = false) {
@@ -338,10 +344,18 @@
                 cloneFormField();
             });
 
-            $('body').on('click', '.js-remove-form-fields-cloned-item', function () {
-                $(this).closest('.js-form-fields-option').remove();
+            $('body').on('click', '.js-add-sub-form-fields', function() {
+                const closestParent = $(this).closest('.js-sub-cloned-item');
+                cloneFormField(false ,closestParent, true, true);
             });
 
+            $('body').on('click', '.js-remove-form-fields-cloned-item', function () {
+                $(this).closest('.js-form-fields-option.js-cloned-item').remove();
+            });
+
+            //Form Fields End
+
+            // On Change Events Starts
             $(document).on('change', '.selectFieldType', function () {
                 const selectedValue = $(this).val();
                 const closestParent = $(this).closest('.js-form-fields-option');
@@ -356,6 +370,9 @@
                     defaultValueInput.show();
                     imageUpload.hide();
                 }
+                if (selectedValue === 'multiple_list') {
+                    cloneFormField('first-cloned-item',closestParent, true);
+                }
             });
 
             $(document).on('change', '#multipleImageUpload', function () {
@@ -366,11 +383,9 @@
                 if (isChecked) {
                     // If checkbox is checked, show multiple file input
                     imageUpload.attr('multiple', 'multiple');
-                    // imageUpload.attr('name', 'form-fields['+ formFieldIndex +'][default_image][]'); // Add [] to the name for array
                 } else {
                     // If checkbox is unchecked, hide multiple file input
                     imageUpload.removeAttr('multiple');
-                    // imageUpload.attr('name', 'form-fields['+ formFieldIndex +'][default_image]'); // Remove [] from the name
                 }
             });
             // On Change Events Starts
@@ -406,8 +421,9 @@
             var fileName = file.name;
             const closestParent = $(input).closest('.defaultValueContainer');
             const insertDefaultValue = closestParent.find('.formDefaultValue').val(fileName);
-            // console.log(closestParent.find('.formDefaultValue').val());
         }
 
 </script>
-@endsection
+
+@endsection   
+

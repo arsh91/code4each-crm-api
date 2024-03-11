@@ -3,6 +3,7 @@
 use App\Http\Controllers\Web\ComponentController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\LoginController;
+use App\Http\Controllers\Web\ComponentAreaController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +27,9 @@ Route::get('/', [LoginController::class, 'show'])->name('login');
 Route::match(['get', 'post'], '/login', [LoginController::class, 'login'])->name('login.user');
 
 //Protect Routes With Auth
+Route::post('/saveArea',[ComponentAreaController::class,'saveArea']);
+Route::post('/componentareas/updateArea',[ComponentAreaController::class,'updateArea']);
+
 Route::group(['middleware' => ['auth']], function() {
     //Dashboard Controller
     Route::get('/dashboard',[DashboardController::class,'index'])->name('dashboard.index');
@@ -37,7 +41,21 @@ Route::group(['middleware' => ['auth']], function() {
     Route::post('/components',[ComponentController::class,'store'])->name('components.store');
     Route::get('/components/edit/{id}',[ComponentController::class,'edit'])->name('components.edit');
     Route::post('/components/{id}',[ComponentController::class,'update'])->name('components.update');
-
+    
+    
+    Route::get('/componentareas/{id}',[ComponentAreaController::class,'index'])->name('componentareas.index');
+    Route::get('/componentareas/create/{id}',[ComponentAreaController::class,'create'])->name('componentareas.create');
+    Route::get('/componentareas/edit/{componentId}/{id}',[ComponentAreaController::class,'edit'])->name('componentareas.edit');
+    Route::get('/componentareas/addfields/{id}/{componentId}',[ComponentAreaController::class,'addfields'])->name('componentareas.addfields');
+    Route::post('/componentareas/savefields/{id}/{componentId}',[ComponentAreaController::class,'savefields'])->name('componentareas.savefields');
+    Route::get('/componentareas/editfields/{componentId}/{componentAreaId}',[ComponentAreaController::class,'editfields'])->name('componentareas.editfields');
+    Route::post('/componentareas/updatefields/{componentId}/{componentAreaId}',[ComponentAreaController::class,'updatefields'])->name('componentareas.updatefields');
+    
+    //save area with fields
+    Route::post('/componentareas/saveareafields/{componentId}',[ComponentAreaController::class,'saveareafields'])->name('componentareas.saveareafields');
+    Route::post('/componentareas/updateareafields/{componentId}/{componentAreaId}',[ComponentAreaController::class,'updateareafields'])->name('componentareas.updateareafields');
+    
+    //Route::get('/components/areas/{id}',[ComponentController::class,'areas'])->name('components.areas');
 
 
 	Route::get('logout', [LoginController::class, 'logOut'])->name('logout');
