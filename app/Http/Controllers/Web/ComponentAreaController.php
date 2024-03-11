@@ -41,7 +41,7 @@ class ComponentAreaController extends Controller
        // return view('componentAreas.create');
     }
 
-
+ 
     /**
      * SAVE A NEW AREA with Component FIELDS UNDER A COMPONENT 
      */

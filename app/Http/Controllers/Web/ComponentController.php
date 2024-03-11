@@ -417,7 +417,7 @@ class ComponentController extends Controller
                                 'updated_at' => now(),
                             ]);
                     } else {
-                        $componentFormField = [
+                        $componentFormField = [ 
                             'component_id' => $id,
                             'field_name' => $formFieldData['name'],
                             'field_type' => $formFieldData['type'],

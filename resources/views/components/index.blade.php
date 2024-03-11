@@ -42,7 +42,7 @@
                                         <img src="{{ asset('storage/' . $data->preview) }}" height="70" width="120" alt="Preview Image">
                                         @else
                                             ---
-                                        @endif
+                                        @endif 
                                     </td>
                                     <td>
                                         <a href="{{ url('/components/edit/'.$data->id)}}" title="Edit Component">
