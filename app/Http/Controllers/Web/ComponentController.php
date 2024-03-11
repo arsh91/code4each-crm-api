@@ -5,14 +5,12 @@ namespace App\Http\Controllers\Web;
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\Component;
-use App\Models\ComponentArea;
 use App\Models\ComponentDependency;
 use App\Models\ComponentFormFields;
 use App\Models\WebsiteCategory;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class ComponentController extends Controller
@@ -20,7 +18,7 @@ class ComponentController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     *
      */
     public function index()
     {
@@ -31,7 +29,6 @@ class ComponentController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
      */
     public function create()
     {
@@ -43,12 +40,10 @@ class ComponentController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+
      */
     public function store(Request $request)
     {
-        dump($request);dd('---');
-        $multipleList; $parentId;
         $validator = Validator::make($request->all(), [
             'component_name' => 'required|string|max:255',
             'path' => 'required',
@@ -124,7 +119,7 @@ class ComponentController extends Controller
                 //CHECK FOR COMPONENT FORM FIELDS AND THEN MOVE DATA INTO 'component_form_fields' TABLE
                 foreach ($validate['form-fields'] as $formFieldData) 
                 {
-                    dump($formFieldData);
+                    //dump($formFieldData);
                    
                       // Handle default_image or multiple images upload if it exists
                         if (isset($formFieldData['default_image'])) {
@@ -217,7 +212,7 @@ class ComponentController extends Controller
 
                 }
             $message = "Component Saved Successfully.";
-            dd('----Testing----');
+            //dd('----Testing----');
             return redirect()->route('components.index')->with('message', $message);
         }
     }
@@ -253,7 +248,6 @@ class ComponentController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
@@ -264,7 +258,6 @@ class ComponentController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
@@ -278,7 +271,6 @@ class ComponentController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
@@ -492,7 +484,6 @@ class ComponentController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
@@ -508,23 +499,5 @@ class ComponentController extends Controller
         return view('components.areas',['componentData'=>$componentData]);
     }
 
-    /**
-     * AJAX METHOD TO SAVE AREAS
-     */
-    public function saveArea(Request $request) 
-    {
-        $componentArea = new ComponentArea();
-        $componentArea->component_id = '1';
-        $componentArea->areaCount = $request->input('areaId');
-        $componentArea->area_name = $request->input('areaName');
-        $componentArea->x_axis = $request->input('x_axis');
-        $componentArea->y_axis = $request->input('y_axis');
-        $user = ComponentArea::updateOrCreate(
-            ['areaCount' => $request->input('areaId')], // conditions to find the user
-            ['component_id' => '1', 'area_name' => $request->input('areaName'), 'x_axis'=>$request->input('x_axis'), 'y_axis'=>$request->input('y_axis'), ] // data to be updated or inserted
-        );
-       // $componentArea->save();
-        dump($request->areaId); dd('hi save ');
-
-    }
+ 
 }

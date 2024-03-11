@@ -45,11 +45,11 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <a href="{{ url('/components/edit/'.$data->id)}}">
+                                        <a href="{{ url('/components/edit/'.$data->id)}}" title="Edit Component">
                                         <i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
                                         </a>
-                                        <a href="{{ url('/components/areas/'.$data->id)}}">
-                                            <i class="fa-regular fa fa-clone"></i>
+                                        <a href="{{ url('/componentareas/'.$data->id)}}" title="Add Area">
+                                            <i class="fa-regular fa fa-area-chart"></i>
                                         </a>
 
                                         <!-- <i style="color:#4154f1;" onClick="deleteProjects('{{ $data->id }}')" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"></i> -->

@@ -20,4 +20,9 @@ class Component extends Model
     {
         return $this->hasMany(ComponentFormFields::class, 'component_id')->orderBy('field_position');
     }
+
+    public function componentAreas()
+    {
+        return $this->hasMany(ComponentArea::class);
+    }
 }
