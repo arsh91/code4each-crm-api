@@ -33,7 +33,7 @@
                                         <a href="{{ url('/componentareas/edit/'.$data->component->id.'/'.$data->id)}}" title="Edit Area">
                                         <i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
                                         </a>
-                                        <a onclick="deleteArea('<?php echo $data->id?>')" title="Edit Area">
+                                        <a onclick="deleteArea('<?php echo $data->id?>')" title="Delete Area">
                                         <i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"> </i>
                                         </a> 
                                         <form id="delete_area_{{$data->id}}" action="{{ url('/componentareas/destroy/'.$data->component->id.'/'.$data->id)}}" method="POST">
