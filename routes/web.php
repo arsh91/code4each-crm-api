@@ -55,7 +55,7 @@ Route::group(['middleware' => ['auth']], function() {
     Route::post('/componentareas/saveareafields/{componentId}',[ComponentAreaController::class,'saveareafields'])->name('componentareas.saveareafields');
     Route::post('/componentareas/updateareafields/{componentId}/{componentAreaId}',[ComponentAreaController::class,'updateareafields'])->name('componentareas.updateareafields');
     
-    //Route::get('/components/areas/{id}',[ComponentController::class,'areas'])->name('components.areas');
+    Route::delete('/componentareas/destroy/{componentId}/{componentAreaId}',[ComponentAreaController::class,'destroy'])->name('componentareas.destroy');
 
 
 	Route::get('logout', [LoginController::class, 'logOut'])->name('logout');

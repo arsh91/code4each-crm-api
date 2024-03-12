@@ -33,11 +33,14 @@
                                         <a href="{{ url('/componentareas/edit/'.$data->component->id.'/'.$data->id)}}" title="Edit Area">
                                         <i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-edit fa-fw pointer"> </i>
                                         </a>
-                                        <a href="{{ url('/componentareas/edit/'.$data->component->id.'/'.$data->id)}}" title="Edit Area">
+                                        <a onclick="deleteArea('<?php echo $data->id?>')" title="Edit Area">
                                         <i style="color:#4154f1;" href="javascript:void(0)" class="fa fa-trash fa-fw pointer"> </i>
-                                        </a>                                        
-                                    </td>                        
-                                                             
+                                        </a> 
+                                        <form id="delete_area_{{$data->id}}" action="{{ url('/componentareas/destroy/'.$data->component->id.'/'.$data->id)}}" method="POST">
+                                            @csrf
+                                            @method('DELETE')                                            
+                                        </form>                                       
+                                    </td>                    
                                 </tr>
                                 @empty
                                     <tr><td colspan="4"><p  class="text-center"><i>No records found.</i></p></td></tr>
@@ -52,4 +55,17 @@
             </div>
         </div>
         @endsection
+<script>
+    function deleteArea(areaId){
+        if(confirm("Are you sure you want to delete it?"))
+         {
+            $('#delete_area_'+areaId).submit();
+         }
+         else
+         {
+             return false;
+         }
+    }
+</script>
+
         
