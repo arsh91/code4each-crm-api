@@ -256,6 +256,15 @@ class ComponentAreaController extends Controller
         }
     }
 
+    public function destroy($componentId, $componentAreaId,Request $request)
+    {
+        $areaDeleted = ComponentArea::where('id', $componentAreaId)->where('component_id', $componentId)->delete();
+        if($areaDeleted){
+            ComponentFormFields::where('area_id',$componentAreaId)->where('component_id', $componentId)->delete();
+        }
+        return redirect()->route('componentareas.index', ['id' => $componentId])->with('message', 'Area deleted successfully.');
+    }
+
     /**
      * PRIVATE METHOD FOR IMAGE UPLOADING
      */
