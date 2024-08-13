@@ -128,6 +128,8 @@ Route::post('pre-booking', [PreBookingController::class,'saveEmailForPreBooking'
 //------------
 
 Route::get('subscriptionPayment',[SubscriptionPaymentController::class,'subscriptionPayment']);
+Route::get('get-plans',[SubscriptionPaymentController::class,'fetchplans']);
+Route::post('create-order',[SubscriptionPaymentController::class,'createOrder']);
 
 
 

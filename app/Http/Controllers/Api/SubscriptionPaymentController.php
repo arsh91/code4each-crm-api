@@ -8,7 +8,7 @@ use Razorpay\Api\Api;
 use Carbon\Carbon;
 use Razorpay\Api\Errors;
 use Illuminate\Support\Facades\Auth;
-
+use App\Models\Plan;
 
 class SubscriptionPaymentController extends Controller
 {
@@ -219,8 +219,10 @@ public function handlePaymentNotification(Request $request)
     }
 }
 
-public function subscriptionPayment()
-{
+public function subscriptionPayment(Request $request)
+{   
+
+    dd($request);
     if (Auth::check())
     {
         dd('qsdew');
@@ -251,10 +253,35 @@ public function subscriptionPayment()
  
 }
 
-
-
-
-
+public function fetchplans()
+{
+    $plans = Plan::all();
+    return response()->json(['plans' => $plans]);
 }
 
+public function createOrder(Request $request)
+{
+    
+    $api = new Api(env('RZP_KEY'), env('RZP_SECRET'));
+    $plan_id = $request->input('plan_id');
+    $plan = Plan::where("razor_id", $plan_id)->first();
 
+    if (!$plan) {
+        return response()->json(['error' => 'Invalid Plan'], 400);
+    }
+    
+    $orderData = [
+        'receipt'         => 'order_rcptid_11',
+        'amount'          => $plan->price * 100,
+        'currency'        => 'INR',
+        'payment_capture' => 1 // Auto capture
+    ];
+
+    $razorpayOrder = $api->order->create($orderData);
+
+    return response()->json([
+        'order_id' => $razorpayOrder['id'],
+    ]);
+}
+
+}
