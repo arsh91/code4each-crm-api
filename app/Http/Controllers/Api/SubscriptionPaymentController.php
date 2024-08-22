@@ -223,65 +223,128 @@ public function subscriptionPayment(Request $request)
 {   
 
     dd($request);
-    if (Auth::check())
-    {
-        dd('qsdew');
-    }
-    
-    $key_id = "rzp_test_3kOO5za17PvQpv";
-    $secret ="KPSpuvIAjaDal7tEkodFBlJw";
-    $api = new Api($key_id, $secret);
-    $paymentId = "pay_OAmq4jxyrjVcjO";
-    $paymentDetails = $api->payment->fetch($paymentId)->expandedDetails(["expand[]"=> "card"]);
-  
-   
-    $data = array(
-        "payment_id" =>  $paymentDetails['id'],
-        'amount'     => $paymentDetails['amount'],
-        'status'     => $paymentDetails['status'],
-        'order_id'   => $paymentDetails['order_id'],
-        'method'     => $paymentDetails['method'],
-        'email'      => $paymentDetails['email'],
-        'contact'    => $paymentDetails['contact'],
-        'card_id'    => $paymentDetails['card']['id'],
-        'last4didits'=> $paymentDetails['card']['last4'],
-        'type'       => $paymentDetails['card']['type'],
+    $payment_id = $request->input('razorpay_payment_id');
+    $order_id = $request->input('razorpay_order_id');
+    $signature = $request->input('razorpay_signature');
 
-    );
-    echo "<pre>";
-    print_r($data);
+    $api = new Api(env('RZP_KEY'), env('RZP_SECRET'));
+
+    try {
+        $attributes = [
+            'razorpay_order_id' => $order_id,
+            'razorpay_payment_id' => $payment_id,
+            'razorpay_signature' => $signature,
+        ];
+
+        $api->utility->verifyPaymentSignature($attributes);
+
+        // Update order status in the database
+        $order = Order::where('razorpay_order_id', $order_id)->first();
+        $order->status = 'paid';
+        $order->payment_id = $payment_id;
+        $order->save();
+
+        return response()->json(
+            [
+                "message" => "Paid successfully!",
+                "success" =>true, 
+                "status" =>200
+            ]
+        );
+
+    } catch (\Exception $e) {
+        DB::rollback();
+        $errorMessage = $e->getMessage();
+        $errorCode = $e->getCode();
+        $errorFile = $e->getFile();
+        $errorLine = $e->getLine();
+        // Logging the error in log file
+        \Log::error("\nError: $errorMessage\nFile: $errorFile\nLine: $errorLine \nCode:$errorCode");
+        $response = [
+            'success' => false,
+            'status' => 400,
+            'message' => 'An error occurred while processing your request.',
+            'error' => $e->getMessage(),
+        ];
+        return response()->json($response,401);
+    }
  
 }
 
 public function fetchplans()
 {
-    $plans = Plan::all();
-    return response()->json(['plans' => $plans]);
+    try {
+        $mode = env('APP_MODE');
+        $plans = Plan::where("mode", $mode)->get();
+        return response()->json(
+            [
+                'plans' => $plans, 
+                "message" => "Plans get successfully!",
+                "success" =>true, 
+                "status" =>200
+            ]
+        );
+    }catch (\Exception $e) {
+        DB::rollback();
+        $errorMessage = $e->getMessage();
+        $errorCode = $e->getCode();
+        $errorFile = $e->getFile();
+        $errorLine = $e->getLine();
+        // Logging the error in log file
+        \Log::error("\nError: $errorMessage\nFile: $errorFile\nLine: $errorLine \nCode:$errorCode");
+        $response = [
+            'success' => false,
+            'status' => 400,
+            'message' => 'An error occurred while processing your request.',
+            'error' => $e->getMessage(),
+        ];
+        return response()->json($response,401);
+    }
 }
 
 public function createOrder(Request $request)
 {
-    
-    $api = new Api(env('RZP_KEY'), env('RZP_SECRET'));
-    $plan_id = $request->input('plan_id');
-    $plan = Plan::where("razor_id", $plan_id)->first();
+    try {
+        $api = new Api(env('RZP_KEY'), env('RZP_SECRET'));
+        $plan_id = $request->input('plan_id');
+        $plan = Plan::where("id", $plan_id)->first();
 
-    if (!$plan) {
-        return response()->json(['error' => 'Invalid Plan'], 400);
+        if (!$plan) {
+            return response()->json(['error' => 'Invalid Plan'], 400);
+        }
+        
+        $orderData = [
+            'receipt'         => 'order_rcptid_11',
+            'amount'          => $plan->price * 100,
+            'currency'        => 'INR',
+            'payment_capture' => 1 // Auto capture
+        ];
+
+        $razorpayOrder = $api->order->create($orderData);
+
+        return response()->json([
+            'order_id' => $razorpayOrder['id'],
+            'amount'   => $plan->price * 100,
+            "message" => "Order Created Successfully!",
+            "success" =>true, 
+            "status" =>200
+        ]);
+    }catch (\Exception $e) {
+        DB::rollback();
+        $errorMessage = $e->getMessage();
+        $errorCode = $e->getCode();
+        $errorFile = $e->getFile();
+        $errorLine = $e->getLine();
+        // Logging the error in log file
+        \Log::error("\nError: $errorMessage\nFile: $errorFile\nLine: $errorLine \nCode:$errorCode");
+        $response = [
+            'success' => false,
+            'status' => 400,
+            'message' => 'An error occurred while processing your request.',
+            'error' => $e->getMessage(),
+        ];
+        return response()->json($response,401);
     }
-    
-    $orderData = [
-        'receipt'         => 'order_rcptid_11',
-        'amount'          => $plan->price * 100,
-        'currency'        => 'INR',
-        'payment_capture' => 1 // Auto capture
-    ];
-
-    $razorpayOrder = $api->order->create($orderData);
-
-    return response()->json([
-        'order_id' => $razorpayOrder['id'],
-    ]);
 }
 
 }
