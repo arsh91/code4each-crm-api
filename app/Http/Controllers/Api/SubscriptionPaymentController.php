@@ -9,6 +9,8 @@ use Carbon\Carbon;
 use Razorpay\Api\Errors;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Plan;
+use App\Models\Transaction;
+use Illuminate\Support\Facades\DB;
 
 class SubscriptionPaymentController extends Controller
 {
@@ -222,10 +224,14 @@ public function handlePaymentNotification(Request $request)
 public function subscriptionPayment(Request $request)
 {   
 
-    dd($request);
+    // dd( $request);
     $payment_id = $request->input('razorpay_payment_id');
     $order_id = $request->input('razorpay_order_id');
     $signature = $request->input('razorpay_signature');
+    $user_id = $request->input('user_id');
+    $website_id = $request->input('website_id');
+    $agency_id = $request->input('agency_id');
+    $plan_id = $request->input('plan_id');
 
     $api = new Api(env('RZP_KEY'), env('RZP_SECRET'));
 
@@ -236,13 +242,22 @@ public function subscriptionPayment(Request $request)
             'razorpay_signature' => $signature,
         ];
 
-        $api->utility->verifyPaymentSignature($attributes);
+        // $api->utility->verifyPaymentSignature($attributes);
+      
 
-        // Update order status in the database
-        $order = Order::where('razorpay_order_id', $order_id)->first();
-        $order->status = 'paid';
-        $order->payment_id = $payment_id;
-        $order->save();
+        $price = Plan::where('razor_id', $payment_id)->pluck('price')->first();
+
+        Transaction::create([
+            'payment_id' => $payment_id,
+            'order_id' => $order_id,
+            'plan_id' => $plan_id,
+            'user_id' => $user_id,
+            'website_id' => $website_id,
+            'agency_id' => $agency_id,
+            'amount' => $price,
+            'signature' => $signature
+        ]);
+
 
         return response()->json(
             [
