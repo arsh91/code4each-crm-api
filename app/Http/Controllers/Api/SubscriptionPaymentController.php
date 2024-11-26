@@ -245,12 +245,15 @@ public function subscriptionPayment(Request $request)
         // $api->utility->verifyPaymentSignature($attributes);
       
 
-        $price = Plan::where('razor_id', $payment_id)->pluck('price')->first();
-
+        // $price = Plan::where('razor_id', $payment_id)->pluck('price')->first();
+        $plan = Plan::where('id', $plan_id)->first(['id', 'price']);
+        $price = $plan->price;
+        $plan_id_int = $plan->id;
+    
         Transaction::create([
             'payment_id' => $payment_id,
             'order_id' => $order_id,
-            'plan_id' => $plan_id,
+            'plan_id' => $plan_id_int,
             'user_id' => $user_id,
             'website_id' => $website_id,
             'agency_id' => $agency_id,
