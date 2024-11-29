@@ -118,6 +118,31 @@ class ComponentsControllers extends Controller
                     //add assignee agency website id on domain
                     Websites::where('id', $websitesData->id)->update(['assigned' => $agencyWebsiteDetails->id]);
 
+                    /* Worked on CurrentPlan and PlanLog Start */
+                    // Check if both agency_id and website_id are not null and not empty
+                    if (!empty($agency_id) && !empty($websitesData->id)) {  
+                        // Generate random plan_id (3 or 5 digits)
+                        $plan_id = rand(100, 99999);  
+                        
+                        // Create a new current_plan record
+                        $CurrentPlan = CurrentPlan::create([
+                            'agency_id' => $agency_id,
+                            'website_id' => $websitesData->id,
+                            'plan_id' => $plan_id,
+                            'website_start_date' => date('Y-m-d H:i:s'),
+                            // 'status' => 1,
+                            // 'planexpired' => 15
+                        ]);
+                    
+                        // Create a new plan_log record
+                        $PlanLog = PlanLog::create([
+                            'agency_id' => $agency_id,
+                            'website_id' => $websitesData->id,
+                            'plan_id' => $plan_id,
+                        ]);
+                    }
+                     /* Worked on CurrentPlan and PlanLog End */
+                     
                     // send mail to user
                     $recipient = User::find($agencyWebsiteDetails->created_by);
                     $supportEmail = env('SUPPORT_EMAIL');
