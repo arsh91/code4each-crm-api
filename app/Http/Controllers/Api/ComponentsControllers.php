@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Api\WordpressComponentController;
+use App\Models\CurrentPlan;
+use App\Models\PlanLog;
+use App\Models\Plan;
 
 class ComponentsControllers extends Controller
 {
@@ -120,18 +123,16 @@ class ComponentsControllers extends Controller
 
                     /* Worked on CurrentPlan and PlanLog Start */
                     // Check if both agency_id and website_id are not null and not empty
-                    if (!empty($agency_id) && !empty($websitesData->id)) {  
-                        // Generate random plan_id (3 or 5 digits)
-                        $plan_id = rand(100, 99999);  
-                        
+                    if (!empty($agency_id) && !empty($websitesData->id)) {   
+                        $plan_id = Plan::where('razor_id', 'free_plan')->first()->id;
                         // Create a new current_plan record
                         $CurrentPlan = CurrentPlan::create([
                             'agency_id' => $agency_id,
                             'website_id' => $websitesData->id,
                             'plan_id' => $plan_id,
                             'website_start_date' => date('Y-m-d H:i:s'),
-                            // 'status' => 1,
-                            // 'planexpired' => 15
+                            'status' => 1,
+                            'planexpired' => 15
                         ]);
                     
                         // Create a new plan_log record
