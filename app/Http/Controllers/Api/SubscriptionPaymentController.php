@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Plan;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
+use App\Models\CurrentPlan;
+use App\Models\PlanLog;
 
 class SubscriptionPaymentController extends Controller
 {
@@ -245,12 +247,15 @@ public function subscriptionPayment(Request $request)
         // $api->utility->verifyPaymentSignature($attributes);
       
 
-        $price = Plan::where('razor_id', $payment_id)->pluck('price')->first();
-
+        // $price = Plan::where('razor_id', $payment_id)->pluck('price')->first();
+        $plan = Plan::where('id', $plan_id)->first(['id', 'price']);
+        $price = $plan->price;
+        $plan_id_int = $plan->id;
+    
         Transaction::create([
             'payment_id' => $payment_id,
             'order_id' => $order_id,
-            'plan_id' => $plan_id,
+            'plan_id' => $plan_id_int,
             'user_id' => $user_id,
             'website_id' => $website_id,
             'agency_id' => $agency_id,
@@ -258,6 +263,28 @@ public function subscriptionPayment(Request $request)
             'signature' => $signature
         ]);
 
+        $CurrentPlan = CurrentPlan::where('plan_id', $plan_id)->first();
+
+        if ($CurrentPlan) {
+            $CurrentPlan->plan_id = $plan_id_int; 
+            $CurrentPlan->website_start_date = date('Y-m-d H:i:s'); 
+            $CurrentPlan->save();
+        } else {
+            $CurrentPlan = CurrentPlan::create([
+                'agency_id' => $agency_id,
+                'website_id' => $website_id,
+                'plan_id' => $plan_id_int,
+                'website_start_date' => date('Y-m-d H:i:s'),
+                'status' => 1,
+                'planexpired' => 30
+            ]);
+        }
+          // Create a new plan_log record
+          $PlanLog = PlanLog::create([
+            'agency_id' => $agency_id,
+            'website_id' => $website_id,
+            'plan_id' => $plan_id_int,
+        ]);
 
         return response()->json(
             [
