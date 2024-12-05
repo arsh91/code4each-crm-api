@@ -10,6 +10,8 @@ use App\Models\ComponentDependency;
 use App\Models\User;
 use App\Models\Websites;
 use App\Models\WebsiteCategory;
+use App\Models\CurrentPlan;
+use App\Models\PlanLog;  
 use App\Notifications\CommonEmailNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -130,6 +132,7 @@ class ComponentsControllers extends Controller
                             'agency_id' => $agency_id,
                             'website_id' => $websitesData->id,
                             'plan_id' => $plan_id,
+                            'user_id' => auth()->user()->id,
                             'website_start_date' => date('Y-m-d H:i:s'),
                             'status' => 1,
                             'planexpired' => 15
@@ -138,6 +141,7 @@ class ComponentsControllers extends Controller
                         // Create a new plan_log record
                         $PlanLog = PlanLog::create([
                             'agency_id' => $agency_id,
+                            'user_id' => auth()->user()->id,
                             'website_id' => $websitesData->id,
                             'plan_id' => $plan_id,
                         ]);
