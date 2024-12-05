@@ -18,8 +18,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Api\WordpressComponentController;
-use App\Models\CurrentPlan;
-use App\Models\PlanLog;
 use App\Models\Plan;
 
 class ComponentsControllers extends Controller

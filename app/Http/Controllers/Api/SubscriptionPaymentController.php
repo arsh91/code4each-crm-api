@@ -273,6 +273,7 @@ public function subscriptionPayment(Request $request)
                 'agency_id' => $agency_id,
                 'website_id' => $website_id,
                 'plan_id' => $plan_id_int,
+                'user_id' => $user_id,
                 'website_start_date' => date('Y-m-d H:i:s'),
                 'status' => 1,
                 'planexpired' => 30
@@ -281,6 +282,7 @@ public function subscriptionPayment(Request $request)
           // Create a new plan_log record
           $PlanLog = PlanLog::create([
             'agency_id' => $agency_id,
+            'user_id' => $user_id,
             'website_id' => $website_id,
             'plan_id' => $plan_id_int,
         ]);
