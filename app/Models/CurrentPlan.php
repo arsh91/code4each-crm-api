@@ -19,4 +19,9 @@ class CurrentPlan extends Model
         'status',
         'planexpired',
     ];      
+
+    public function plan()
+    {
+        return $this->belongsTo(Plan::class, 'plan_id', 'id');
+    }
 }
