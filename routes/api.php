@@ -49,6 +49,7 @@ Route::get('/auth/google/register', [GoogleSocialiteController::class, 'handleGo
 Route::get('email/verify/{id}',[VerificationController::class,'verify'])->name('verification.verify');
 Route::post('/forgot-password',[ForgotPasswordController::class,'forgotPassword']);
 Route::post('/reset-password',[ResetPasswordController::class,'resetPassword']);
+Route::post('/agency-website-details',[ComponentsControllers::class,'agencyWebsiteDetails']);
 
 
 //Authenticated Group Routes
@@ -67,12 +68,14 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/delete-website',[DeleteWebsiteController::class,'deleteWebsite']);
     Route::post('/logout',[AuthController::class,'logout']);
     
-
+    Route::post('subscriptionPayment',[SubscriptionPaymentController::class,'subscriptionPayment']);
+    Route::get('get-plans',[SubscriptionPaymentController::class,'fetchplans']);
+    Route::post('create-order',[SubscriptionPaymentController::class,'createOrder']);
     //End Unverified Routes
 
     //Email Verified Routes
     Route::middleware('verified')->group(function () {
-    Route::post('/agency-website-details',[ComponentsControllers::class,'agencyWebsiteDetails']);
+    // Route::post('/agency-website-details',[ComponentsControllers::class,'agencyWebsiteDetails']);
     // Route::get('/agency-website-info/{agency_id}',[DashboardController::class,'getAgencyWebsiteInfo']);
     Route::get('/get-website-categories',[DashboardController::class,'getWebsiteCategories']);
 
@@ -127,9 +130,7 @@ Route::post('pre-booking', [PreBookingController::class,'saveEmailForPreBooking'
 
 //------------
 
-Route::post('subscriptionPayment',[SubscriptionPaymentController::class,'subscriptionPayment']);
-Route::get('get-plans',[SubscriptionPaymentController::class,'fetchplans']);
-Route::post('create-order',[SubscriptionPaymentController::class,'createOrder']);
+
 
 
 

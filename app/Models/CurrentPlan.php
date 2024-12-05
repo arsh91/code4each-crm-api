@@ -14,6 +14,7 @@ class CurrentPlan extends Model
         'agency_id',
         'website_id',
         'plan_id',
+        'user_id',
         'website_start_date',
         'status',
         'planexpired',

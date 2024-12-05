@@ -12,6 +12,7 @@ class PlanLog extends Model
 
     protected $fillable = [
         'agency_id',
+        'user_id', 
         'website_id',
         'plan_id',
     ];      
