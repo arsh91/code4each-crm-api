@@ -21,7 +21,6 @@ class SubscriptionPaymentController extends Controller
         // Initialize Razorpay API
         $api = new Api(env('RZP_KEY'), env('RZP_SECRET'));
        
-        //dd($api);
         // Create a subscription plan
         $createRzpPlan = $api->plan->create([
             'period' => "monthly",
