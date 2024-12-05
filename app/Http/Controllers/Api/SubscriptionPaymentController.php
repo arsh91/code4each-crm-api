@@ -262,7 +262,7 @@ public function subscriptionPayment(Request $request)
             'signature' => $signature
         ]);
 
-        $CurrentPlan = CurrentPlan::where('plan_id', $plan_id)->where('user_id', $user_id)->first();
+        $CurrentPlan = CurrentPlan::where('user_id', $user_id)->first();
 
         if ($CurrentPlan) {
             $CurrentPlan->plan_id = $plan_id_int; 
