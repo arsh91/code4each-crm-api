@@ -247,9 +247,10 @@ public function subscriptionPayment(Request $request)
       
 
         // $price = Plan::where('razor_id', $payment_id)->pluck('price')->first();
-        $plan = Plan::where('id', $plan_id)->first(['id', 'price']);
+        $plan = Plan::where('id', $plan_id)->first(['id', 'price', 'type']);
         $price = $plan->price;
         $plan_id_int = $plan->id;
+        $planexpired = ($plan->type == 'monthly') ? 30 : (($plan->type == 'yearly') ? 365 : 30);
     
         Transaction::create([
             'payment_id' => $payment_id,
@@ -267,6 +268,7 @@ public function subscriptionPayment(Request $request)
         if ($CurrentPlan) {
             $CurrentPlan->plan_id = $plan_id_int; 
             $CurrentPlan->website_start_date = date('Y-m-d H:i:s'); 
+            $CurrentPlan->planexpired = $planexpired;
             $CurrentPlan->save();
         } else {
             $CurrentPlan = CurrentPlan::create([
@@ -276,7 +278,7 @@ public function subscriptionPayment(Request $request)
                 'user_id' => $user_id,
                 'website_start_date' => date('Y-m-d H:i:s'),
                 'status' => 1,
-                'planexpired' => 30
+                'planexpired' => $planexpired
             ]);
         }
           // Create a new plan_log record
