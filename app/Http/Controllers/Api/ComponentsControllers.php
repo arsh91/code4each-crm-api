@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Api\WordpressComponentController;
+use App\Models\WebsiteTemplate;
+use App\Models\WebsiteTemplateComponent;
 use App\Models\Plan;
 
 class ComponentsControllers extends Controller
@@ -47,6 +49,7 @@ class ComponentsControllers extends Controller
             'zip'  => 'required',
             'business_name' => 'required',
             'logo' => 'nullable',
+            'template_id' => 'nullable',
         ]);
 
         if ($validator->fails()) {
@@ -89,6 +92,7 @@ class ComponentsControllers extends Controller
                 'business_name' => $validate['business_name'],
                 'created_by' => auth()->user()->id,
             ]);
+
             if ($request->hasFile('logo')) {
                 $uploadedFile = $request->file('logo');
                 $filename = time() . '_' . $uploadedFile->getClientOriginalName();
@@ -100,6 +104,7 @@ class ComponentsControllers extends Controller
             }
             DB::commit();
             if ($websiteDomain !== null && $agencyWebsiteDetails->agency_id) {
+                $template_id = false;
                 $agency_id = $agencyWebsiteDetails->agency_id;
                 $website_domain =  $websiteDomain;
                 $dataToSend = [];
@@ -110,8 +115,10 @@ class ComponentsControllers extends Controller
                 $dataToSend['city'] = $agencyWebsiteDetails->city;
                 $dataToSend['country'] = $agencyWebsiteDetails->country;
                 $dataToSend['pincode'] = $agencyWebsiteDetails->pin;
-
-                    $result = $this->sendComponentToWordpress($agency_id, $website_domain ,$dataToSend);
+                if (isset($validate['template_id'])) {
+                    $template_id = $validate['template_id'];
+                }
+                    $result = $this->sendComponentToWordpress($agency_id, $website_domain ,$dataToSend, false, $template_id);
                 
                 if ($result['success'] == true && $result['response']['status'] == 200) {
                     $websiteUrl = $result['domain'];
@@ -229,15 +236,15 @@ class ComponentsControllers extends Controller
         return $response;
     }
 
-    public function sendComponentToWordpress($agency_id, $websiteUrl,$Data = false, $regenerateFlag = false)
+    public function sendComponentToWordpress($agency_id, $websiteUrl,$Data = false, $regenerateFlag = false, $template_id = false)
     {
-        $response = [
+            $response = [
             'success' => false,
         ];
         $agencyWebsiteDetail = AgencyWebsite::where('agency_id',$agency_id)->first();
         $logo = $agencyWebsiteDetail->logo;
         if ($regenerateFlag) {
-            $components = $this->generateComponents($agency_id, $websiteUrl);
+            $components = $this->generateComponents($agency_id, $websiteUrl, $template_id);
 
         } else {
             $addWebsitesGlobalVariablesUrl = $websiteUrl . 'wp-json/v1/change_global_variables';
@@ -260,7 +267,7 @@ class ComponentsControllers extends Controller
             if($logo){
                 $uploadLogo =  $this->uploadLogoToWordpress($agency_id, $websiteUrl);
             }
-            $components = $this->generateComponents($agency_id, $websiteUrl);
+            $components = $this->generateComponents($agency_id, $websiteUrl, $template_id);
         }
         $startAddComponentUrl = $websiteUrl . 'wp-json/v1/installation';
         $startAddResponse = Http::post($startAddComponentUrl, ['start' => true]);
@@ -329,25 +336,30 @@ class ComponentsControllers extends Controller
     }
 
 
-    private function generateComponents($agency_id, $websiteUrl)
+    private function generateComponents($agency_id, $websiteUrl, $template_id = false)
     {
-        $agencyWebsiteDetail = AgencyWebsite::with('websiteCategory')->where('agency_id', $agency_id)->where('status', 'active')->first();
-        $websiteCategory = $agencyWebsiteDetail->websiteCategory->name;
-        $componentTypes = $agencyWebsiteDetail->websiteCategory->types;
-        $types = explode(",",$componentTypes);
-        $components = [];
-        foreach ($types as $type) {
+        if($template_id){
+            $components = $this->getTemplateComponent($template_id);
+        }else{
+            $agencyWebsiteDetail = AgencyWebsite::with('websiteCategory')->where('agency_id', $agency_id)->where('status', 'active')->first();
+            $websiteCategory = $agencyWebsiteDetail->websiteCategory->name;
+            $componentTypes = $agencyWebsiteDetail->websiteCategory->types;
+            $types = explode(",",$componentTypes);
+            $components = [];
+            foreach ($types as $type) {
 
-            $randomComponent = $this->getRandomComponent($type, $websiteCategory);
-            if(!$randomComponent){
-                return response()->json(["errors"=> "Error Occurs While Generating Random Components."]);
-            }
-                $randomIndex = array_rand($randomComponent);
-                $randomValue = $randomComponent[$randomIndex];
-            if ($randomComponent) {
-                $components[] = $randomValue;
+                $randomComponent = $this->getRandomComponent($type, $websiteCategory);
+                if(!$randomComponent){
+                    return response()->json(["errors"=> "Error Occurs While Generating Random Components."]);
+                }
+                    $randomIndex = array_rand($randomComponent);
+                    $randomValue = $randomComponent[$randomIndex];
+                if ($randomComponent) {
+                    $components[] = $randomValue;
+                }
             }
         }
+        
         return $components;
     }
 
@@ -359,6 +371,17 @@ class ComponentsControllers extends Controller
             ->inRandomOrder()->get()->toArray();
     }
 
+    private function getTemplateComponent($template_id)
+    {
+        if ($template_id) {
+            return WebsiteTemplateComponent::join('website_templates', 'website_templates_components.template_id', '=', 'website_templates.id')
+                ->where('website_templates_components.template_id', $template_id)
+                ->where('website_templates.status', 'active')
+                ->get()
+                ->toArray();
+        }
+    }
+    
     public function regenerateComponents(Request $request)
     {
         $response = [
@@ -369,16 +392,21 @@ class ComponentsControllers extends Controller
         $validator = Validator::make($request->all(), [
             'agency_id' => 'required',
             'website_url' => 'required',
+            'template_id' => 'nullable',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 400);
         }
         if (isset($request->agency_id, $request->website_url)) {
+            $template_id = false;
             $agency_id = $request->agency_id;
             $website_url = $request->website_url;
             $regenerate = true;
-            $regenerateComponentResponse = $this->sendComponentToWordpress($agency_id,$website_url,false,$regenerate);
+            if (isset($request->template_id)) {
+                $template_id = $request->template_id;
+            }
+            $regenerateComponentResponse = $this->sendComponentToWordpress($agency_id,$website_url,false,$regenerate,$template_id);
             if($regenerateComponentResponse['response']['status'] == 200 && $regenerateComponentResponse['success'] == true){
                 $response = [
                     'message' => "Components Re-generated Successfully.",
@@ -622,6 +650,38 @@ class ComponentsControllers extends Controller
     
         return response()->json($response);
     }
+
+    public function getWebsiteTemplates()
+    {
+        $response = [
+            'success' => false,
+            'status' => 400,
+        ];
+
+        try {
+            $websiteTemplates = WebsiteTemplate::all();
+            if ($websiteTemplates->isEmpty()) {
+                return response()->json(['message' => 'No templates found.'], 404);
+            }
+
+            foreach ($websiteTemplates as $template) {
+                $template->components = WebsiteTemplateComponent::where('template_id', $template->id)->get();
+            }
+
+            $response = [
+                'message' => 'Website templates fetched successfully.',
+                'success' => true,
+                'status' => 200,
+                'website_templates' => $websiteTemplates
+            ];
+        } catch (\Exception $e) {
+            $error = $e->getMessage();
+            return response()->json(['error' => $error], 500);
+        }
+
+        return response()->json($response);
+    }
+
     
 }
 
