@@ -659,7 +659,7 @@ class ComponentsControllers extends Controller
         ];
 
         try {
-            $websiteTemplates = WebsiteTemplate::all();
+            $websiteTemplates = WebsiteTemplate::where('status', 'active')->get();
             if ($websiteTemplates->isEmpty()) {
                 return response()->json(['message' => 'No templates found.'], 404);
             }
