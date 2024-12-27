@@ -9,6 +9,7 @@ use App\Models\ComponentColorCombination;
 use App\Models\ComponentDependency;
 use App\Models\User;
 use App\Models\Websites;
+use App\Models\WebsiteDatabase;
 use App\Models\WebsiteCategory;
 use App\Models\CurrentPlan;
 use App\Models\PlanLog;  
@@ -30,6 +31,7 @@ class ComponentsControllers extends Controller
 
     public function agencyWebsiteDetails(Request $request)
     {
+   
         $response = [
             'success' => false,
             'status' => 400,
@@ -48,7 +50,6 @@ class ComponentsControllers extends Controller
             'business_name' => 'required',
             'logo' => 'nullable',
         ]);
-
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 400);
         }
@@ -57,11 +58,15 @@ class ComponentsControllers extends Controller
             DB::beginTransaction();
             //Get unassigned Website from website table
             $websitesData = Websites::where('assigned', null)->first();
+
             $websiteDomain = $websitesData->website_domain ?? null;
             if(!$websitesData){
                 $response['message'] = 'Currently We are Getting Huge Number Of Requests. Well Notified You Soon When Available.';
                 // return response()->json(['error' => 'An Error occur While Creating Your site. Domain may not exists related to your business name. Ask for the Support.'],500);
             }
+
+            $wordpressDatabase = $this->getWordPressData($websitesData->website_domain, $websitesData->id, $validate['agency_id']);
+
             $phone = null;
             if(isset($validate['phone'])){
                 $phone = $validate['phone'];
@@ -74,6 +79,7 @@ class ComponentsControllers extends Controller
             if($validate['others_category_name']){
                 $othersCategoryName = $validate['others_category_name'];
             }
+
             // Create Agency Website  Detail For Creating Website
             $agencyWebsiteDetails = AgencyWebsite::create([
                 'website_category_id' => $validate['category_id'],
@@ -89,6 +95,7 @@ class ComponentsControllers extends Controller
                 'business_name' => $validate['business_name'],
                 'created_by' => auth()->user()->id,
             ]);
+
             if ($request->hasFile('logo')) {
                 $uploadedFile = $request->file('logo');
                 $filename = time() . '_' . $uploadedFile->getClientOriginalName();
@@ -99,6 +106,7 @@ class ComponentsControllers extends Controller
 
             }
             DB::commit();
+
             if ($websiteDomain !== null && $agencyWebsiteDetails->agency_id) {
                 $agency_id = $agencyWebsiteDetails->agency_id;
                 $website_domain =  $websiteDomain;
@@ -110,12 +118,11 @@ class ComponentsControllers extends Controller
                 $dataToSend['city'] = $agencyWebsiteDetails->city;
                 $dataToSend['country'] = $agencyWebsiteDetails->country;
                 $dataToSend['pincode'] = $agencyWebsiteDetails->pin;
-
                     $result = $this->sendComponentToWordpress($agency_id, $website_domain ,$dataToSend);
                 
                 if ($result['success'] == true && $result['response']['status'] == 200) {
-                    $websiteUrl = $result['domain'];
 
+                    $websiteUrl = $result['domain'];
                     //assigned domain to agency Website
                     AgencyWebsite::where('id', $agencyWebsiteDetails->id)->update(['website_id' => $websitesData->id]);
                     //add assignee agency website id on domain
@@ -622,7 +629,67 @@ class ComponentsControllers extends Controller
     
         return response()->json($response);
     }
-    
+
+    private function getWordPressData($newDomain, $website_id, $agency_id)
+    {
+        try {
+            $config = WebsiteDatabase::where('website_id', null)->first();
+            if (!$config) {
+                return response()->json(['error' => 'Configuration not found for this domain'], 404);
+            }
+            config([
+                'database.connections.mysql_wordpress.database' => $config->name, // You can set the database dynamically
+                'database.connections.mysql_wordpress.username' => $config->username, // Set dynamic username
+                'database.connections.mysql_wordpress.password' => $config->password, // Set dynamic password
+            ]);
+
+            // Get the old domain from the 'siteurl' option
+            $oldDomain = DB::connection('mysql_wordpress')
+                ->table('options') // Replace 'options' with the actual table name including prefix if required
+                ->where('option_name', 'siteurl')
+                ->value('option_value');
+
+             // If old domain is not found, handle the error
+            if (!$oldDomain) {
+                // Throw an exception if old domain is not found
+                throw new \Exception('Old domain not found in the WordPress options table.');
+            }
+
+            // Update the wp_options table for siteurl and home
+            DB::connection('mysql_wordpress')
+                ->table('options')
+                ->whereIn('option_name', ['siteurl', 'home'])
+                ->update(['option_value' => DB::raw("REPLACE(option_value, '$oldDomain', '$newDomain')")]);
+
+            // Update the wp_posts table for GUIDs
+            DB::connection('mysql_wordpress')
+                ->table('posts') // Replace with actual table name including prefix
+                ->update(['guid' => DB::raw("REPLACE(guid, '$oldDomain', '$newDomain')")]);
+
+            // Update the wp_posts table for post_content
+            DB::connection('mysql_wordpress')
+                ->table('posts') // Replace with actual table name including prefix
+                ->update(['post_content' => DB::raw("REPLACE(post_content, '$oldDomain', '$newDomain')")]);
+
+            // Update the wp_postmeta table for meta_value
+            DB::connection('mysql_wordpress')
+                ->table('postmeta') // Replace with actual table name including prefix
+                ->update(['meta_value' => DB::raw("REPLACE(meta_value, '$oldDomain', '$newDomain')")]);
+
+            $config->website_id = $website_id; 
+            $config->agency_id = $agency_id;  
+            $config->website_domain = $newDomain; 
+            $config->save(); 
+
+        } catch (\Exception $e) {
+            // Log the error or handle it
+            // You can log the error or simply throw the exception to be handled elsewhere
+            \Log::error('Error updating domain: ' . $e->getMessage());
+
+            // Throw the exception to be caught by the caller or handled further up
+            throw new \Exception('Error occurred while updating the domain: ' . $e->getMessage());
+        }
+    }
 }
 
 
