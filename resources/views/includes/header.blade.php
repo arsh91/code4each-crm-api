@@ -128,7 +128,12 @@
                     </span>
                 </a>
             </li>
-
+            <li class="nav-item">
+                <a class="nav-link {{ request()->is('websites') ? '' : 'collapsed' }}" href="{{ route('website.index') }}">
+                    <i class="bi bi-globe2"></i>
+                    <span>Websites</span>
+                </a>
+            </li>
         </ul>
 
     </aside><!-- End Sidebar-->

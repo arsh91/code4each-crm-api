@@ -117,6 +117,9 @@ Route::middleware('auth:api')->group(function () {
     Route::post('upload-images',[ImageController::class,'uploadImages']);
     Route::get('uploaded-images',[ImageController::class,'getComponentImages']);
     Route::delete('delete-uploaded-images',[ImageController::class,'deleteUploadedImages']);
+
+    Route::get('/website-templates', [ComponentsControllers::class, 'getWebsiteTemplates']);
+
     });
     //End of Verified Routes
   
