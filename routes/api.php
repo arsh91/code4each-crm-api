@@ -49,8 +49,6 @@ Route::get('/auth/google/register', [GoogleSocialiteController::class, 'handleGo
 Route::get('email/verify/{id}',[VerificationController::class,'verify'])->name('verification.verify');
 Route::post('/forgot-password',[ForgotPasswordController::class,'forgotPassword']);
 Route::post('/reset-password',[ResetPasswordController::class,'resetPassword']);
-Route::post('/agency-website-details',[ComponentsControllers::class,'agencyWebsiteDetails']);
-
 
 //Authenticated Group Routes
 Route::middleware('auth:api')->group(function () {
@@ -75,8 +73,8 @@ Route::middleware('auth:api')->group(function () {
 
     //Email Verified Routes
     Route::middleware('verified')->group(function () {
-    // Route::post('/agency-website-details',[ComponentsControllers::class,'agencyWebsiteDetails']);
-    // Route::get('/agency-website-info/{agency_id}',[DashboardController::class,'getAgencyWebsiteInfo']);
+    Route::post('/agency-website-details',[ComponentsControllers::class,'agencyWebsiteDetails']);
+    Route::get('/agency-website-info/{agency_id}',[DashboardController::class,'getAgencyWebsiteInfo']);
     Route::get('/get-website-categories',[DashboardController::class,'getWebsiteCategories']);
 
     Route::post('store-components', [ComponentsControllers::class, 'sendComponentToWordpress' ]);
