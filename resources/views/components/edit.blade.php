@@ -161,7 +161,7 @@
                 <div class="form-fields-container">
                     <div class="js-form-fields-option-old">
                         @foreach ( $componentData->formFields as $index => $fieldsData)
-                        <div class="row mb-2 js-form-fields-option js-cloned-item">
+                        <div class="row mb-2 js-form-fields-option">
                             <input type="hidden" class="form-control" name="edit_form-fields[{{$index}}][id]" value="{{$fieldsData->id}}" />
                             <div class="col-md">
                                 <input type="text" class="form-control" placeholder="Field Name" name="edit_form-fields[{{$index}}][name]" value="{{$fieldsData->field_name}}" />
@@ -223,10 +223,10 @@
                             <p class="h6 text-decoration-underline text-success my-2 mx-2"> Sub Form Fields For  Multiple List:</p>
                         <span class="js-add-sub-form-fields clone text-success" style="font-size: 20px;">+</span>
                             @foreach ($fieldsData['children'] as $subIndx => $childFieldsData )
-                            <div class="row mb-2 js-form-fields-option js-cloned-item">
-                                <input type="hidden" value="{{$index}}" class="js-rowIndex">
-                                <input type="hidden" value="{{$subIndx}}" class="js-rowSubIndex">
-                                <input type="hidden" name="edit_form-fields[{{$index}}][multiple_list][{{$subIndx}}][id]" value="{{$childFieldsData->id}}">
+                            <div class="row mb-2 js-form-fields-option">
+                                <input type="hidden" value="7" class="js-rowIndex">
+                                <input type="hidden" value="1" class="js-rowSubIndex">
+                                <input type="hidden" name="edit_form-fields[{{$index}}][multiple_list][$subIndx][id]" value="{{$childFieldsData->id}}">
 
                                 <div class="col-md">
                                     <input type="text" class="form-control" placeholder="Field Name" name="edit_form-fields[{{$index}}][multiple_list][{{$subIndx}}][name]" value="{{$childFieldsData->field_name}}">
@@ -421,14 +421,13 @@
             formFieldIndex = parseInt(formFieldIndex) + 1;
         }
 
-        function createClonedItem(firstItem ,formFieldIndex, isSubClone, subFieldIndex = false) {
+        function createClonedItem(formFieldIndex, isSubClone, subFieldIndex = false) {
+            // console.log('SUb Field Index', subFieldIndex);
+            //     console.log('form Field ', formFieldIndex - 1);
+
 
             var clonedFormFieldItem = $('.js-hidden-form-fields-option .js-form-fields-option').clone().removeClass('d-none');
-            if (firstItem) {
-                    clonedFormFieldItem.addClass(firstItem);
-                }else{
-                    clonedFormFieldItem.addClass('js-cloned-item');
-                }
+
             var namePrefix = isSubClone ? 'edit_form-fields[' + formFieldIndex + '][multiple_list][' + subFieldIndex + '][' : 'edit_form-fields[' + formFieldIndex + '][';
             clonedFormFieldItem.find('.js-rowIndex').val(formFieldIndex);
             clonedFormFieldItem.find('.js-rowSubIndex').val(subFieldIndex);
@@ -444,11 +443,16 @@
             return clonedFormFieldItem;
         }
 
-        function cloneFormField(firstItem , target = false, subClone = false, innerSubClone = false) {
+        function cloneFormField(target = false, subClone = false, innerSubClone = false) {
+
+            // console.log("fomindex", formFieldIndex);
             if (subClone && target) {
+
                 var subformFieldIndex = target.find('.js-rowSubIndex').val();
+                console.log("start", subformFieldIndex);
 
                 if (subformFieldIndex === "false") {
+                    console.log("in", subformFieldIndex);
                     subformFieldIndex = 1;
                 } else {
                     // Increment subformFieldIndex by 1
@@ -456,9 +460,15 @@
                     target.find('.js-rowSubIndex').val(subformFieldIndex);
                 }
 
+                console.log("out", subformFieldIndex);
+
                 var currentRowIndex = target.find('.js-rowIndex').val();
+                console.log(currentRowIndex);
 
                 var newDiv = '';
+                console.log('target', target);
+                console.log('subclone', subClone);
+                console.log('innseer', innerSubClone);
 
                 newDiv = innerSubClone ? target : $('<div>').addClass('mx-4 my-2 border border-dark js-sub-cloned-item ');
 
@@ -467,19 +477,17 @@
 
                 var addButton = $('<span>').addClass('js-add-sub-form-fields clone text-success').css('font-size', '20px').text('+');
                 innerSubClone ? '' : newDiv.append(addButton);
-                newDiv.append(createClonedItem(firstItem, currentRowIndex, true, subformFieldIndex));
+                newDiv.append(createClonedItem(currentRowIndex, true, subformFieldIndex));
 
 
                 innerSubClone ? '' : $('.form-fields-container').append(newDiv);
                 target.after(newDiv);
+                // console.log("subclone");
             } else {
-                if(firstItem){
-                    var clonedFormFieldItem = createClonedItem(firstItem,formFieldIndex, false);
-                     $('.form-fields-container').append(clonedFormFieldItem);
-                }else{
-                    var clonedFormFieldItem = createClonedItem(false,formFieldIndex, false);
-                    $('.form-fields-container').append(clonedFormFieldItem);
-                }
+                // console.log('form Field ', formFieldIndex);
+                // console.log("else");
+                var clonedFormFieldItem = createClonedItem(formFieldIndex, false);
+                $('.form-fields-container').append(clonedFormFieldItem);
                 formFieldIndex++;
             }
 
@@ -488,16 +496,17 @@
         // cloneFormField();
 
         $('body').on('click', '.js-add-form-fields', function() {
+            // console.log("pressed");
             cloneFormField();
         });
 
         $('body').on('click', '.js-add-sub-form-fields', function() {
             const closestParent = $(this).closest('.js-sub-cloned-item');
-            cloneFormField(false,closestParent, true, true);
+            cloneFormField(closestParent, true, true);
         });
 
         $('body').on('click', '.js-remove-form-fields-cloned-item', function() {
-            $(this).closest('.js-form-fields-option.js-cloned-item').remove()
+            $(this).closest('.js-form-fields-option').remove()
         });
 
         const selectedValue = $('.selectFieldType').val();
@@ -519,7 +528,8 @@
             }
 
             if (selectedValue === 'multiple_list') {
-                cloneFormField('first-cloned-item',closestParent, true);
+                console.log("in multiple list");
+                cloneFormField(closestParent, true);
             }
         });
 

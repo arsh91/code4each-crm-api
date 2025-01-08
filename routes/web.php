@@ -4,6 +4,7 @@ use App\Http\Controllers\Web\ComponentController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\LoginController;
 use App\Http\Controllers\Web\ComponentAreaController;
+use App\Http\Controllers\Web\ThemesController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WebsiteController;
@@ -57,6 +58,14 @@ Route::group(['middleware' => ['auth']], function() {
     Route::post('/componentareas/updateareafields/{componentId}/{componentAreaId}',[ComponentAreaController::class,'updateareafields'])->name('componentareas.updateareafields');
     
     Route::delete('/componentareas/destroy/{componentId}/{componentAreaId}',[ComponentAreaController::class,'destroy'])->name('componentareas.destroy');
+
+    //Themes Section Routes 
+    Route::get('/themes',[ThemesController::class,'index'])->name('themes.index');
+    Route::get('/themes/create',[ThemesController::class,'create'])->name('themes.create');
+    Route::post('/themes',[ThemesController::class,'store'])->name('themes.store');
+    Route::get('/themes/edit/{id}',[ThemesController::class,'edit'])->name('themes.edit');
+    Route::post('/themes/{id}',[ThemesController::class,'update'])->name('themes.update');
+    Route::delete('/themes/{id}', [ThemesController::class, 'destroy'])->name('themes.destroy');
 
 
 	Route::get('logout', [LoginController::class, 'logOut'])->name('logout');

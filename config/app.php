@@ -55,7 +55,8 @@ return [
     */
 
     'url' => env('APP_URL', 'http://localhost'),
-    'frontend_url' => env('FRONTEND_URL', 'https://rococo-yeot-aa8270.netlify.app'),
+    'frontend_url' => env('FRONTEND_URL', 'https://beta.speedysites.in'),
+
 
     'asset_url' => env('ASSET_URL'),
 

@@ -73,7 +73,7 @@ class GoogleSocialiteController extends Controller
         try {
             $idToken = $request->input('id_token');
 
-            $client = new Google_Client(['client_id' => '467874272347-f241lioo004ksju0qudsroorkb5lf6au.apps.googleusercontent.com']);
+            $client = new Google_Client(['client_id' => '725628821892-6lojkrl63celrm16gh182sdujfpagk5b.apps.googleusercontent.com']);
             $payload = $client->verifyIdToken($idToken);
             if ($payload) {
 

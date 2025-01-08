@@ -186,8 +186,6 @@
 <div class="js-hidden-form-fields-option d-none">
     <div class="overflow-auto">
         <div class="row mb-2 js-form-fields-option">
-        <input type="hidden" value="" class="js-rowIndex">
-        <input type="hidden" value="" class="js-rowSubIndex">
             <!-- Your existing fields -->
             <div class="col-md">
                 <input type="text" class="form-control" placeholder="Field Name" name="form-fields[][name]" value="{{ old('dependencies[][name]') }}"/>
@@ -257,7 +255,7 @@
                 $(this).closest('.js-dependency-option.js-cloned-item').remove();
             });
 
-            //Form Fields Starts
+
             let formFieldIndex = 0;
 
             function createClonedItem(firstItem ,formFieldIndex, isSubClone, subFieldIndex = false) {
@@ -340,18 +338,10 @@
                 cloneFormField();
             });
 
-            $('body').on('click', '.js-add-sub-form-fields', function() {
-                const closestParent = $(this).closest('.js-sub-cloned-item');
-                cloneFormField(false ,closestParent, true, true);
-            });
-
             $('body').on('click', '.js-remove-form-fields-cloned-item', function () {
-                $(this).closest('.js-form-fields-option.js-cloned-item').remove();
+                $(this).closest('.js-form-fields-option').remove();
             });
 
-            //Form Fields End
-
-            // On Change Events Starts
             $(document).on('change', '.selectFieldType', function () {
                 const selectedValue = $(this).val();
                 const closestParent = $(this).closest('.js-form-fields-option');
@@ -366,9 +356,6 @@
                     defaultValueInput.show();
                     imageUpload.hide();
                 }
-                if (selectedValue === 'multiple_list') {
-                    cloneFormField('first-cloned-item',closestParent, true);
-                }
             });
 
             $(document).on('change', '#multipleImageUpload', function () {
@@ -379,9 +366,11 @@
                 if (isChecked) {
                     // If checkbox is checked, show multiple file input
                     imageUpload.attr('multiple', 'multiple');
+                    // imageUpload.attr('name', 'form-fields['+ formFieldIndex +'][default_image][]'); // Add [] to the name for array
                 } else {
                     // If checkbox is unchecked, hide multiple file input
                     imageUpload.removeAttr('multiple');
+                    // imageUpload.attr('name', 'form-fields['+ formFieldIndex +'][default_image]'); // Remove [] from the name
                 }
             });
             // On Change Events Starts
@@ -417,6 +406,7 @@
             var fileName = file.name;
             const closestParent = $(input).closest('.defaultValueContainer');
             const insertDefaultValue = closestParent.find('.formDefaultValue').val(fileName);
+            // console.log(closestParent.find('.formDefaultValue').val());
         }
 
 </script>
