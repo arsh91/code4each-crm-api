@@ -7,6 +7,7 @@ use App\Http\Controllers\Web\ComponentAreaController;
 use App\Http\Controllers\Web\ThemesController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\WebsiteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -69,6 +70,12 @@ Route::group(['middleware' => ['auth']], function() {
 
 	Route::get('logout', [LoginController::class, 'logOut'])->name('logout');
 
+    //Routes for website page
+    Route::get('/websites', [WebsiteController::class, 'index'])->name('website.index');
+    Route::post('/add-theme', [WebsiteController::class, 'store'])->name('website.store');
+    Route::delete('/template/{id}', [WebsiteController::class, 'destroy'])->name('website.destroy');
+    Route::get('/template/{id}/edit', [WebsiteController::class, 'edit'])->name('website.edit');
+    Route::post('/template/{id}', [WebsiteController::class, 'update'])->name('website.update');
 });
 
 

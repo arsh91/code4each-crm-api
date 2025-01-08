@@ -24,6 +24,9 @@ use App\Http\Controllers\Api\PreBookingController;
 use App\Http\Controllers\Api\CustomSectionsController;
 use Google\Service\Monitoring\Custom;
 use App\Http\Controllers\Api\WordpressMenusController;
+use App\Http\Controllers\Api\SubscriptionPaymentController;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -33,12 +36,12 @@ use App\Http\Controllers\Api\WordpressMenusController;
 | Here is where you can register API routes for your application. These
 | routes are loaded by the RouteServiceProvider within a group which
 | is assigned the "api" middleware group. Enjoy building your API!
-|
+| 
 */
-
+Route::get('payment',[SubscriptionPaymentController::class,'processPayment']);
 Route::post('/register',[RegistrationController::class,'store']);
 Route::post('/login',[AuthController::class,'Login'])->name('login');
-//Login By Google
+
 // Route::get('auth/google', [GoogleSocialiteController::class, 'redirectToGoogle']);
 // Route::get('/auth/google/callback', [GoogleSocialiteController::class, 'handleCallback']);
 Route::get('/auth/google/register', [GoogleSocialiteController::class, 'handleGoogleLogin']);
@@ -47,11 +50,10 @@ Route::get('email/verify/{id}',[VerificationController::class,'verify'])->name('
 Route::post('/forgot-password',[ForgotPasswordController::class,'forgotPassword']);
 Route::post('/reset-password',[ResetPasswordController::class,'resetPassword']);
 
-
 //Authenticated Group Routes
 Route::middleware('auth:api')->group(function () {
     //Unverified Routes
-
+   
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
@@ -63,13 +65,16 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/verify-otp',[OtpVerificationControlller::class,'verifyOtp']);
     Route::post('/delete-website',[DeleteWebsiteController::class,'deleteWebsite']);
     Route::post('/logout',[AuthController::class,'logout']);
-
+    
+    Route::post('subscriptionPayment',[SubscriptionPaymentController::class,'subscriptionPayment']);
+    Route::get('get-plans',[SubscriptionPaymentController::class,'fetchplans']);
+    Route::post('create-order',[SubscriptionPaymentController::class,'createOrder']);
     //End Unverified Routes
 
     //Email Verified Routes
     Route::middleware('verified')->group(function () {
     Route::post('/agency-website-details',[ComponentsControllers::class,'agencyWebsiteDetails']);
-    // Route::get('/agency-website-info/{agency_id}',[DashboardController::class,'getAgencyWebsiteInfo']);
+    Route::get('/agency-website-info/{agency_id}',[DashboardController::class,'getAgencyWebsiteInfo']);
     Route::get('/get-website-categories',[DashboardController::class,'getWebsiteCategories']);
 
     Route::post('store-components', [ComponentsControllers::class, 'sendComponentToWordpress' ]);
@@ -110,12 +115,23 @@ Route::middleware('auth:api')->group(function () {
     Route::post('upload-images',[ImageController::class,'uploadImages']);
     Route::get('uploaded-images',[ImageController::class,'getComponentImages']);
     Route::delete('delete-uploaded-images',[ImageController::class,'deleteUploadedImages']);
+
+    Route::get('/website-templates', [ComponentsControllers::class, 'getWebsiteTemplates']);
+
     });
     //End of Verified Routes
+  
+   
 });
 //End of Authenticated Group Routes
 
 
 Route::post('/feedback',[FeedBackController::class,'feedback']);
 Route::post('pre-booking', [PreBookingController::class,'saveEmailForPreBooking']);
+
+//------------
+
+
+
+
 

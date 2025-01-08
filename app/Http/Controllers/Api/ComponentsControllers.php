@@ -9,13 +9,19 @@ use App\Models\ComponentColorCombination;
 use App\Models\ComponentDependency;
 use App\Models\User;
 use App\Models\Websites;
+use App\Models\WebsiteDatabase;
 use App\Models\WebsiteCategory;
+use App\Models\CurrentPlan;
+use App\Models\PlanLog;  
 use App\Notifications\CommonEmailNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Api\WordpressComponentController;
+use App\Models\WebsiteTemplate;
+use App\Models\WebsiteTemplateComponent;
+use App\Models\Plan;
 
 class ComponentsControllers extends Controller
 {
@@ -27,6 +33,7 @@ class ComponentsControllers extends Controller
 
     public function agencyWebsiteDetails(Request $request)
     {
+   
         $response = [
             'success' => false,
             'status' => 400,
@@ -44,8 +51,8 @@ class ComponentsControllers extends Controller
             'zip'  => 'required',
             'business_name' => 'required',
             'logo' => 'nullable',
+            'template_id' => 'nullable',
         ]);
-
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 400);
         }
@@ -54,11 +61,15 @@ class ComponentsControllers extends Controller
             DB::beginTransaction();
             //Get unassigned Website from website table
             $websitesData = Websites::where('assigned', null)->first();
+
             $websiteDomain = $websitesData->website_domain ?? null;
             if(!$websitesData){
                 $response['message'] = 'Currently We are Getting Huge Number Of Requests. Well Notified You Soon When Available.';
                 // return response()->json(['error' => 'An Error occur While Creating Your site. Domain may not exists related to your business name. Ask for the Support.'],500);
             }
+
+            $wordpressDatabase = $this->getWordPressData($websitesData->website_domain, $websitesData->id, $validate['agency_id']);
+
             $phone = null;
             if(isset($validate['phone'])){
                 $phone = $validate['phone'];
@@ -71,6 +82,7 @@ class ComponentsControllers extends Controller
             if($validate['others_category_name']){
                 $othersCategoryName = $validate['others_category_name'];
             }
+
             // Create Agency Website  Detail For Creating Website
             $agencyWebsiteDetails = AgencyWebsite::create([
                 'website_category_id' => $validate['category_id'],
@@ -86,6 +98,7 @@ class ComponentsControllers extends Controller
                 'business_name' => $validate['business_name'],
                 'created_by' => auth()->user()->id,
             ]);
+
             if ($request->hasFile('logo')) {
                 $uploadedFile = $request->file('logo');
                 $filename = time() . '_' . $uploadedFile->getClientOriginalName();
@@ -96,7 +109,9 @@ class ComponentsControllers extends Controller
 
             }
             DB::commit();
+
             if ($websiteDomain !== null && $agencyWebsiteDetails->agency_id) {
+                $template_id = false;
                 $agency_id = $agencyWebsiteDetails->agency_id;
                 $website_domain =  $websiteDomain;
                 $dataToSend = [];
@@ -107,17 +122,44 @@ class ComponentsControllers extends Controller
                 $dataToSend['city'] = $agencyWebsiteDetails->city;
                 $dataToSend['country'] = $agencyWebsiteDetails->country;
                 $dataToSend['pincode'] = $agencyWebsiteDetails->pin;
+                if (isset($validate['template_id'])) {
+                    $template_id = $validate['template_id'];
+                }
+                    $result = $this->sendComponentToWordpress($agency_id, $website_domain ,$dataToSend, false, $template_id);
 
-                    $result = $this->sendComponentToWordpress($agency_id, $website_domain ,$dataToSend);
-                
                 if ($result['success'] == true && $result['response']['status'] == 200) {
-                    $websiteUrl = $result['domain'];
 
+                    $websiteUrl = $result['domain'];
                     //assigned domain to agency Website
                     AgencyWebsite::where('id', $agencyWebsiteDetails->id)->update(['website_id' => $websitesData->id]);
                     //add assignee agency website id on domain
                     Websites::where('id', $websitesData->id)->update(['assigned' => $agencyWebsiteDetails->id]);
 
+                    /* Worked on CurrentPlan and PlanLog Start */
+                    // Check if both agency_id and website_id are not null and not empty
+                    if (!empty($agency_id) && !empty($websitesData->id)) {   
+                        $plan_id = Plan::where('razor_id', 'free_plan')->first()->id;
+                        // Create a new current_plan record
+                        $CurrentPlan = CurrentPlan::create([
+                            'agency_id' => $agency_id,
+                            'website_id' => $websitesData->id,
+                            'plan_id' => $plan_id,
+                            'user_id' => auth()->user()->id,
+                            'website_start_date' => date('Y-m-d H:i:s'),
+                            'status' => 1,
+                            'planexpired' => 15
+                        ]);
+                    
+                        // Create a new plan_log record
+                        $PlanLog = PlanLog::create([
+                            'agency_id' => $agency_id,
+                            'user_id' => auth()->user()->id,
+                            'website_id' => $websitesData->id,
+                            'plan_id' => $plan_id,
+                        ]);
+                    }
+                     /* Worked on CurrentPlan and PlanLog End */
+                     
                     // send mail to user
                     $recipient = User::find($agencyWebsiteDetails->created_by);
                     $supportEmail = env('SUPPORT_EMAIL');
@@ -201,15 +243,15 @@ class ComponentsControllers extends Controller
         return $response;
     }
 
-    public function sendComponentToWordpress($agency_id, $websiteUrl,$Data = false, $regenerateFlag = false)
+    public function sendComponentToWordpress($agency_id, $websiteUrl,$Data = false, $regenerateFlag = false, $template_id = false)
     {
-        $response = [
+            $response = [
             'success' => false,
         ];
         $agencyWebsiteDetail = AgencyWebsite::where('agency_id',$agency_id)->first();
         $logo = $agencyWebsiteDetail->logo;
         if ($regenerateFlag) {
-            $components = $this->generateComponents($agency_id, $websiteUrl);
+            $components = $this->generateComponents($agency_id, $websiteUrl, $template_id);
 
         } else {
             $addWebsitesGlobalVariablesUrl = $websiteUrl . 'wp-json/v1/change_global_variables';
@@ -232,7 +274,7 @@ class ComponentsControllers extends Controller
             if($logo){
                 $uploadLogo =  $this->uploadLogoToWordpress($agency_id, $websiteUrl);
             }
-            $components = $this->generateComponents($agency_id, $websiteUrl);
+            $components = $this->generateComponents($agency_id, $websiteUrl, $template_id);
         }
         $startAddComponentUrl = $websiteUrl . 'wp-json/v1/installation';
         $startAddResponse = Http::post($startAddComponentUrl, ['start' => true]);
@@ -301,25 +343,30 @@ class ComponentsControllers extends Controller
     }
 
 
-    private function generateComponents($agency_id, $websiteUrl)
+    private function generateComponents($agency_id, $websiteUrl, $template_id = false)
     {
-        $agencyWebsiteDetail = AgencyWebsite::with('websiteCategory')->where('agency_id', $agency_id)->where('status', 'active')->first();
-        $websiteCategory = $agencyWebsiteDetail->websiteCategory->name;
-        $componentTypes = $agencyWebsiteDetail->websiteCategory->types;
-        $types = explode(",",$componentTypes);
-        $components = [];
-        foreach ($types as $type) {
+        if($template_id){
+            $components = $this->getTemplateComponent($template_id);
+        }else{
+            $agencyWebsiteDetail = AgencyWebsite::with('websiteCategory')->where('agency_id', $agency_id)->where('status', 'active')->first();
+            $websiteCategory = $agencyWebsiteDetail->websiteCategory->name;
+            $componentTypes = $agencyWebsiteDetail->websiteCategory->types;
+            $types = explode(",",$componentTypes);
+            $components = [];
+            foreach ($types as $type) {
 
-            $randomComponent = $this->getRandomComponent($type, $websiteCategory);
-            if(!$randomComponent){
-                return response()->json(["errors"=> "Error Occurs While Generating Random Components."]);
-            }
-                $randomIndex = array_rand($randomComponent);
-                $randomValue = $randomComponent[$randomIndex];
-            if ($randomComponent) {
-                $components[] = $randomValue;
+                $randomComponent = $this->getRandomComponent($type, $websiteCategory);
+                if(!$randomComponent){
+                    return response()->json(["errors"=> "Error Occurs While Generating Random Components."]);
+                }
+                    $randomIndex = array_rand($randomComponent);
+                    $randomValue = $randomComponent[$randomIndex];
+                if ($randomComponent) {
+                    $components[] = $randomValue;
+                }
             }
         }
+        
         return $components;
     }
 
@@ -331,6 +378,17 @@ class ComponentsControllers extends Controller
             ->inRandomOrder()->get()->toArray();
     }
 
+    private function getTemplateComponent($template_id)
+    {
+        if ($template_id) {
+            return WebsiteTemplateComponent::join('website_templates', 'website_templates_components.template_id', '=', 'website_templates.id')
+                ->where('website_templates_components.template_id', $template_id)
+                ->where('website_templates.status', 'active')
+                ->get()
+                ->toArray();
+        }
+    }
+    
     public function regenerateComponents(Request $request)
     {
         $response = [
@@ -341,16 +399,21 @@ class ComponentsControllers extends Controller
         $validator = Validator::make($request->all(), [
             'agency_id' => 'required',
             'website_url' => 'required',
+            'template_id' => 'nullable',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 400);
         }
         if (isset($request->agency_id, $request->website_url)) {
+            $template_id = false;
             $agency_id = $request->agency_id;
             $website_url = $request->website_url;
             $regenerate = true;
-            $regenerateComponentResponse = $this->sendComponentToWordpress($agency_id,$website_url,false,$regenerate);
+            if (isset($request->template_id)) {
+                $template_id = $request->template_id;
+            }
+            $regenerateComponentResponse = $this->sendComponentToWordpress($agency_id,$website_url,false,$regenerate,$template_id);
             if($regenerateComponentResponse['response']['status'] == 200 && $regenerateComponentResponse['success'] == true){
                 $response = [
                     'message' => "Components Re-generated Successfully.",
@@ -594,7 +657,99 @@ class ComponentsControllers extends Controller
     
         return response()->json($response);
     }
+
+    public function getWebsiteTemplates()
+    {
+        $response = [
+            'success' => false,
+            'status' => 400,
+        ];
+
+        try {
+            $websiteTemplates = WebsiteTemplate::where('status', 'active')->get();
+            if ($websiteTemplates->isEmpty()) {
+                return response()->json(['message' => 'No templates found.'], 404);
+            }
+
+            foreach ($websiteTemplates as $template) {
+                $template->components = WebsiteTemplateComponent::where('template_id', $template->id)->get();
+            }
+
+            $response = [
+                'message' => 'Website templates fetched successfully.',
+                'success' => true,
+                'status' => 200,
+                'website_templates' => $websiteTemplates
+            ];
+        } catch (\Exception $e) {
+            $error = $e->getMessage();
+            return response()->json(['error' => $error], 500);
+        }
+
+        return response()->json($response);
+    }
+
     
+    private function getWordPressData($newDomain, $website_id, $agency_id)
+    {
+        try {
+            $config = WebsiteDatabase::where('website_id', null)->first();
+            if (!$config) {
+                return response()->json(['error' => 'Configuration not found for this domain'], 404);
+            }
+            config([
+                'database.connections.mysql_wordpress.database' => $config->name, // You can set the database dynamically
+                'database.connections.mysql_wordpress.username' => $config->username, // Set dynamic username
+                'database.connections.mysql_wordpress.password' => $config->password, // Set dynamic password
+            ]);
+
+            // Get the old domain from the 'siteurl' option
+            $oldDomain = DB::connection('mysql_wordpress')
+                ->table('options') // Replace 'options' with the actual table name including prefix if required
+                ->where('option_name', 'siteurl')
+                ->value('option_value');
+
+             // If old domain is not found, handle the error
+            if (!$oldDomain) {
+                // Throw an exception if old domain is not found
+                throw new \Exception('Old domain not found in the WordPress options table.');
+            }
+
+            // Update the wp_options table for siteurl and home
+            DB::connection('mysql_wordpress')
+                ->table('options')
+                ->whereIn('option_name', ['siteurl', 'home'])
+                ->update(['option_value' => DB::raw("REPLACE(option_value, '$oldDomain', '$newDomain')")]);
+
+            // Update the wp_posts table for GUIDs
+            DB::connection('mysql_wordpress')
+                ->table('posts') // Replace with actual table name including prefix
+                ->update(['guid' => DB::raw("REPLACE(guid, '$oldDomain', '$newDomain')")]);
+
+            // Update the wp_posts table for post_content
+            DB::connection('mysql_wordpress')
+                ->table('posts') // Replace with actual table name including prefix
+                ->update(['post_content' => DB::raw("REPLACE(post_content, '$oldDomain', '$newDomain')")]);
+
+            // Update the wp_postmeta table for meta_value
+            DB::connection('mysql_wordpress')
+                ->table('postmeta') // Replace with actual table name including prefix
+                ->update(['meta_value' => DB::raw("REPLACE(meta_value, '$oldDomain', '$newDomain')")]);
+
+            $config->website_id = $website_id; 
+            $config->agency_id = $agency_id;  
+            $config->website_domain = $newDomain; 
+            $config->save(); 
+
+        } catch (\Exception $e) {
+            // Log the error or handle it
+            // You can log the error or simply throw the exception to be handled elsewhere
+            \Log::error('Error updating domain: ' . $e->getMessage());
+
+            // Throw the exception to be caught by the caller or handled further up
+            throw new \Exception('Error occurred while updating the domain: ' . $e->getMessage());
+        }
+    }
 }
 
 

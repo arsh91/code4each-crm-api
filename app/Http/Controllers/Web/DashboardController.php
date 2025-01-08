@@ -11,6 +11,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
+
         //Get Count Of the Total Available Users
         $userCount = User::count();
         //Get Count Of the Total Available Components
