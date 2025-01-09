@@ -133,7 +133,7 @@
             </div>
             <form id="editThemeForm" enctype="multipart/form-data">
                 <div class="modal-body">
-                    <input type="hidden" name="id" id="editTemplateId" value="{{ $template['id'] ?? '' }}">
+                    <input type="hidden" name="id" id="editTemplateId" value="">
                     <div class="mb-3">
                         <label for="editTemplateName" class="form-label">Template Name<span class="text-danger editTemplateName-asterisk">*</span></label>
                         <input type="text" class="form-control" id="editTemplateName" name="templateName">
@@ -266,6 +266,7 @@ $(document).ready(function() {
     $('body').on('click', '.edit-template', function(e) {
         e.preventDefault();
         let templateId = $(this).data('id');
+        $("#editTemplateId").val(templateId);
         $.ajax({
             url: '/template/' + templateId + '/edit',
             type: 'GET',
