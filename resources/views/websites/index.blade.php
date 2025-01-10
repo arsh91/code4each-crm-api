@@ -151,7 +151,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="editPreviewImage" class="form-label">Preview Image<span class="text-danger editPreviewImage-asterisk">*</span></label>
-                        <input type="file" class="form-control" id="editPreviewImage" name="previewImage" accept="image/*">
+                        <input type="file" class="form-control" id="editPreviewImage" name="previewimage" accept="image/*">
                         <div class="text-danger editPreviewImage-error"></div>
                     </div>
                     <div class="mb-3">
@@ -278,7 +278,7 @@ $(document).ready(function() {
                 console.log('componentsdata :- ', components);
                 $('#editTemplateName').val(template.template_name);
                 $('#editCategory').val(template.category_id.split(',')).trigger('change');
-                $('#edituploadedPreview').attr('src', template.featured_image);
+                $('#edituploadedPreview').attr('src', 'storage/' + template.featured_image);
                 $('#editStatus').val(template.status).trigger('change');
                 $('#editComponent').val(components.map(component => component.component_unique_id)).trigger('change'); 
                 $('#editThemeModal').modal('show');
@@ -291,8 +291,8 @@ $(document).ready(function() {
     $('#editThemeForm').on('submit', function(e) {
     e.preventDefault();
     let templateId = $('#editTemplateId').val();
-    console.log(templateId);
     let formData = new FormData(this);
+
         $.ajax({
             url: "/template/" + templateId, 
             type: "POST",
