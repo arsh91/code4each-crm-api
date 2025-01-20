@@ -678,13 +678,12 @@ class ComponentsControllers extends Controller
         ];
 
         try {
-            $websiteTemplates = WebsiteTemplate::where('status', 'active')->get();
+            $websiteTemplates = WebsiteTemplate::where('status', 'active')
+            ->with(['components.componentDetail']) 
+            ->get();
+        
             if ($websiteTemplates->isEmpty()) {
                 return response()->json(['message' => 'No templates found.'], 404);
-            }
-
-            foreach ($websiteTemplates as $template) {
-                $template->components = WebsiteTemplateComponent::where('template_id', $template->id)->get();
             }
 
             $response = [

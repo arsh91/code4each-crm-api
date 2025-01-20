@@ -19,7 +19,7 @@ class WebsiteTemplate extends Model
 
     public function components()
     {
-        return $this->hasMany(WebsiteTemplateComponent::class, 'template_id');
+        return $this->hasMany(WebsiteTemplateComponent::class, 'template_id', 'id');
     }
 
     public function componentDetails()
