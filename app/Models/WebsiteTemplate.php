@@ -12,6 +12,7 @@ class WebsiteTemplate extends Model
     protected $fillable = [
         'template_name',
         'category_id',
+        'preview_link',
         'featured_image',
         'status',
     ];
